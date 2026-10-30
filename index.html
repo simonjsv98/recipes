@@ -438,7 +438,7 @@ function transition(dir, render){
 const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
 const ILLUSTRATIONS = [
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><circle cx="930" cy="1220" r="490" fill="#FFC9D6"/><circle cx="1440" cy="520" r="150" fill="#FFC9D6"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M700 535C900 510 1150 510 1350 535C1440 546 1500 620 1500 740C1500 850 1500 980 1500 1100C1500 1240 1430 1340 1330 1330C1240 1320 1240 1190 1180 1180C1110 1170 1120 1560 980 1560C840 1560 900 1200 790 1200C700 1200 730 1360 620 1350C530 1340 540 1200 540 1080C540 960 540 850 540 740C540 620 610 546 700 535Z"/></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M430 1330C430 900 720 640 1024 640C1328 640 1618 900 1618 1330C1618 1430 1550 1480 1460 1480H588C498 1480 430 1430 430 1330Z"/><path fill="none" stroke="#4A2212" stroke-width="70" stroke-linecap="round" d="M720 1090L850 860M980 1090L1110 860M1240 1090L1370 860"/></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
