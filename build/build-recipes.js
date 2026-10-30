@@ -44,29 +44,17 @@ if (i >= 0) p.method[0].steps = [...s.slice(0, i), s[i] + "\n– " + s.slice(i +
 else console.log("PEPOSA STEP NOT FOUND");
 
 // Napolitansk Pizza: restore the lost Topping heading
-for (const g of byId["39de56f59722808a9ee6dfabc6772a2c"].groups || []) if (same(g.name, "Vit bas 4st")) g.name = "Topping – Vit bas 4st";
+for (const g of byId["39de56f59722808a9ee6dfabc6772a2c"].groups || []) if (same(g.name, "Vit bas 4 st")) g.name = "Topping – Vit bas 4 st";
 
-// Fractions become decimals (½ and 1/2 -> 0,5). Scores such as 8/10 stay as they are.
-const fractions = { "½": .5, "¼": .25, "¾": .75, "⅓": 1/3, "⅔": 2/3, "⅛": .125 };
-// Rounds half to even, as the PowerShell build did, so 1/8 becomes 0,12.
-const round2 = v => { const x = v * 100, f = Math.floor(x); return (x - f === .5 ? (f % 2 ? f + 1 : f) : Math.round(x)) / 100; };
-const dec = v => String(round2(v)).replace(".", ",");
-const D = t => t
-  .replace(/(\d+)?\s?([½¼¾⅓⅔⅛])/g, (m, w, f) => (/^\s/.test(m) ? " " : "") + dec((w ? +w : 0) + fractions[f]))
-  .replace(/(?<![\d/,.-])(?:(\d+)\s)?([1-9])\/([2348])(?![\d/])/g, (m, w, a, b) => dec((w ? +w : 0) + a / b));
-// Always a space between number and unit, except inside web addresses.
-const U = t => t.replace(/https?:\/\/\S+|(?<![\p{L}\d/])(\d+(?:[,.]\d+)?(?:\s?[–-]\s?\d+(?:[,.]\d+)?)?)(kg|mg|ml|cl|dl|msk|tsk|krm|st|cm|mm|min|g|l|L|h|C|°C|°)(?![\p{L}\d])/gu,
-  (m, n, u) => n === undefined ? m : `${n} ${u}`);
-const E = s => s == null ? s : U(D(String(s))).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+// Fractions as decimals and a space between number and unit are written in Notion, not here.
+const E = s => s == null ? s : String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 // Sub-items of another ingredient in Notion
-const nested = ["150g egenmalt", "300g vete special", "0,5dl vatten."];
+const nested = ["150 g egenmalt", "300 g vete special", "0,5 dl vatten."];
 const out = all.map(r => {
   const groups = (r.groups || []).filter(Boolean).map(g => ({ name: E(g.name), items: (g.items || []).map(([a = "", b = ""]) => {
     a = String(a ?? ""); b = String(b ?? ""); let m;
     if (!a && (m = b.match(/^(\d[\d,./–-]*\s?(?:g|kg|ml|cl|dl|l|msk|tsk|krm|st)(?![\p{L}\p{N}_]))\s*(.*)$/iu))) { a = m[1]; b = m[2]; }
     if (nested.some(x => same(x, `${a} ${b}`.trim())) && ["2b6e56f5972280e78d89e8e5adb48749", "2dbe56f5972280a4b3c7e41a1f144645"].includes(r.id)) a = `– ${a}`;
-    // "1" + "½ tsk salt" is one mixed number split across amount and name
-    if (/^\d+$/.test(a) && (m = b.match(/^([½¼¾⅓⅔⅛]|\d\/\d(?!\d))\s*(.*)$/))) { a = `${a} ${m[1]}`; b = m[2]; }
     return [E(a), E(b)];
   }) }));
   const method = (r.method || []).filter(Boolean).map(m => ({ name: E(m.name), steps: (m.steps || []).map(E) }));
