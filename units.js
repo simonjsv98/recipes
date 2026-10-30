@@ -1,7 +1,7 @@
 // Unit cheat sheet: a full-screen panel opened from the thermometer in the banner.
 (function(){
   const toC = f => Math.round((f-32)*5/9);
-  const TEMPS = [225,250,275,300,325,350,375,400,425,450,475,500];
+  const TEMPS = [32,50,75,100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500];
   const SECTIONS = [
     ["Volym, USA till metriskt",[["1 cup","237 ml, 2,4 dl"],["¾ cup","178 ml"],["⅔ cup","158 ml"],["½ cup","118 ml"],["⅓ cup","79 ml"],["¼ cup","59 ml"],["1 tbsp","15 ml, 1 msk"],["1 tsp","5 ml, 1 tsk"],["1 fl oz","30 ml"],["1 pint","473 ml"],["1 quart","946 ml"],["1 gallon","3,8 l"]]],
     ["Vikt",[["1 oz","28 g"],["4 oz, ¼ lb","113 g"],["8 oz, ½ lb","227 g"],["1 lb","454 g"],["1 stick smör","113 g"]]],
