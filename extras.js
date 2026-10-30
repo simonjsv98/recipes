@@ -40,7 +40,7 @@
       <span class="label">Portioner</span>
       <div class="factor-row">
         ${[.5,1,2].map(v=>`<button class="chip ${f===v?"on":""}" data-factor="${v}">${String(v).replace(".",",")}x</button>`).join("")}
-        <label class="chip chip-input ${preset?"":"on"}"><input id="factor-input" inputmode="decimal" placeholder="Annat" aria-label="Egen faktor" value="${preset?"":String(f).replace(".",",")}"><span>x</span></label>
+        <label class="chip chip-input ${preset?"":"on"}"><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg><input id="factor-input" inputmode="decimal" placeholder=" " aria-label="Egen faktor" value="${preset?"":String(f).replace(".",",")}"><span class="times">x</span></label>
       </div>
       <p class="factor-note" ${f===1?"hidden":""}>Mängderna i ingredienslistan är omräknade. Tal i stegens text ändras inte.</p>
     </div>`;
@@ -269,8 +269,12 @@
     .chip { min-height: 44px; padding-inline: 16px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 22px; font-weight: 500; font-size: 1rem; background: none; color: var(--ink); font-family: inherit; }
     .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
     .chip-input { padding-inline: 12px; gap: 2px; }
-    .chip-input input { width: 3.4em; border: 0; background: none; color: inherit; font: inherit; outline: none; text-align: right; }
-    .chip-input input::placeholder { color: var(--muted); }
+    .chip-input { cursor: pointer; }
+    .chip-input input { width: 2.4em; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-size: 16px; outline: none; text-align: right; }
+    .chip-input .pen { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; }
+    .chip-input:has(input:placeholder-shown):not(:focus-within) .pen { display: block; }
+    .chip-input:has(input:placeholder-shown):not(:focus-within) input { width: 0; }
+    .chip-input:has(input:placeholder-shown):not(:focus-within) .times { display: none; }
     .factor-note { color: var(--muted); font-size: .88rem; margin-top: 8px; }
     .shop-btn { margin-top: 16px; }
     .ing-word { border-bottom: 1.5px dotted var(--muted); }
