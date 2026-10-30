@@ -80,7 +80,8 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .label { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .block-label { margin-top: 40px; padding-bottom: 8px; }
 .group { margin-top: 20px; padding-bottom: 4px; }
-.ing { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 10px; padding-block: 3px; }
+.ing { display: grid; grid-template-columns: 6.2em minmax(0, 1fr); gap: 10px; padding-block: 9px; line-height: 1.35; }
+.ing + .ing { border-top: 1px solid var(--line); }
 .ing.noamt { grid-template-columns: minmax(0, 1fr); }
 .ing .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
 
