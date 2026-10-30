@@ -13,7 +13,7 @@ Keep this file current. When the workflow, the structure or a standing preferenc
 
 - `build/kokslaget.html` is the source of the app. Edit this, not `index.html`.
 - `build/recipes-data/batch-*.json` are the recipes as imported from Notion.
-- `build/build-recipes.ps1` applies corrections and writes `index.html` and `recipes-data.js`. It needs PowerShell, which the cloud container does not have.
+- `build/build-recipes.js` applies corrections and writes `index.html` and `recipes-data.js`. Run `node build/build-recipes.js` after changing `kokslaget.html` or the recipe data, and commit the rebuilt files with the change.
 - `units.js` (the units panel behind the thermometer) and `extras.js` (portion factor, shopping list, latest recipes) are edited directly.
 
 ## Notion
