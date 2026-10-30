@@ -8,9 +8,7 @@
   const SECTIONS = [
     ["Volym, USA till metriskt",[["1 cup","237 ml, 2,4 dl"],["¾ cup","178 ml"],["⅔ cup","158 ml"],["½ cup","118 ml"],["⅓ cup","79 ml"],["¼ cup","59 ml"],["1 tbsp","15 ml, 1 msk"],["1 tsp","5 ml, 1 tsk"],["1 fl oz","30 ml"],["1 pint","473 ml"],["1 quart","946 ml"],["1 gallon","3,8 l"]]],
     ["Vikt",[["1 oz","28 g"],["4 oz, ¼ lb","113 g"],["8 oz, ½ lb","227 g"],["1 lb","454 g"],["1 stick smör","113 g"]]],
-    ["Svenska mått",[["1 krm","1 ml"],["1 tsk","5 ml"],["1 msk","15 ml, 3 tsk"],["1 dl","100 ml"],["1 kkp","150 ml"]]],
-    ["Ungefärlig vikt per cup",[["Vetemjöl","125 g"],["Strösocker","200 g"],["Farinsocker, packat","220 g"],["Florsocker","120 g"],["Smör","227 g"],["Mjölk","240 g"],["Honung","340 g"]]],
-    ["Ungefärlig vikt per dl",[["Vetemjöl","60 g"],["Strösocker","85 g"],["Florsocker","50 g"],["Smör","95 g"],["Havregryn","35 g"]]]
+    ["Svenska mått",[["1 krm","1 ml"],["1 tsk","5 ml"],["1 msk","15 ml, 3 tsk"],["1 dl","100 ml"],["1 kkp","150 ml"]]]
   ];
   const row = (a,b,c) => `<div class="unit-row"><span class="unit-a">${a}</span><span class="unit-b">${b}</span>${c===undefined?"":`<span class="unit-c">${c}</span>`}</div>`;
 
