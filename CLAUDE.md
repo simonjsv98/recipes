@@ -18,7 +18,7 @@ Keep this file current. When the workflow, the structure or a standing preferenc
 
 ## Notion
 
-The recipes come from the Notion pages COOK (`251e56f59722801b91d3f2726f9e4031`) and BAKE (`256e56f59722808b972bd9310334a824`). Each recipe's `id` in `recipes-data.js` is its Notion page id.
+The recipes come from the Notion pages COOK (`251e56f59722801b91d3f2726f9e4031`) and BAKE (`256e56f59722808b972bd9310334a824`). Each recipe's `id` in `recipes-data.js` is its Notion page id. Only COOK and BAKE are synced; the PLANNING page under COOK (Recipe Bank, Inköpslista and so on) stays in Notion and is not part of the app.
 
 Notion is the source of truth for how the text is written. Formatting fixes are made in Notion, and in the batch files to match, not in the build script:
 - A space between number and unit: `800 g`, `3 msk`, `0,5 L`, `2 h`, `40 s`, `1 pk`, `180 °C`.
