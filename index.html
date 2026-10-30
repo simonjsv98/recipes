@@ -7,6 +7,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 
 <title>RECIPES</title>
+<script>try { const p = JSON.parse(sessionStorage.getItem("updateWipe")); if (p){ document.documentElement.classList.add("wipe-hold"); document.documentElement.style.setProperty("--wipe-top",p[2]+"px"); } } catch(e){}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="RECIPES">
@@ -120,7 +121,11 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
 /* Update: a colored circle grows from the button, and shrinks back into it once the new version has loaded. */
-.update-wipe { position: fixed; inset: 0; z-index: 30; background: #E63B1F; color: #FFC9D6; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 500; letter-spacing: .02em; }
+/* The circle moves by transform, which the phone animates without redrawing the page. The red hold covers the reload itself. */
+.update-wipe { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #FFC9D6; font-size: 1.7rem; font-weight: 500; letter-spacing: .02em; }
+.update-wipe b { position: absolute; border-radius: 50%; background: #E63B1F; will-change: transform; }
+.update-wipe span { position: relative; }
+html.wipe-hold::after { content: "RECIPES"; position: fixed; left: 0; right: 0; bottom: 0; top: var(--wipe-top, 0px); z-index: 29; background: #E63B1F; color: #FFC9D6; display: flex; align-items: center; justify-content: center; font: 500 1.7rem "Google Sans", -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: .02em; }
 .icon-btn.updating svg { animation: update-spin .8s linear infinite; }
 @keyframes update-spin { to { transform: rotate(360deg); } }
 /* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
@@ -446,8 +451,8 @@ function transition(dir, render){
 }
 const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
 const ILLUSTRATIONS = [
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M450 1270C425 985 660 730 950 725C1215 720 1435 925 1425 1205C1415 1495 1190 1725 910 1715C670 1705 475 1525 450 1270Z"/><path fill="#FFC9D6" d="M1295 540C1285 440 1370 360 1465 372C1560 384 1610 465 1590 555C1570 640 1485 680 1405 665C1340 652 1303 605 1295 540Z"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M430 1330C430 900 720 640 1024 640C1328 640 1618 900 1618 1330C1618 1430 1550 1480 1460 1480H588C498 1480 430 1430 430 1330Z"/><path fill="none" stroke="#4A2212" stroke-width="70" stroke-linecap="round" d="M720 1090L850 860M980 1090L1110 860M1240 1090L1370 860"/></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M470 1330C410 1090 560 800 860 745C1110 700 1390 830 1450 1090C1500 1310 1400 1560 1170 1680C960 1790 680 1730 570 1580C520 1510 490 1420 470 1330Z"/><path fill="#FFC9D6" d="M1290 560C1270 450 1360 350 1480 355C1590 360 1650 460 1620 565C1595 660 1500 705 1410 680C1345 660 1302 620 1290 560Z"/><path fill="#FFC9D6" d="M1065 440C1060 385 1105 345 1155 352C1205 360 1225 410 1208 455C1190 495 1140 510 1105 492C1082 480 1068 465 1065 440Z"/></svg>',
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
@@ -595,17 +600,22 @@ document.addEventListener("keydown", e => {
 function updateWipe(x,y,opening){
   const wipe = document.createElement("div");
   wipe.className = "update-wipe";
-  wipe.textContent = "RECIPES";
   // Starts below the header, so the header and the status bar above it stay as they are.
   const bar = app.querySelector(".top-bar");
   const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
   wipe.style.top = `${top}px`;
+  const r = Math.ceil(Math.hypot(innerWidth,innerHeight));
+  const circle = document.createElement("b");
+  circle.style.cssText = `left:${x-r}px;top:${y-top-r}px;width:${r*2}px;height:${r*2}px;transform:scale(${opening?1:0})`;
+  const word = document.createElement("span");
+  word.textContent = "RECIPES";
+  word.style.opacity = opening ? 1 : 0;
+  wipe.append(circle,word);
   document.body.appendChild(wipe);
-  const cy = y-top;
-  const small = `circle(0px at ${x}px ${cy}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${cy}px)`;
-  const frames = opening ? [small,large] : [large,small];
-  wipe.style.clipPath = frames[1];
-  wipe.animate({clipPath:frames},{duration:opening?420:380,easing:"cubic-bezier(.65,0,.35,1)"});
+  const ease = "cubic-bezier(.65,0,.35,1)";
+  const scales = [{transform:"scale(0)"},{transform:"scale(1)"}], fades = [{opacity:0},{opacity:1}];
+  circle.animate(opening?scales:[...scales].reverse(),{duration:opening?420:380,easing:ease});
+  word.animate(opening?fades:[...fades].reverse(),opening?{duration:200,delay:140,fill:"backwards"}:{duration:140});
   return wipe;
 }
 function closeWipe(x,y){
@@ -623,7 +633,7 @@ async function updateApp(button){
     const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
     const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
     await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
-    if (motion) try { sessionStorage.setItem("updateWipe",JSON.stringify([x,y])); } catch(e){}
+    if (motion) try { sessionStorage.setItem("updateWipe",JSON.stringify([x,y,Math.round(app.querySelector(".top-bar").getBoundingClientRect().bottom)])); } catch(e){}
     location.reload();
   } catch(e) {
     if (wipe){ wipe.remove(); closeWipe(x,y); }
@@ -735,6 +745,21 @@ settleApp();
 try {
   const point = JSON.parse(sessionStorage.getItem("updateWipe"));
   sessionStorage.removeItem("updateWipe");
-  if (point) closeWipe(point[0],point[1]);
+  if (point){
+    // Starts shrinking only when the new page is done loading and drawing, so nothing competes with the motion.
+    let started = false;
+    const begin = () => {
+      if (started) return;
+      started = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        closeWipe(point[0],point[1]);
+        document.documentElement.classList.remove("wipe-hold");
+      }));
+    };
+    const ready = document.fonts ? document.fonts.ready : Promise.resolve();
+    addEventListener("load", () => ready.then(begin));
+    setTimeout(begin,1200);
+    setTimeout(() => document.documentElement.classList.remove("wipe-hold"),1600);
+  }
 } catch(e){}
 </script>
