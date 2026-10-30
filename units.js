@@ -10,6 +10,40 @@
     ["Vikt",[["1 oz","28 g"],["4 oz, ¼ lb","113 g"],["8 oz, ½ lb","227 g"],["1 lb","454 g"],["1 stick smör","113 g"]]],
     ["Svenska mått",[["1 krm","1 ml"],["1 tsk","5 ml"],["1 msk","15 ml, 3 tsk"],["1 dl","100 ml"],["1 kkp","150 ml"]]]
   ];
+  // Core temperatures: Livsmedelsverket for safety, Köket and Svenskt Kött for Swedish practice, Weber, ThermoWorks and USDA for the rest.
+  const CORE = [
+    ["kyckling",[
+      ["Bröstfilé, utan ben","70 °C","Säker och fortfarande saftig"],
+      ["Lårfilé, utan ben","70–75 °C","Säker vid 70, mörast vid 75"],
+      ["Lår och klubba, med ben","80–82 °C","Mät intill benet"],
+      ["Hel kyckling","80–82 °C","I låret intill benet"],
+      ["Kycklingfärs","70 °C","Genomstekt"]
+    ]],
+    ["lax och fisk",[
+      ["Lax, glasig","48–52 °C","Saftig och lite genomskinlig i mitten"],
+      ["Lax, klar","52–55 °C","Ljusrosa och flagnar"],
+      ["Vit fisk, torsk och sej","52–56 °C","Vit och flagnar"],
+      ["Fisk, helt genomkokt","63 °C","USDA:s säkerhetsgräns"]
+    ]],
+    ["fläsk",[
+      ["Fläskytterfilé, utan ben","65 °C","Ljusrosa"],
+      ["Fläskfilé, utan ben","70 °C",""],
+      ["Kotlett, med ben","70 °C","Mät i mitten, inte mot benet"],
+      ["Fläskkarré, stek","80–85 °C","Mör och saftig"],
+      ["Revben, low and slow","90–95 °C","Lossnar från benet"],
+      ["Pulled pork, bog","93–95 °C","Låt vila inslagen innan du river"],
+      ["Fläskfärs och korv","70 °C","Genomstekt"]
+    ]],
+    ["nöt och lamm",[
+      ["Nöt, medium rare","52–54 °C","Rosa"],
+      ["Nöt, medium","56–60 °C","Ljusrosa"],
+      ["Nöt, well done","68–75 °C","Genomstekt"],
+      ["Lammfilé och entrecôte","56–70 °C","56 rosa, 70 genomstekt"],
+      ["Lammstek","60–70 °C","60 rosa, 70 genomstekt"],
+      ["Köttfärs","70 °C","Genomstekt"]
+    ]]
+  ];
+  const coreRow = (name,t,note) => `<div class="core-row"><span class="core-name">${name}${note?`<span class="core-note">${note}</span>`:""}</span><span class="core-t">${t}</span></div>`;
   const row = (a,b,c) => `<div class="unit-row"><span class="unit-a">${a}</span><span class="unit-b">${b}</span>${c===undefined?"":`<span class="unit-c">${c}</span>`}</div>`;
 
   const style = document.createElement("style");
@@ -24,6 +58,11 @@
     .unit-pairs .unit-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     .unit-section { margin-top: 28px; padding-bottom: 6px; }
     .unit-head + .scroll .unit-section:first-child { margin-top: 8px; }
+    .core-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding-block: 9px; border-bottom: 1px solid var(--line); }
+    .core-name { font-weight: 600; }
+    .core-note { display: block; font-weight: 400; color: var(--muted); font-size: .92rem; margin-top: 2px; }
+    .core-t { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .core-foot { color: var(--muted); font-size: .85rem; margin-top: 14px; padding-bottom: 32px; }
   `;
   document.head.appendChild(style);
 
@@ -38,6 +77,8 @@
       <p class="label unit-section">Fahrenheit till Celsius</p>
       ${TEMPS.map(([f,n])=>row(f+" °F",toC(f)+" °C",n)).join("")}
       ${SECTIONS.map(([name,rows])=>`<p class="label unit-section">${name}</p><div class="unit-pairs">${rows.map(r=>row(r[0],r[1])).join("")}</div>`).join("")}
+      ${CORE.map(([name,rows])=>`<p class="label unit-section">Innertemperatur, ${name}</p>${rows.map(r=>coreRow(...r)).join("")}`).join("")}
+      <p class="core-foot">Mät i den tjockaste delen. Temperaturen stiger 2–5 °C medan köttet vilar, så ta ut det lite innan. Källor: Livsmedelsverket, Köket, Svenskt Kött, Weber, ThermoWorks och USDA.</p>
     </div></div>`;
   document.body.appendChild(panel);
   // Keeps the swipe-back gesture from starting underneath the panel.
