@@ -113,21 +113,12 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Motion: short, one curve, pages move in the direction you travel */
 :root { --ease: cubic-bezier(.2, .8, .2, 1); }
-/* The outgoing page stays behind the new one, so its text never fades across the banner. */
-.ghost { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); height: auto; z-index: 0; pointer-events: none; background: transparent; overflow: hidden; }
+/* Page changes: the new page replaces the old one at once, with a short fade. No sliding or overlapping pages, which stutter on phones. */
 .top-bar { position: relative; z-index: 2; }
-.ghost *, .settled, .settled * { animation: none !important; }
+.settled, .settled * { animation: none !important; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
-/* Only the page content moves. The top bar and its back button stay crisp and still. */
-.ghost .top-bar, .ghost .ing-dock { visibility: hidden; }
-.leave-f > .scroll { animation: leave-f .11s ease-in forwards; }
-.leave-b > .scroll { animation: leave-b .11s ease-in forwards; }
-.enter-f > .scroll { animation: enter-f .28s var(--ease) .09s backwards; }
-.enter-b > .scroll { animation: enter-b .28s var(--ease) .09s backwards; }
-@keyframes leave-f { to { opacity: 0; transform: translateX(-16px); } }
-@keyframes leave-b { to { opacity: 0; transform: translateX(16px); } }
-@keyframes enter-f { from { opacity: 0; transform: translateX(28px); } }
-@keyframes enter-b { from { opacity: 0; transform: translateX(-28px); } }
+.enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
+@keyframes page-in { from { opacity: 0; } }
 
 .recipes button, .recipes a { transition: opacity .12s, padding-left .2s var(--ease); }
 .recipes .mark { transition: transform .2s var(--ease); }
@@ -139,8 +130,6 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 @media (hover: hover) {
   .recipes button:hover .mark, .recipes a:hover .mark { transform: translateX(3px); }
 }
-.ing-dock .ing-btn { animation: dock-in .36s var(--ease) .14s backwards; }
-@keyframes dock-in { from { opacity: 0; transform: translateY(20px); } }
 
 .sheet-wrap { animation: fade-in .2s ease-out; }
 .sheet { animation: sheet-in .32s var(--ease); }
@@ -420,21 +409,13 @@ function settleApp(){
   settleTimer = setTimeout(() => { app.classList.remove("enter-f","enter-b"); app.classList.add("settled"); }, 550);
 }
 const saveScroll = () => { const el = app.querySelector(".scroll"); if (el && !recipe) trail[trail.length-1].scrollPos = el.scrollTop; };
-// Moves the current page into a fading copy and slides the new one in. dir is "f" (deeper) or "b" (back).
+// Swaps to the new page at once and fades it in. dir is "f" (deeper) or "b" (back).
 function transition(dir, render){
-  document.querySelectorAll(".ghost").forEach(g=>g.remove());
   app.classList.remove("enter-f","enter-b","settled");
-  if (reducedMotion()) return render();
-  const ghost = document.createElement("div");
-  ghost.className = `view ghost leave-${dir}`;
-  const scrolls = [...app.querySelectorAll(".scroll")].map(e=>e.scrollTop);
-  while (app.firstChild) ghost.appendChild(app.firstChild);
-  document.body.appendChild(ghost);
-  ghost.querySelectorAll(".scroll").forEach((e,i)=>{ e.scrollTop = scrolls[i]; });
-  setTimeout(() => ghost.remove(), 130);
   render();
+  if (reducedMotion()) return;
   void app.offsetWidth;
-  app.classList.add(`enter-${dir}`);
+  app.classList.add("enter-$dir".replace("$dir",dir));
   settleApp();
 }
 function findTrail(node,id,path=[node]){
