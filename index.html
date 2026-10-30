@@ -119,6 +119,8 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
+.icon-btn.updating svg { animation: update-spin .8s linear infinite; }
+@keyframes update-spin { to { transform: rotate(360deg); } }
 /* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
 .swipe-top { position: fixed; inset: 0; z-index: 5; background: var(--bg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); will-change: transform; pointer-events: none; }
 .swipe-top::before { content: ""; position: absolute; top: 0; bottom: 0; left: -14px; width: 14px; background: linear-gradient(to left, rgba(20, 18, 10, .14), transparent); }
@@ -442,13 +444,14 @@ function transition(dir, render){
 }
 const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
 const ILLUSTRATIONS = [
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M395 1320C340 1050 540 790 820 700C1040 630 1300 690 1420 880C1520 1040 1490 1290 1360 1480C1230 1670 990 1770 760 1700C570 1640 435 1510 395 1320Z"/><path fill="#FFC9D6" d="M1290 565C1250 450 1330 335 1450 340C1570 345 1650 430 1625 540C1605 630 1530 705 1430 690C1360 680 1315 635 1290 565Z"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M385 1290C360 1060 500 800 760 690C980 600 1250 625 1430 760C1600 890 1690 1110 1650 1310C1625 1440 1500 1490 1340 1480C1080 1465 860 1510 620 1495C480 1485 400 1420 385 1290Z"/><path fill="#4A2212" d="M690 1130C700 1010 780 890 880 830C870 960 800 1070 690 1130ZM950 1120C965 990 1050 860 1160 800C1150 940 1070 1060 950 1120ZM1210 1130C1225 1020 1300 910 1395 860C1385 985 1315 1085 1210 1130Z"/></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M450 1270C425 985 660 730 950 725C1215 720 1435 925 1425 1205C1415 1495 1190 1725 910 1715C670 1705 475 1525 450 1270Z"/><path fill="#FFC9D6" d="M1295 540C1285 440 1370 360 1465 372C1560 384 1610 465 1590 555C1570 640 1485 680 1405 665C1340 652 1303 605 1295 540Z"/></svg>',
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M430 1330C430 900 720 640 1024 640C1328 640 1618 900 1618 1330C1618 1430 1550 1480 1460 1480H588C498 1480 430 1430 430 1330Z"/><path fill="none" stroke="#4A2212" stroke-width="70" stroke-linecap="round" d="M720 1090L850 860M980 1090L1110 860M1240 1090L1370 860"/></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
   app.innerHTML = `<div class="gutter top-bar"><div class="wrap top" style="max-width:900px">
-      <h1 class="home-wordmark">RECIPES</h1><span></span>
+      <h1 class="home-wordmark">RECIPES</h1>
+      <button class="icon-btn" data-app-update aria-label="Uppdatera appen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.3L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.3l1.7-1.8"/><path d="M20 20v-4.5h-4.5"/></svg></button>
       <div class="nav-right">
         <button class="icon-btn" data-nav-units aria-label="Enheter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0Z"/></svg></button>
         <button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
@@ -550,6 +553,7 @@ document.addEventListener("click", e => {
   const t = e.target.closest("button");
   if (!t) return;
   const d = t.dataset;
+  if ("appUpdate" in d) return updateApp(t);
   if ("searchClose" in d) closeSearch(true);
   else if (d.open){
     saveScroll();
@@ -585,6 +589,20 @@ document.addEventListener("keydown", e => {
   if (stepEl && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); toggleStep(stepEl); }
 });
 
+// Fetches the newest code and recipes past the browser's cache, then reloads. If there's no connection the app stays as it is.
+async function updateApp(button){
+  button.classList.add("updating");
+  button.disabled = true;
+  try {
+    const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
+    const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
+    await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
+    location.reload();
+  } catch(e) {
+    button.classList.remove("updating");
+    button.disabled = false;
+  }
+}
 // Swipe right to go back, as on iOS: the previous page sits underneath from the first movement.
 // The current page follows the finger and the one below drifts in at a slower pace.
 const canGoBack = () => !!recipe || trail.length>1;
