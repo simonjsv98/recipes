@@ -596,8 +596,13 @@ function updateWipe(x,y,opening){
   const wipe = document.createElement("div");
   wipe.className = "update-wipe";
   wipe.textContent = "RECIPES";
+  // Starts below the header, so the header and the status bar above it stay as they are.
+  const bar = app.querySelector(".top-bar");
+  const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+  wipe.style.top = `${top}px`;
   document.body.appendChild(wipe);
-  const small = `circle(0px at ${x}px ${y}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${y}px)`;
+  const cy = y-top;
+  const small = `circle(0px at ${x}px ${cy}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${cy}px)`;
   const frames = opening ? [small,large] : [large,small];
   wipe.style.clipPath = frames[1];
   wipe.animate({clipPath:frames},{duration:opening?420:380,easing:"cubic-bezier(.65,0,.35,1)"});
