@@ -13,7 +13,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F3F2EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap">
 <style>
@@ -27,14 +26,6 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-html { background: var(--bg); }
-#app { position: relative; z-index: 1; }
-.search-panel { position: fixed; z-index: 15; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; background: var(--bg); display: flex; flex-direction: column; animation: panel-in .2s ease-out; }
-.search-panel-head { display: flex; align-items: center; gap: 14px; padding-block: 10px; }
-.search-panel-head .search { flex: 1; min-width: 0; margin: 0; }
-.search-close { flex: none; min-height: 44px; font-weight: 500; }
-.search-panel .scroll { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
-@keyframes panel-in { from { opacity: 0; transform: translateY(-8px); } }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.45; overflow: hidden; }
 button, a { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; }
@@ -72,6 +63,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .part-name { font-weight: 600; font-size: 1.05rem; padding-block: 18px 2px; }
 .note-heading { font-weight: 600; margin-top: 18px; }
 .note-line { margin-top: 8px; font-size: 1.05rem; }
+.recipe-link { display: inline-block; font: inherit; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; padding-block: 4px; }
 .link { min-height: 44px; display: flex; align-items: center; font-size: .95rem; color: var(--muted); }
 .link.strong { color: var(--ink); font-weight: 600; }
 .title { font: 500 clamp(1.7rem, 7.4vw, 2.3rem)/1.2 var(--display); text-wrap: balance; padding-top: 16px; }
@@ -110,9 +102,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Motion: short, one curve, pages move in the direction you travel */
 :root { --ease: cubic-bezier(.2, .8, .2, 1); }
-/* The outgoing page stays behind the new one, so its text never fades across the banner. */
-.ghost { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); height: auto; z-index: 0; pointer-events: none; background: transparent; overflow: hidden; }
-.top-bar { position: relative; z-index: 2; }
+.ghost { position: fixed; inset: 0; z-index: 5; pointer-events: none; background: transparent; }
 .ghost *, .settled, .settled * { animation: none !important; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 /* Only the page content moves. The top bar and its back button stay crisp and still. */
@@ -155,13 +145,6 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 <div id="app" class="view"></div>
 <div id="sheet" class="sheet-wrap" hidden></div>
-<div id="search-panel" class="search-panel" hidden>
-  <div class="gutter"><div class="wrap search-panel-head">
-    <input id="panel-search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
-    <button class="search-close" data-search-close>Stäng</button>
-  </div></div>
-  <div class="scroll gutter" id="panel-scroll"><div class="wrap" id="panel-hits"></div></div>
-</div>
 
 <script src="recipes-data.js"></script>
 <script>
@@ -232,6 +215,9 @@ const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top
   </div>
 </div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
+// [[id|Title]] in recipe text is a link to another recipe, like a link-to-page block in Notion.
+const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class="recipe-link" data-link="$1">$2</button>');
+let cameFrom = [];
 
 const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
 const rowHtml = (row,s,i) => {
@@ -244,7 +230,7 @@ const rowHtml = (row,s,i) => {
 // `trail` is the path from the start page to the current page, for the back button.
 let trail = [TREE];
 function showNode(){
-  releaseWake(); recipe = null;
+  releaseWake(); recipe = null; cameFrom = [];
   const node = trail[trail.length-1], parent = trail[trail.length-2];
   app.innerHTML = `${parent?navBar(parent.title,"data-back"):""}
   <div class="scroll gutter"><div class="wrap">
@@ -338,7 +324,7 @@ const INDEX = [];
     if (!Array.isArray(row)){ walk(row,[...path,row.title]); continue; }
     const r = recipeFor(row[1]);
     const place = [...path, s.name||""].join(" ");
-    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ") : "";
+    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ").replace(/\[\[[0-9a-f]+\|([^\]]+)\]\]/g,"$1") : "";
     const hay = norm(`${row[0]} ${place} ${body}`);
     const hayWords = hay.split(" ");
     const tags = NORM_CONCEPTS.filter(([,t]) => t.some(x => x.length<=2 ? hayWords.includes(x) : hay.includes(x))).flatMap(([a])=>a);
@@ -369,11 +355,9 @@ function renderHits(){
   if (!hits) return;
   const active = words(query).filter(t=>!STOP.has(t)).length>0;
   browse.hidden = active;
-  hits.innerHTML = active ? hitsHtml(query) : "";
-}
-function hitsHtml(q){
-  const found = search(q);
-  return found.length
+  if (!active){ hits.innerHTML = ""; return; }
+  const found = search(query);
+  hits.innerHTML = found.length
     ? `<ul class="recipes">${found.map(it => {
         const inner = `<span class="hit"><span>${it.title}</span><span class="where">${it.where}</span></span>`;
         return it.recipe
@@ -384,22 +368,7 @@ function hitsHtml(q){
 }
 document.addEventListener("input", e => {
   if (e.target.id==="search"){ query = e.target.value; renderHits(); }
-  if (e.target.id==="panel-search"){
-    const v = e.target.value;
-    document.getElementById("panel-hits").innerHTML = words(v).some(t=>!STOP.has(t)) ? hitsHtml(v) : "";
-  }
 });
-const panel = document.getElementById("search-panel");
-function openSearch(){
-  panel.hidden = false;
-  document.getElementById("panel-search").focus();
-}
-function closeSearch(clear){
-  panel.hidden = true;
-  if (clear){ document.getElementById("panel-search").value = ""; document.getElementById("panel-hits").innerHTML = ""; }
-}
-// Scrolling the results puts the keyboard away.
-document.getElementById("panel-scroll").addEventListener("touchstart", () => document.getElementById("panel-search").blur(), {passive:true});
 
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Ends entrance animations on a timer, so content is never left invisible if the browser stalls them.
@@ -441,10 +410,11 @@ function showRecipe(r){
   let stepNo = 0;
   const hasIngredients = r.groups.some(g=>g.items.length);
   const hasMethod = r.method.some(m=>m.steps.length);
-  app.innerHTML = `${navBar(trail[trail.length-1].title,"data-up")}
+  const backLabel = cameFrom.length ? cameFrom[cameFrom.length-1].title : trail[trail.length-1].title;
+  app.innerHTML = `${navBar(backLabel,"data-up")}
     <div class="scroll gutter" id="page"><div class="wrap">
       <h1 class="title">${r.title}</h1>
-      ${r.intro?`<p class="intro">${r.intro}</p>`:""}
+      ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
       ${r.plan?`<p class="plan">${r.plan}</p>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
       ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg när det är klart.</p>`:""}
@@ -452,9 +422,9 @@ function showRecipe(r){
         const i = stepNo++;
         return `<li class="step ${done.has(i)?"done":""}" data-step="${i}" role="button" tabindex="0" aria-pressed="${done.has(i)}">
           <span class="no">${i+1}</span>
-          <p class="text">${markTimes(t)}</p>
+          <p class="text">${linkify(markTimes(t))}</p>
         </li>`;}).join("")}</ol>`).join("")}
-      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${l}</p>`).join("")}`).join("")}`:""}
+      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
       <div class="foot">
         <button class="link" data-reset>Börja om</button>
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
@@ -506,19 +476,18 @@ document.addEventListener("visibilitychange", () => {
 
 document.addEventListener("click", e => {
   if (e.target===sheet) return closeSheet();
+  const link = e.target.closest("[data-link]");
+  if (link){
+    const target = RECIPES.find(r=>r.id===link.dataset.link);
+    cameFrom = [...cameFrom, recipe];
+    return transition("f", () => showRecipe(target));
+  }
   const stepEl = e.target.closest("[data-step]");
   if (stepEl) return toggleStep(stepEl);
   const t = e.target.closest("button");
   if (!t) return;
   const d = t.dataset;
-  if ("searchClose" in d) closeSearch(true);
-  else if (d.open){
-    saveScroll();
-    if (!panel.hidden){
-      closeSearch(false);
-      trail = findTrail(TREE,RECIPES.find(r=>r.id===d.open).id) || [TREE];
-    }
-    transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
+  if (d.open){ saveScroll(); transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
   else if (d.node){
     const [s,i] = d.node.split(".").map(Number);
     saveScroll();
@@ -527,20 +496,19 @@ document.addEventListener("click", e => {
     trail = [...trail, next];
     transition("f", showNode);
   }
-  else if ("navSearch" in d) openSearch();
-  else if ("navHome" in d){
+  else if ("navHome" in d || "navSearch" in d){
     trail = [TREE]; TREE.scrollPos = 0; query = "";
     transition("b", showNode);
+    if ("navSearch" in d) document.getElementById("search").focus();
   }
   else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
-  else if ("up" in d) transition("b", showNode);
+  else if ("up" in d) goBack();
   else if ("sheet" in d) openSheet();
   else if ("close" in d) closeSheet();
   else if ("reset" in d){ store.del("done:"+recipe.id); showRecipe(recipe); }
 });
 document.addEventListener("keydown", e => {
-  if ((e.target.id==="search" || e.target.id==="panel-search") && e.key==="Enter") return e.target.blur();
-  if (!panel.hidden && e.key==="Escape") return closeSearch(true);
+  if (e.target.id==="search" && e.key==="Enter") return e.target.blur();
   if (!sheet.hidden && e.key==="Escape") return closeSheet();
   const stepEl = e.target.closest && e.target.closest("[data-step]");
   if (stepEl && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); toggleStep(stepEl); }
@@ -549,13 +517,18 @@ document.addEventListener("keydown", e => {
 // Swipe right to go back. The page follows the finger, then either completes or springs back.
 const canGoBack = () => !!recipe || trail.length>1;
 function goBack(){
-  if (recipe) transition("b", showNode);
+  if (recipe && cameFrom.length){
+    const previous = cameFrom[cameFrom.length-1];
+    cameFrom = cameFrom.slice(0,-1);
+    transition("b", () => showRecipe(previous));
+  }
+  else if (recipe) transition("b", showNode);
   else if (trail.length>1){ trail = trail.slice(0,-1); transition("b", showNode); }
 }
 let swipe = null, swallowClick = false;
 document.addEventListener("touchstart", e => {
   swipe = null;
-  if (e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
+  if (e.touches.length!==1 || !sheet.hidden || !canGoBack()) return;
   const t = e.touches[0];
   swipe = { x:t.clientX, y:t.clientY, time:Date.now(), dx:0, active:false };
 }, {passive:true});
