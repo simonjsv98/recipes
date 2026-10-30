@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+
 <title>RECIPES</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -52,6 +53,16 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Recipe */
 .top { display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+.top-bar { background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-bar .link { flex: 1; min-width: 0; color: var(--ink); font-weight: 500; }
+.top-bar .link span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nav-icons { display: flex; gap: 2px; flex: none; margin-right: -10px; }
+.icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.icon-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.intro, .plan, .step .text, .note-line { white-space: pre-line; overflow-wrap: anywhere; }
+.part-name { font-weight: 600; font-size: 1.05rem; padding-block: 18px 2px; }
+.note-heading { font-weight: 600; margin-top: 18px; }
+.note-line { margin-top: 8px; font-size: 1.05rem; }
 .link { min-height: 44px; display: flex; align-items: center; font-size: .95rem; color: var(--muted); }
 .link.strong { color: var(--ink); font-weight: 600; }
 .title { font: 500 clamp(1.7rem, 7.4vw, 2.3rem)/1.2 var(--display); text-wrap: balance; padding-top: 16px; }
@@ -92,10 +103,12 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .ghost { position: fixed; inset: 0; z-index: 5; pointer-events: none; background: transparent; }
 .ghost *, .settled, .settled * { animation: none !important; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
-.leave-f { animation: leave-f .11s ease-in forwards; }
-.leave-b { animation: leave-b .11s ease-in forwards; }
-.enter-f { animation: enter-f .28s var(--ease) .09s backwards; }
-.enter-b { animation: enter-b .28s var(--ease) .09s backwards; }
+/* Only the page content moves. The top bar and its back button stay crisp and still. */
+.ghost .top-bar, .ghost .ing-dock { visibility: hidden; }
+.leave-f > .scroll { animation: leave-f .11s ease-in forwards; }
+.leave-b > .scroll { animation: leave-b .11s ease-in forwards; }
+.enter-f > .scroll { animation: enter-f .28s var(--ease) .09s backwards; }
+.enter-b > .scroll { animation: enter-b .28s var(--ease) .09s backwards; }
 @keyframes leave-f { to { opacity: 0; transform: translateX(-16px); } }
 @keyframes leave-b { to { opacity: 0; transform: translateX(16px); } }
 @keyframes enter-f { from { opacity: 0; transform: translateX(28px); } }
@@ -104,15 +117,12 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .recipes button, .recipes a { transition: opacity .12s, padding-left .2s var(--ease); }
 .recipes .mark { transition: transform .2s var(--ease); }
 .recipes button:active, .recipes a:active { opacity: .45; }
-.link { transition: opacity .12s; }
-.link:active { opacity: .45; }
 .step:active .text { opacity: .6; }
 .step .text { transition: opacity .12s; }
 .ing-btn { transition: transform .16s var(--ease), opacity .16s; }
 .ing-btn:active { transform: scale(.97); opacity: .88; }
 @media (hover: hover) {
   .recipes button:hover .mark, .recipes a:hover .mark { transform: translateX(3px); }
-  .link:hover { opacity: .65; }
 }
 .ing-dock .ing-btn { animation: dock-in .36s var(--ease) .14s backwards; }
 @keyframes dock-in { from { opacity: 0; transform: translateY(20px); } }
@@ -134,78 +144,17 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 <div id="app" class="view"></div>
 <div id="sheet" class="sheet-wrap" hidden></div>
 
+<script src="recipes-data.js"></script>
 <script>
-// Texts are copied unchanged from Notion. `use` is left over from the earlier per-step layout and isn't displayed.
-const RECIPES = [
-{ id:"carbonara", title:"Spaghetti Carbonara",
-  notion:"https://app.notion.com/p/330e56f5972280d68c01ddc87c4b0bc0",
-  intro:"Isabella Morrones recept. Äkta carbonara utan grädde — krämig tack vare pastavatten. Snåla inte med svartpepparn.",
-  groups:[{items:[["sp","400 g","spaghetti"],["ag","4","äggulor"],["pa","150 g","pancetta"],["pe","30 g","pecorinoost, finriven"],["pm","30 g","parmesanost, finriven (gärna lagrad minst 16 månader)"],["sv","","Svartpeppar, nymalen"],["sa","","Salt"]]}],
-  steps:[
-   {t:"Skär pancettan i små bitar och stek utan fett tills krispig. Lyft upp och lägg åt sidan, låt fettet vara kvar i pannan.",use:["pa"]},
-   {t:"Koka spaghettin ca 3 minuter kortare än anvisningen på förpackningen.",use:["sp"]},
-   {t:"Vispa ihop äggulorna med den rivna osten och rikligt med nymalen svartpeppar i en skål.",use:["ag","pe","pm","sv"]},
-   {t:"Sätt på värmen igen på pannan med stekfettet, häll i ca 3 dl pastavatten och låt koka.",use:[]},
-   {t:"Häll av spaghettin och lägg i pannan med pancettan.",use:[]},
-   {t:"Låt koka 2–3 minuter under konstant omrörning så att stärkelsen utsöndras och det bildas en krämig sås.",use:[]},
-   {t:"När vattnet kokat in och bara någon matsked återstår, ta pannan från värmen.",use:[]},
-   {t:"Tillsätt äggsmeten och rör tills det blir krämigt.",use:[]},
-   {t:"Tillsätt lite pastavatten om det blir torrt.",use:[]},
-   {t:"Smaka av med salt och peppar.",use:["sa","sv"]}
-  ]},
-{ id:"biffar", title:"Nötfärsbiffar med getost, tzatziki och rostade rotfrukter",
-  notion:"https://app.notion.com/p/35de56f5972280f4b99feb32f6571391",
-  intro:"Saftiga nötfärsbiffar med getost och rostad lök, serverade med timjanrostade rotfrukter och hemgjord tzatziki. Recept av Gustav Trägårdh via Tasteline.",
-  groups:[
-   {name:"Rotfrukter",items:[["po","200 g","potatis"],["pl","250 g","palsternacka"],["mo","500 g","morot"],["ro","30 ml","olivolja"],["ti","2 tsk","torkad timjan"],["rs","","Salt och svartpeppar"]]},
-   {name:"Färsbiffar",items:[["nf","500 g","nötfärs"],["fs","1,5 tsk","salt"],["rl","50 g","rostad lök"],["go","120 g","getost, smulad"],["cf","100 ml","crème fraîche"],["vl","1","vitlöksklyfta, riven"],["ci","","Skal av ½ citron"],["ch","½","röd chilipeppar, finhackad"]]},
-   {name:"Stekning",items:[["so","7 ml","olivolja"],["sm","7 g","smör"],["pr","","Persilja att toppa med"]]},
-   {name:"Tzatziki",items:[["gu","½","gurka"],["yo","200 ml","matyoghurt"],["to","30 ml","olivolja"],["ts","","Salt och svartpeppar"]]}
-  ],
-  steps:[
-   {t:"Sätt ugnen på 200°C. Skala och skär rotfrukterna i grova bitar. Vänd på en plåt med olivolja, timjan, salt och peppar. Rosta i ugnen ca 30 minuter.",use:["po","pl","mo","ro","ti","rs"]},
-   {t:"Blanda nötfärsen med salt, rostad lök, smulad getost, crème fraîche, riven vitlök, citronskal och finhackad chili. Blanda väl och forma 8 biffar.",use:["nf","fs","rl","go","cf","vl","ci","ch"]},
-   {t:"Hetta upp olja och smör i en stekpanna på medelhög värme. Stek biffarna ca 2–3 minuter per sida tills gyllene. Sänk värmen och låt dem bli klara i pannan.",use:["so","sm"]},
-   {t:"Riv gurkan och krama ur vätskan ordentligt. Blanda med yoghurt, salt och peppar. Ringla över olivoljan.",use:["gu","yo","to","ts"]},
-   {t:"Servera färsbiffarna med rostade rotfrukter och tzatziki.",use:["pr"]}
-  ]},
-{ id:"baguette", title:"Baguette",
-  notion:"https://app.notion.com/p/3fce56f59722811aa1e2e74d87fbf06f",
-  intro:"Rustika franska baguetter på en lös och kladdig deg, från ICA. Halverat recept med torrjäst: 2 baguetter.",
-  plan:"Total: ca 2 h. 10 min (knåda) + 1 h (jäsning) + 5 min (forma) + 30 min (jäsning, ugnen värms) + 15 min (grädda)",
-  groups:[{items:[["tj","3 g","torrjäst (1 tsk)"],["va","250 g","vatten (2,5 dl)"],["sa","7 g","salt (1¼ tsk)"],["ol","20 g","olivolja (1½ msk)"],["mj","360 g","vetemjöl special (6 dl)"]]}],
-  steps:[
-   {t:"Blanda torrjästen med 330 g (5½ dl) mjöl i en bunke, spara 30 g (½ dl) till utbakning. Värm vattnet till 42°C och häll i tillsammans med salt och olivolja. Arbeta degen kraftigt, cirka 10 minuter. Den ska vara lös och kladdig.",use:["tj",["330 g","vetemjöl special (5½ dl)"],"va","sa","ol"]},
-   {t:"Låt degen jäsa under bakduk, cirka 1 timme.",use:[]},
-   {t:"Häll ut degen på mjölad bänk utan att knåda den. Dela i 2 delar, forma avlånga baguetter och vrid dem. Lägg dem på en plåt med bakplåtspapper och pudra över lite mjöl.",use:[["30 g","vetemjöl, sparat från steg 1"]]},
-   {t:"Låt bröden jäsa under bakduk, cirka 30 minuter. Sätt under tiden ugnen på 250°C.",use:[]},
-   {t:"Ställ en ugnsform med ca 100 g (1 dl) vatten i botten av ugnen. Grädda bröden mitt i ugnen, cirka 15 minuter.",use:[]},
-   {t:"Låt baguetterna svalna på galler utan duk.",use:[]}
-  ]},
-{ id:"pho", title:"Pho Ga Vietnamesisk kycklingpho",
-  notion:"https://app.notion.com/p/301e56f59722800cb25fd00406817723",
-  intro:"Klassisk vietnamesisk pho med kycklingbuljong och kryddor. Recept av Nagi Maehashi / RecipeTin Eats.",
-  groups:[
-   {items:[["ol","1 msk","neutral olja"],["lo","2","lökar, halverade (skal på är ok)"],["in","5 cm","ingefära, skivad ca 7 mm tjock (oskalad)"],["va","2 liter","vatten"],["ky","1,5 kg","kycklinglår med ben och skinn"],["st","5","stjärnanis"],["ka","1","kanelstång"],["kr","4","kryddnejlikor"],["fa","2 tsk","fänkålsfrön"],["ko","2 tsk","korianderfrön"],["fi","8 tsk","fisksås"],["so","6 tsk","strösocker"],["sa","¾ tsk","salt (grovt) eller ½ tsk bordsalt"],["nu","360 g","torkade risnudlar, tunna och platta (eller 600 g färska)"],["sl","2","salladslöksstjälkar, fint skivade"]]},
-   {name:"Tillbehör",items:[["bo","3 dl","böngroddar"],["ör","1 litet","knippe vardera av thaibasilika, mynta och koriander"],["li","2","limefrukter, delade i klyftor"],["ho","","Hoisinsås"],["sr","","Sriracha"],["rc","","Röd chili, fint skivad (valfritt)"]]}
-  ],
-  steps:[
-   {t:"Hetta upp oljan i en stor gryta (minst 6 liter) på hög värme. Lägg löken och ingefäran med snittytan nedåt och låt stå orört i 2 minuter tills de svartnar. Vänd och låt stå ytterligare 2 minuter.",use:["ol","lo","in"]},
-   {t:"Tillsätt vatten och alla buljongsingredienser utom salt. Koka upp och sänk sedan värmen så att det puttrar mycket försiktigt med locket på glänt.",use:["va","ky","st","ka","kr","fa","ko","fi","so"]},
-   {t:"Låt puttra i 1,5 timme. Skumma av grumset som stiger upp till ytan ett par gånger under tillagningen.",use:[]},
-   {t:"Ta upp kycklingen. Sila buljongen i en ren gryta – du ska ha ca 1,5 liter. Har du mer, reducera. Har du mindre, fyll på med vatten.",use:[]},
-   {t:"Tillsätt salt och låt buljongen sjuda försiktigt. Den ska smaka lite väl salt – det späds ut av nudlarna.",use:["sa"]},
-   {t:"Strimla kycklingköttet, kassera ben och skinn. Håll buljongen varm till servering.",use:[]},
-   {t:"Ställ fram tillbehören på bordet. Tillaga nudlarna enligt förpackningens anvisningar precis innan servering och låt dem rinna av väl.",use:["nu","bo","ör","li","ho","sr","rc"]},
-   {t:"Lägg nudlar i skålar, toppa med kyckling och häll över ca 3,75 dl buljong per portion. Strö över salladslök. Servera omedelbart med tillbehören vid sidan om.",use:["sl"]}
-  ]}
-];
 
 // Same structure as the COOK and BAKE pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
 const sec = (name, ...rows) => ({name, rows});
 const TREE = { title:"RECIPES", sections:[sec(null,
   { title:"COOK", sections:[
-    sec(null, ["PLANNING","356e56f59722800d8eefdc36f65529b0"]),
+    sec(null, { title:"PLANNING", sections:[sec(null,
+      { title:"Recipe Bank", sections:[sec(null,["Kyckling Alfredo i panna","373e56f597228029af44d7aae48f77ab"],["Instant Pot Italiensk Kikärtsgryta med Pesto","35de56f59722808897d3eae3324ba7f2"],["Linsbolognese","35de56f597228098b287e436587ade25"])]},
+      ["Inköpslista","356e56f59722803aa904db16f7512fd6"],["Notes","365e56f5972280b19d73ff9f09d82162"],["Dayplans","374e56f59722807597a2c69c55397314"],["2026 Önskelista","2dbe56f5972280b6aa77c6994bb20e1f"],["Tools & Books","3dde56f5972280c4be79c69b92fc5266"]
+    )]}),
     sec("Regions",
       { title:"France", sections:[sec("Dishes",["Lentilles Saucisse","357e56f5972280618177eb6b848968af"],["Quiche Lorraine","357e56f597228022aa10de6d49b6b983"])]},
       { title:"Italy", sections:[
@@ -239,7 +188,7 @@ const TREE = { title:"RECIPES", sections:[sec(null,
     sec("Bakverk & desserter",["Kladdkaka High","360e56f59722808b9f30cc3f993b197c"],["Lemon Bars","2e1e56f5972280b5bc8af155861be053"],["Chokladpudding","330e56f59722804d861ee477d4d87d57"],["Leche Flan","331e56f597228094b876e893cea3eb86"],["Knäckig blåbärspaj","333e56f597228035bb25c2c67c455db9"],["Frasvåfflor","330e56f5972280eeb492c504b063e25c"],["Blondies med körsbär/hallon","3bde56f5972280a88915cf431681866d"],["Mugcake Chocochock","3cce56f5972280ec9653e2d1aa04be37"],["Morotskaka","3dce56f59722801f838eeee8fc3c2538"]),
     sec("Komponenter",["Karamellsås","2bbe56f5972280ecb19ce8191e334428"],["Chokladsås","3dbe56f5972280f0bfb6cc5dab9032c5"]),
     sec("Bröd",["GULDRUGBRØDET","3d1e56f5972280f59342c30c7ca63d8e"],["Farro Porridge Loaf","360e56f597228088b063dd3c19dc105e"],["Double-Fermented Pumpernickel","360e56f597228035b250db340bd332ea"],["Bananbröd","3a8e56f5972280628260c8d26c4c6699"],["Claus morgenbrød","3d8e56f597228094be93c369781e72cb"]),
-    sec(null,["Arkiv","333e56f59722809bbeebd002f6a1598d"],["Flan Parisien","3dee56f5972280b0a113fd8c94f9ac8e"]),
+    sec(null,{ title:"Arkiv", sections:[sec(null,["Blåbärspaj V1","2e1e56f59722809e956fe62d9f8762f6"])]},["Flan Parisien","3dee56f5972280b0a113fd8c94f9ac8e"]),
     sec("WIP",["Baguette","3fce56f59722811aa1e2e74d87fbf06f"],["Knäckig äppelpaj","403e56f597228183a222cc40bd52ab06"])
   ]}
 )]};
@@ -255,7 +204,14 @@ const store = {
 };
 
 const ingRow = (amt,name) => `<div class="ing ${amt?"":"noamt"}">${amt?`<span class="amt">${amt}</span>`:""}<span>${name}</span></div>`;
-const allIngredients = r => r.groups.map(g=>`<div class="group">${g.name?`<p class="label">${g.name}</p>`:""}${g.items.map(i=>ingRow(i[1],i[2])).join("")}</div>`).join("");
+const allIngredients = r => r.groups.map(g=>`<div class="group">${g.name?`<p class="label">${g.name}</p>`:""}${g.items.map(i=>ingRow(i[0],i[1])).join("")}</div>`).join("");
+const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top">
+  <button class="link" ${attr}><span>← ${label}</span></button>
+  <div class="nav-icons">
+    <button class="icon-btn" data-nav-home aria-label="Till startsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/></svg></button>
+    <button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+  </div>
+</div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
 
 const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
@@ -271,8 +227,8 @@ let trail = [TREE];
 function showNode(){
   releaseWake(); recipe = null;
   const node = trail[trail.length-1], parent = trail[trail.length-2];
-  app.innerHTML = `<div class="scroll gutter"><div class="wrap">
-    ${parent?`<div class="top"><button class="link" data-back>← ${parent.title}</button></div>`:""}
+  app.innerHTML = `${parent?navBar(parent.title,"data-back"):""}
+  <div class="scroll gutter"><div class="wrap">
     <h1 class="home-title" ${parent?'style="padding-top:16px"':""}>${node.title}</h1>
     ${parent?"":`<input id="search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">`}
     <div id="hits"></div>
@@ -343,8 +299,8 @@ function wordScore(q,w){
 }
 const bestScore = (q,list) => list.reduce((m,w)=>Math.max(m,wordScore(q,w)),0);
 // Recipe text only counts on a clean match, so a typo can't pull in a recipe through an unrelated word in its method.
-const bodyScore = (q,list) => { const s = bestScore(q,list); return s>=.7 ? s : 0; };
-const termScore = (t,it) => Math.max(bestScore(t,it.titleWords), bestScore(t,it.tags)*.75, bestScore(t,it.placeWords)*.6, bodyScore(t,it.bodyWords)*.5);
+const bodyScore = (q,text) => q.length>=3 && text.includes(q) ? .7 : 0;
+const termScore = (t,it) => Math.max(bestScore(t,it.titleWords), bestScore(t,it.tags)*.75, bestScore(t,it.placeWords)*.6, bodyScore(t,it.bodyText)*.5);
 const termHits = t => INDEX.filter(it=>termScore(t,it)>0).length;
 // A word with no matches is tried as a compound, so "potatissoppa" becomes "potatis soppa".
 function splitCompound(t){
@@ -363,11 +319,11 @@ const INDEX = [];
     if (!Array.isArray(row)){ walk(row,[...path,row.title]); continue; }
     const r = recipeFor(row[1]);
     const place = [...path, s.name||""].join(" ");
-    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[2])), ...r.steps.map(x=>x.t)].join(" ") : "";
+    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ") : "";
     const hay = norm(`${row[0]} ${place} ${body}`);
     const hayWords = hay.split(" ");
     const tags = NORM_CONCEPTS.filter(([,t]) => t.some(x => x.length<=2 ? hayWords.includes(x) : hay.includes(x))).flatMap(([a])=>a);
-    INDEX.push({ title:row[0], id:row[1], recipe:r, where:path.join(" / "), titleWords:words(row[0]), placeWords:words(place), bodyWords:words(body), tags });
+    INDEX.push({ title:row[0], id:row[1], recipe:r, where:path.join(" / "), titleWords:words(row[0]), placeWords:words(place), bodyText:norm(body), tags });
   }
 })(TREE,[]);
 
@@ -446,27 +402,29 @@ function showRecipe(r){
   recipe = r;
   try { done = new Set(JSON.parse(store.get("done:"+r.id)||"[]")); } catch(e){ done = new Set(); }
   requestWake();
-  app.innerHTML = `<div class="gutter"><div class="wrap top">
-      <button class="link" data-up>← ${trail[trail.length-1].title}</button>
-    </div></div>
+  let stepNo = 0;
+  const hasIngredients = r.groups.some(g=>g.items.length);
+  const hasMethod = r.method.some(m=>m.steps.length);
+  app.innerHTML = `${navBar(trail[trail.length-1].title,"data-up")}
     <div class="scroll gutter" id="page"><div class="wrap">
       <h1 class="title">${r.title}</h1>
-      <p class="intro">${r.intro}</p>
+      ${r.intro?`<p class="intro">${r.intro}</p>`:""}
       ${r.plan?`<p class="plan">${r.plan}</p>`:""}
-      <p class="label block-label">Ingredienser</p>
-      ${allIngredients(r)}
-      <p class="label block-label">Metod</p>
-      <p class="hint">Tryck på ett steg när det är klart.</p>
-      <ol class="steps">${r.steps.map((s,i)=>`<li class="step ${done.has(i)?"done":""}" data-step="${i}" role="button" tabindex="0" aria-pressed="${done.has(i)}">
+      ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
+      ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg när det är klart.</p>`:""}
+      ${r.method.map(m=>`${m.name?`<p class="part-name">${m.name}</p>`:""}<ol class="steps">${m.steps.map(t=>{
+        const i = stepNo++;
+        return `<li class="step ${done.has(i)?"done":""}" data-step="${i}" role="button" tabindex="0" aria-pressed="${done.has(i)}">
           <span class="no">${i+1}</span>
-          <p class="text">${markTimes(s.t)}</p>
-        </li>`).join("")}</ol>
+          <p class="text">${markTimes(t)}</p>
+        </li>`;}).join("")}</ol>`).join("")}
+      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${l}</p>`).join("")}`).join("")}`:""}
       <div class="foot">
         <button class="link" data-reset>Börja om</button>
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>
     </div></div>
-    <div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`;
+    ${hasIngredients?`<div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`:""}`;
 }
 
 function toggleStep(el){
@@ -525,6 +483,11 @@ document.addEventListener("click", e => {
     next.scrollPos = 0;
     trail = [...trail, next];
     transition("f", showNode);
+  }
+  else if ("navHome" in d || "navSearch" in d){
+    trail = [TREE]; TREE.scrollPos = 0; query = "";
+    transition("b", showNode);
+    if ("navSearch" in d) document.getElementById("search").focus();
   }
   else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
   else if ("up" in d) transition("b", showNode);
