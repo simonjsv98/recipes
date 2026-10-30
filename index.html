@@ -119,9 +119,8 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
-/* Update: a colored circle grows out from under the banner and shrinks back once the new version has loaded.
-   It never covers the banner, because iOS tints the status bar from the top of the page, with a delay. */
-.update-wipe { position: fixed; inset: 0; z-index: 30; background: #E63B1F; color: #FFC9D6; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 500; letter-spacing: .02em; }
+/* Update: the cards on the start page sink away and rise back one after the other. The banner stays still. */
+.tiles-waiting .tile { opacity: 0; }
 .icon-btn.updating svg { animation: update-spin .8s linear infinite; }
 @keyframes update-spin { to { transform: rotate(360deg); } }
 /* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
@@ -593,40 +592,34 @@ document.addEventListener("keydown", e => {
 });
 
 // Fetches the newest code and recipes past the browser's cache, then reloads. If there's no connection the app stays as it is.
-function updateWipe(x,y,opening){
-  const wipe = document.createElement("div");
-  wipe.className = "update-wipe";
-  wipe.textContent = "RECIPES";
-  const bar = app.querySelector(".top-bar");
-  const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
-  wipe.style.top = `${top}px`;
-  document.body.appendChild(wipe);
-  const cy = y-top;
-  const small = `circle(0px at ${x}px ${cy}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${cy}px)`;
-  const frames = opening ? [small,large] : [large,small];
-  wipe.style.clipPath = frames[1];
-  wipe.animate({clipPath:frames},{duration:opening?420:380,easing:"cubic-bezier(.65,0,.35,1)"});
-  return wipe;
+function tilesOut(){
+  return [...document.querySelectorAll(".tile")].map((tile,i) => tile.animate(
+    [{transform:"none",opacity:1},{transform:"translateY(14px) scale(.94)",opacity:0}],
+    {duration:220,delay:i*50,easing:"cubic-bezier(.4,0,1,1)",fill:"both"}));
+}
+function tilesIn(){
+  document.querySelectorAll(".tile").forEach((tile,i) => {
+    const rise = tile.animate(
+      [{transform:"translateY(22px) scale(.94)",opacity:0},{transform:"none",opacity:1}],
+      {duration:460,delay:i*80,easing:"cubic-bezier(.2,.9,.25,1)",fill:"backwards"});
+    setTimeout(() => rise.cancel(),800);
+  });
 }
 async function updateApp(button){
   button.classList.add("updating");
   button.disabled = true;
-  const box = button.getBoundingClientRect(), x = Math.round(box.left+box.width/2), y = Math.round(box.top+box.height/2);
   const motion = !reducedMotion();
-  const wipe = motion ? updateWipe(x,y,true) : null;
+  const out = motion ? tilesOut() : [];
   try {
-    if (motion) await new Promise(done => setTimeout(done,520));
+    if (motion) await new Promise(done => setTimeout(done,300));
     const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
     const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
     await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
-    if (motion) try { sessionStorage.setItem("updateWipe",JSON.stringify([x,y])); } catch(e){}
+    if (motion) try { sessionStorage.setItem("tilesIn","1"); } catch(e){}
     location.reload();
   } catch(e) {
-    if (wipe){
-      wipe.remove();
-      const closing = updateWipe(x,y,false);
-      setTimeout(() => closing.remove(),400);
-    }
+    out.forEach(a => a.cancel());
+    if (motion) tilesIn();
     button.classList.remove("updating");
     button.disabled = false;
   }
@@ -733,11 +726,14 @@ if (start){ trail = findTrail(TREE,start.notion.split("/").pop()) || [TREE]; sho
 else showNode();
 settleApp();
 try {
-  const point = JSON.parse(sessionStorage.getItem("updateWipe"));
-  sessionStorage.removeItem("updateWipe");
-  if (point){
-    const closing = updateWipe(point[0],point[1],false);
-    setTimeout(() => closing.remove(),400);
+  if (sessionStorage.getItem("tilesIn")){
+    sessionStorage.removeItem("tilesIn");
+    // Waits for the deferred scripts, which render the start page once more.
+    document.documentElement.classList.add("tiles-waiting");
+    document.addEventListener("DOMContentLoaded", () => {
+      tilesIn();
+      document.documentElement.classList.remove("tiles-waiting");
+    });
   }
 } catch(e){}
 </script>
