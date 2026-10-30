@@ -1,0 +1,838 @@
+<title>RECIPES</title>
+<script>try { const p = JSON.parse(sessionStorage.getItem("updateWipe")); if (p){ document.documentElement.classList.add("wipe-hold"); document.documentElement.style.setProperty("--wipe-top",p[2]+"px"); } } catch(e){}</script>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="RECIPES">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F3F2EF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one calm scrolling page per recipe, written like the Notion page. A fixed button brings up the ingredients from anywhere. */
+:root {
+  --bg: #F3F2EF; --surface: #FBFAF8; --ink: #1B1A18; --muted: #7A776F; --line: #DEDCD6; --accent: #1B1A18;
+  --display: "Google Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --body: "Google Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:root { color-scheme: light; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+html { background: var(--bg); }
+#app { position: relative; z-index: 1; }
+.search-panel { position: fixed; z-index: 15; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; background: var(--bg); display: flex; flex-direction: column; }
+.search-panel-head { display: flex; align-items: center; gap: 14px; padding-block: 10px; }
+.search-panel-head .search { flex: 1; min-width: 0; margin: 0; }
+.search-close { flex: none; min-height: 44px; font-weight: 500; }
+.search-panel .scroll { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.45; overflow: hidden; }
+button, a { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
+.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 600px; margin-inline: auto; width: 100%; }
+.view { height: 100%; display: flex; flex-direction: column; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* Home */
+.home-title { font: 500 1.9rem/1.2 var(--display); padding-block: 44px 32px; }
+.section-label { margin-top: 32px; padding-bottom: 10px; }
+.recipes button, .recipes a { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; width: 100%; padding-block: 16px; border-top: 1px solid var(--line); font-size: 1.15rem; line-height: 1.3; text-decoration: none; }
+.recipes li:last-child > * { border-bottom: 1px solid var(--line); }
+.recipes a { color: var(--muted); }
+.recipes .mark { color: var(--muted); flex: none; }
+.home-bottom { height: 40px; }
+.search { display: block; width: 100%; min-height: 52px; padding: 0 16px; border: 1px solid var(--line); border-radius: 26px; background: var(--surface); color: var(--ink); font: inherit; font-size: 1.05rem; margin-bottom: 24px; outline: none; transition: border-color .16s; -webkit-appearance: none; appearance: none; }
+.search::placeholder { color: var(--muted); }
+.search:focus { border-color: var(--ink); }
+.recipes .hit { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.recipes .where { font-size: .85rem; color: var(--muted); }
+.no-hits { color: var(--muted); padding-block: 8px; }
+
+/* Recipe */
+.top { display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+.top-bar { background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-bar .link { flex: 1; min-width: 0; color: var(--ink); font-weight: 500; }
+.top-bar .link span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nav-icons { display: flex; gap: 2px; flex: none; margin-right: -10px; }
+.top-bar .top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+.nav-icons { display: contents; }
+[data-nav-search] { justify-self: end; margin-right: -10px; }
+.icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.icon-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.intro, .plan, .step .text, .note-line { white-space: pre-line; overflow-wrap: anywhere; }
+.part-name { font-weight: 600; font-size: 1.05rem; padding-block: 18px 2px; }
+.note-heading { font-weight: 600; margin-top: 18px; }
+.note-line { margin-top: 8px; font-size: 1.05rem; }
+.recipe-link { display: inline-block; font: inherit; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; padding-block: 4px; }
+.link { min-height: 44px; display: flex; align-items: center; font-size: .95rem; color: var(--muted); }
+.link.strong { color: var(--ink); font-weight: 600; }
+.title { font: 500 clamp(1.7rem, 7.4vw, 2.3rem)/1.2 var(--display); text-wrap: balance; padding-top: 16px; }
+.intro { color: var(--muted); margin-top: 14px; font-size: 1rem; }
+.plan { color: var(--muted); margin-top: 10px; font-size: 1rem; }
+.label { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.block-label { margin-top: 40px; padding-bottom: 8px; }
+.group { margin-top: 20px; padding-bottom: 4px; }
+.ing { display: grid; grid-template-columns: 6.2em minmax(0, 1fr); gap: 10px; padding-block: 9px; line-height: 1.35; }
+.ing + .ing { border-top: 1px solid var(--line); }
+.ing.noamt { grid-template-columns: minmax(0, 1fr); }
+.ing .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.steps { display: flex; flex-direction: column; }
+.step { display: grid; grid-template-columns: 1.7em minmax(0, 1fr); gap: 6px; padding-block: 22px; border-top: 1px solid var(--line); cursor: pointer; transition: opacity .15s; }
+.step .no { font-size: .95rem; line-height: 1.9rem; color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.step .text { font-size: clamp(1.2rem, 5.2vw, 1.45rem); line-height: 1.4; min-width: 0; }
+.step .text b { font-weight: 600; color: var(--accent); }
+.step.done { opacity: .32; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; border-top: 1px solid var(--line); padding-block: 12px 112px; }
+.hint { color: var(--muted); font-size: .95rem; padding-bottom: 14px; }
+
+/* Ingredients button: same spot opens and closes the list */
+.ing-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 60px; border-radius: 30px; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 1.1rem; text-align: center; }
+.ing-dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; padding-top: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 70%, transparent); pointer-events: none; }
+.ing-dock .ing-btn { pointer-events: auto; }
+
+/* Ingredient sheet */
+.sheet-wrap { position: fixed; inset: 0; z-index: 20; background: rgba(10, 10, 8, .4); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 600px; max-height: 85%; border-radius: 14px 14px 0 0; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet .top { min-height: 60px; }
+.sheet-title { font: 500 1.15rem/1.2 var(--display); }
+.sheet .scroll { padding-bottom: 12px; }
+.sheet-foot { padding-top: 12px; padding-bottom: 16px; }
+.sheet .group:first-child { margin-top: 0; }
+
+/* Motion: short, one curve, pages move in the direction you travel */
+:root { --ease: cubic-bezier(.2, .8, .2, 1); }
+/* Page changes: the new page replaces the old one at once, with a short fade. No sliding or overlapping pages, which stutter on phones. */
+.top-bar { position: relative; z-index: 2; }
+.settled, .settled * { animation: none !important; }
+#app, #app * { touch-action: pan-y pinch-zoom; }
+.enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
+@keyframes page-in { from { opacity: 0; } }
+/* Update: a colored circle grows from the button, and shrinks back into it once the new version has loaded. */
+/* The circle moves by transform, which the phone animates without redrawing the page. The red hold covers the reload itself. */
+.update-wipe { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #FFC9D6; font-size: 1.7rem; font-weight: 500; letter-spacing: .02em; }
+.update-wipe b { position: absolute; border-radius: 50%; background: #E63B1F; will-change: transform; }
+.update-wipe span { position: relative; }
+html.wipe-hold::after { content: "RECIPES"; position: fixed; left: 0; right: 0; bottom: 0; top: var(--wipe-top, 0px); z-index: 29; background: #E63B1F; color: #FFC9D6; display: flex; align-items: center; justify-content: center; font: 500 1.7rem "Google Sans", -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: .02em; }
+.icon-btn.updating svg { animation: update-spin .8s linear infinite; }
+@keyframes update-spin { to { transform: rotate(360deg); } }
+/* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
+.swipe-top { position: fixed; inset: 0; z-index: 5; background: var(--bg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); will-change: transform; pointer-events: none; }
+.swipe-top::before { content: ""; position: absolute; top: 0; bottom: 0; left: -14px; width: 14px; background: linear-gradient(to left, rgba(20, 18, 10, .14), transparent); }
+#app.swiping { will-change: transform; }
+
+.recipes button, .recipes a { transition: opacity .12s, padding-left .2s var(--ease); }
+.recipes .mark { transition: transform .2s var(--ease); }
+.recipes button:active, .recipes a:active { opacity: .45; }
+.step:active .text { opacity: .6; }
+.step .text { transition: opacity .12s; }
+.ing-btn { transition: transform .16s var(--ease), opacity .16s; }
+.ing-btn:active { transform: scale(.97); opacity: .88; }
+@media (hover: hover) {
+  .recipes button:hover .mark, .recipes a:hover .mark { transform: translateX(3px); }
+}
+
+.sheet-wrap { animation: fade-in .2s ease-out; }
+.sheet { animation: sheet-in .32s var(--ease); }
+.sheet-wrap.closing { animation: fade-out .2s ease-in forwards; }
+.sheet-wrap.closing .sheet { animation: sheet-out .2s ease-in forwards; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* iOS 26 blurs the top edge of home screen apps unless a fixed, opaque, full-width element sits there. */
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 2px); background: #F3F2EF; z-index: 30; }
+.top-bar { position: fixed !important; top: 0; left: 0; right: 0; padding-top: env(safe-area-inset-top, 0px); background: #F3F2EF; z-index: 2; }
+.top-bar + .scroll { margin-top: 57px; }
+.search-panel { top: 0 !important; padding-top: env(safe-area-inset-top, 0px); }
+</style>
+
+<style>
+/* Start page: two full colour tiles, one per kitchen. */
+.home-wordmark { font: 600 1.15rem/1 var(--display); letter-spacing: .04em; }
+.home-scroll { display: flex; }
+.home-tiles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding-block: 12px calc(16px + env(safe-area-inset-bottom, 0px)); max-width: 900px; margin-inline: auto; }
+.tile { position: relative; flex: 1; min-height: 240px; width: 100%; border-radius: 20px; overflow: hidden; transition: transform .16s var(--ease); }
+.tile:active { transform: scale(.98); }
+.tile svg { position: absolute; top: 3%; right: -4%; height: 78%; }
+.tile-label { position: absolute; left: 20px; bottom: 16px; display: flex; flex-direction: column; text-align: left; }
+.tile-name { font: 600 2.1rem/1.05 var(--display); letter-spacing: .01em; }
+.tile-count { font-size: .95rem; margin-top: 4px; opacity: .85; }
+.tile-cook { background: #E63B1F; color: #FFE3EA; }
+.tile-bake { background: #4A2212; color: #F9E27D; }
+@media (orientation: landscape) { .home-tiles { flex-direction: row; } }
+/* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
+[data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
+[data-section="bake"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #F2C94C; }
+[data-section] .home-title::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .3em; border-radius: 50%; background: var(--dot); vertical-align: .08em; }
+[data-section] .home-title, [data-section] .section-label, [data-section] .recipes .mark, [data-section] .block-label { color: var(--accent); }
+[data-section] .ing-btn { background: var(--cover); color: var(--on-cover); }
+[data-section] .recipe-link { color: var(--accent); }
+</style>
+<script src="units.js" defer></script>
+<script src="extras.js" defer></script>
+<div id="app" class="view"></div>
+<div id="sheet" class="sheet-wrap" hidden></div>
+<div id="search-panel" class="search-panel" hidden>
+  <div class="gutter"><div class="wrap search-panel-head">
+    <input id="panel-search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <button class="search-close" data-search-close>Stäng</button>
+  </div></div>
+  <div class="scroll gutter" id="panel-scroll"><div class="wrap" id="panel-hits"></div></div>
+</div>
+
+<script>
+// Texts are copied unchanged from Notion. `use` is left over from the earlier per-step layout and isn't displayed.
+const RECIPES = [
+{ id:"carbonara", title:"Spaghetti Carbonara",
+  notion:"https://app.notion.com/p/330e56f5972280d68c01ddc87c4b0bc0",
+  intro:"Isabella Morrones recept. Äkta carbonara utan grädde — krämig tack vare pastavatten. Snåla inte med svartpepparn.",
+  groups:[{items:[["sp","400 g","spaghetti"],["ag","4","äggulor"],["pa","150 g","pancetta"],["pe","30 g","pecorinoost, finriven"],["pm","30 g","parmesanost, finriven (gärna lagrad minst 16 månader)"],["sv","","Svartpeppar, nymalen"],["sa","","Salt"]]}],
+  steps:[
+   {t:"Skär pancettan i små bitar och stek utan fett tills krispig. Lyft upp och lägg åt sidan, låt fettet vara kvar i pannan.",use:["pa"]},
+   {t:"Koka spaghettin ca 3 minuter kortare än anvisningen på förpackningen.",use:["sp"]},
+   {t:"Vispa ihop äggulorna med den rivna osten och rikligt med nymalen svartpeppar i en skål.",use:["ag","pe","pm","sv"]},
+   {t:"Sätt på värmen igen på pannan med stekfettet, häll i ca 3 dl pastavatten och låt koka.",use:[]},
+   {t:"Häll av spaghettin och lägg i pannan med pancettan.",use:[]},
+   {t:"Låt koka 2–3 minuter under konstant omrörning så att stärkelsen utsöndras och det bildas en krämig sås.",use:[]},
+   {t:"När vattnet kokat in och bara någon matsked återstår, ta pannan från värmen.",use:[]},
+   {t:"Tillsätt äggsmeten och rör tills det blir krämigt.",use:[]},
+   {t:"Tillsätt lite pastavatten om det blir torrt.",use:[]},
+   {t:"Smaka av med salt och peppar.",use:["sa","sv"]}
+  ]},
+{ id:"biffar", title:"Nötfärsbiffar med getost, tzatziki och rostade rotfrukter",
+  notion:"https://app.notion.com/p/35de56f5972280f4b99feb32f6571391",
+  intro:"Saftiga nötfärsbiffar med getost och rostad lök, serverade med timjanrostade rotfrukter och hemgjord tzatziki. Recept av Gustav Trägårdh via Tasteline.",
+  groups:[
+   {name:"Rotfrukter",items:[["po","200 g","potatis"],["pl","250 g","palsternacka"],["mo","500 g","morot"],["ro","30 ml","olivolja"],["ti","2 tsk","torkad timjan"],["rs","","Salt och svartpeppar"]]},
+   {name:"Färsbiffar",items:[["nf","500 g","nötfärs"],["fs","1,5 tsk","salt"],["rl","50 g","rostad lök"],["go","120 g","getost, smulad"],["cf","100 ml","crème fraîche"],["vl","1","vitlöksklyfta, riven"],["ci","","Skal av ½ citron"],["ch","½","röd chilipeppar, finhackad"]]},
+   {name:"Stekning",items:[["so","7 ml","olivolja"],["sm","7 g","smör"],["pr","","Persilja att toppa med"]]},
+   {name:"Tzatziki",items:[["gu","½","gurka"],["yo","200 ml","matyoghurt"],["to","30 ml","olivolja"],["ts","","Salt och svartpeppar"]]}
+  ],
+  steps:[
+   {t:"Sätt ugnen på 200°C. Skala och skär rotfrukterna i grova bitar. Vänd på en plåt med olivolja, timjan, salt och peppar. Rosta i ugnen ca 30 minuter.",use:["po","pl","mo","ro","ti","rs"]},
+   {t:"Blanda nötfärsen med salt, rostad lök, smulad getost, crème fraîche, riven vitlök, citronskal och finhackad chili. Blanda väl och forma 8 biffar.",use:["nf","fs","rl","go","cf","vl","ci","ch"]},
+   {t:"Hetta upp olja och smör i en stekpanna på medelhög värme. Stek biffarna ca 2–3 minuter per sida tills gyllene. Sänk värmen och låt dem bli klara i pannan.",use:["so","sm"]},
+   {t:"Riv gurkan och krama ur vätskan ordentligt. Blanda med yoghurt, salt och peppar. Ringla över olivoljan.",use:["gu","yo","to","ts"]},
+   {t:"Servera färsbiffarna med rostade rotfrukter och tzatziki.",use:["pr"]}
+  ]},
+{ id:"baguette", title:"Baguette",
+  notion:"https://app.notion.com/p/3fce56f59722811aa1e2e74d87fbf06f",
+  intro:"Rustika franska baguetter på en lös och kladdig deg, från ICA. Halverat recept med torrjäst: 2 baguetter.",
+  plan:"Total: ca 2 h. 10 min (knåda) + 1 h (jäsning) + 5 min (forma) + 30 min (jäsning, ugnen värms) + 15 min (grädda)",
+  groups:[{items:[["tj","3 g","torrjäst (1 tsk)"],["va","250 g","vatten (2,5 dl)"],["sa","7 g","salt (1¼ tsk)"],["ol","20 g","olivolja (1½ msk)"],["mj","360 g","vetemjöl special (6 dl)"]]}],
+  steps:[
+   {t:"Blanda torrjästen med 330 g (5½ dl) mjöl i en bunke, spara 30 g (½ dl) till utbakning. Värm vattnet till 42°C och häll i tillsammans med salt och olivolja. Arbeta degen kraftigt, cirka 10 minuter. Den ska vara lös och kladdig.",use:["tj",["330 g","vetemjöl special (5½ dl)"],"va","sa","ol"]},
+   {t:"Låt degen jäsa under bakduk, cirka 1 timme.",use:[]},
+   {t:"Häll ut degen på mjölad bänk utan att knåda den. Dela i 2 delar, forma avlånga baguetter och vrid dem. Lägg dem på en plåt med bakplåtspapper och pudra över lite mjöl.",use:[["30 g","vetemjöl, sparat från steg 1"]]},
+   {t:"Låt bröden jäsa under bakduk, cirka 30 minuter. Sätt under tiden ugnen på 250°C.",use:[]},
+   {t:"Ställ en ugnsform med ca 100 g (1 dl) vatten i botten av ugnen. Grädda bröden mitt i ugnen, cirka 15 minuter.",use:[]},
+   {t:"Låt baguetterna svalna på galler utan duk.",use:[]}
+  ]},
+{ id:"pho", title:"Pho Ga Vietnamesisk kycklingpho",
+  notion:"https://app.notion.com/p/301e56f59722800cb25fd00406817723",
+  intro:"Klassisk vietnamesisk pho med kycklingbuljong och kryddor. Recept av Nagi Maehashi / RecipeTin Eats.",
+  groups:[
+   {items:[["ol","1 msk","neutral olja"],["lo","2","lökar, halverade (skal på är ok)"],["in","5 cm","ingefära, skivad ca 7 mm tjock (oskalad)"],["va","2 liter","vatten"],["ky","1,5 kg","kycklinglår med ben och skinn"],["st","5","stjärnanis"],["ka","1","kanelstång"],["kr","4","kryddnejlikor"],["fa","2 tsk","fänkålsfrön"],["ko","2 tsk","korianderfrön"],["fi","8 tsk","fisksås"],["so","6 tsk","strösocker"],["sa","¾ tsk","salt (grovt) eller ½ tsk bordsalt"],["nu","360 g","torkade risnudlar, tunna och platta (eller 600 g färska)"],["sl","2","salladslöksstjälkar, fint skivade"]]},
+   {name:"Tillbehör",items:[["bo","3 dl","böngroddar"],["ör","1 litet","knippe vardera av thaibasilika, mynta och koriander"],["li","2","limefrukter, delade i klyftor"],["ho","","Hoisinsås"],["sr","","Sriracha"],["rc","","Röd chili, fint skivad (valfritt)"]]}
+  ],
+  steps:[
+   {t:"Hetta upp oljan i en stor gryta (minst 6 liter) på hög värme. Lägg löken och ingefäran med snittytan nedåt och låt stå orört i 2 minuter tills de svartnar. Vänd och låt stå ytterligare 2 minuter.",use:["ol","lo","in"]},
+   {t:"Tillsätt vatten och alla buljongsingredienser utom salt. Koka upp och sänk sedan värmen så att det puttrar mycket försiktigt med locket på glänt.",use:["va","ky","st","ka","kr","fa","ko","fi","so"]},
+   {t:"Låt puttra i 1,5 timme. Skumma av grumset som stiger upp till ytan ett par gånger under tillagningen.",use:[]},
+   {t:"Ta upp kycklingen. Sila buljongen i en ren gryta – du ska ha ca 1,5 liter. Har du mer, reducera. Har du mindre, fyll på med vatten.",use:[]},
+   {t:"Tillsätt salt och låt buljongen sjuda försiktigt. Den ska smaka lite väl salt – det späds ut av nudlarna.",use:["sa"]},
+   {t:"Strimla kycklingköttet, kassera ben och skinn. Håll buljongen varm till servering.",use:[]},
+   {t:"Ställ fram tillbehören på bordet. Tillaga nudlarna enligt förpackningens anvisningar precis innan servering och låt dem rinna av väl.",use:["nu","bo","ör","li","ho","sr","rc"]},
+   {t:"Lägg nudlar i skålar, toppa med kyckling och häll över ca 3,75 dl buljong per portion. Strö över salladslök. Servera omedelbart med tillbehören vid sidan om.",use:["sl"]}
+  ]}
+];
+
+// Same structure as the COOK and BAKE pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
+const sec = (name, ...rows) => ({name, rows});
+const TREE = { title:"RECIPES", sections:[sec(null,
+  { title:"COOK", sections:[
+    sec(null, { title:"PLANNING", sections:[sec(null,
+      { title:"Recipe Bank", sections:[sec(null,["Kyckling Alfredo i panna","373e56f597228029af44d7aae48f77ab"],["Instant Pot Italiensk Kikärtsgryta med Pesto","35de56f59722808897d3eae3324ba7f2"],["Linsbolognese","35de56f597228098b287e436587ade25"])]},
+      ["Inköpslista","356e56f59722803aa904db16f7512fd6"],["Notes","365e56f5972280b19d73ff9f09d82162"],["Dayplans","374e56f59722807597a2c69c55397314"],["2026 Önskelista","2dbe56f5972280b6aa77c6994bb20e1f"],["Tools & Books","3dde56f5972280c4be79c69b92fc5266"]
+    )]}),
+    sec("Regions",
+      { title:"France", sections:[sec("Dishes",["Lentilles Saucisse","357e56f5972280618177eb6b848968af"],["Quiche Lorraine","357e56f597228022aa10de6d49b6b983"])]},
+      { title:"Italy", sections:[
+        sec("Dishes",["Bolognese","269e56f5972280168123fec2e320669b"],["Spaghetti Carbonara","330e56f5972280d68c01ddc87c4b0bc0"],["Lasagna","306e56f5972280779e11d63be0b8bea4"],["Peposa","2b6e56f5972280eda612d7a9c8dcb3f4"],["Romanesco Broccoli Maccheroni","2dee56f597228097a798ed12bc8606b3"],["Rosmarinsgryta – från Katrin","2bbe56f597228038ae9de8e1305db90e"],["Lammbolognese","2e6e56f597228061a00bea9388dd826d"],["Lammrevben med rödvin och rosmarin","352e56f5972280da9e0cc0e150175f4f"],["Bräserat Lamm i tryckkokare med Vita Bönor och Spenat","35de56f59722801da4c0dcb7caf08234"],["Napolitansk Pizza","39de56f59722808a9ee6dfabc6772a2c"],["Krämig kycklinggratäng","3dee56f5972280f4ae36d9e175193718"]),
+        sec("Sides & Bases",["Polenta","2b6e56f59722804b9d91c7e6a5c6d4c3"])]},
+      { title:"Nordic", sections:[
+        sec("Dishes",["Pumpasoppa","2b6e56f5972280aa937ae8caee6872d3"],["Sallad (Arket)","28ce56f5972280e288ddef22c9eacae8"],["Grönkålspaj med chèvre","2dbe56f59722803380fdfb70a2ab49a0"],["Pumpaplåt","303e56f5972280e482e9fe3c94921d4a"],["Potatis och purjolökssoppa","357e56f59722802e9eb5e37932f5d9ba"],["Nötfärsbiffar med getost, tzatziki och rostade rotfrukter","35de56f5972280f4b99feb32f6571391"],["Kycklingcurry med äpple","367e56f5972280eba358cd39e9236933"],["Dillkött med kokt potatis","373e56f597228094ae5bcab44845df47"],["Laxbitar Sous Vide med fänkål","2e4e56f5972280afaa6df5604901c8b4"],["Kroppkakor av kokt potatis","357e56f597228019816efe2aa6a91d93"],["Portabellosallad","3bde56f59722802fa8fbf8b1059d400f"],["Musselrisotto","3cfe56f597228086897cce4332ac4694"],["Lax med potatisklyftor och broccoli","3d8e56f5972280f38057c7af5321ccc5"],["Ärtsoppa","336e56f597228018af9be0ca56fd0b3c"],["Gryta med vita bönor och kyckling","3eae56f59722800f8ccccf71c81a7ec0"],["CHECK Köttgryta med lök, koriander och fänkål","3f7e56f597228194ad77fd3858ff7176"],["CHECK Rostade kycklinglår med krämig majs och jalapeño","3f7e56f5972281c4967ff6d50304c339"]),
+        sec("Proteins",["Fläskkarré low n slow i ugn","3b0e56f5972280afae2be67784a809dd"],["Hel kyckling Sous Vide","2a0e56f597228043a17aed519a702ca8"],["Kycklinglår i TK","2d8e56f5972280cf95add867144309e0"],["Slow Roasted Salmon (Samin)","303e56f5972280a9a9d6cb724f2341b2"],["Bräserad vildsvinskulting","3bfe56f597228052bfcdea25fcf93b8c"],["Bräserade vildsvinsrevben med BBQ-glaze","3bfe56f59722805b89b0db1229bbb3ad"]),
+        sec("Sides & Bases",["Fransk Potatisgratäng","283e56f5972280579a7ad600bc1b94ef"],["Potatismos","2bbe56f59722805d91c9e7fe5c0f82ae"],["Gurksallad Krispig","3b8e56f59722800ebf95f80e8b254ea5"],["Västerbottenpaj","3d1e56f597228073897ff20468e68e11"],["Rostade Tomathalvor","3dae56f5972280a0abbbdfb03c28a4a9"],["Stuvad vitkål","3dae56f597228003b7c4f88b576d565c"]),
+        sec("Sauces & Process",["Dijondressing","2dbe56f5972280f09abbc0cc77ee98ea"],["Inläggning: 1-2-3-lag","2dee56f597228047860feff9280e8a2c"],["Dry Brine principles","3bae56f5972280f799d9deab469ba282"],["Wet Brine principles","3bae56f59722802ebf8bd09a984605a7"],["Baljväxter / Bönor","31be56f5972280238a08f467e0fa4128"]),
+        sec("Breakfast & Snacks",["Chia Bircher Bowl","261e56f5972280a8b518c4037e446221"],["Fattiga riddare","3a9e56f5972280fab55edbc215cf7e4a"]),
+        sec("WIP",["Snabb aioli","3fce56f597228135bed1e86a15dc8ca0"])]},
+      { title:"Asia", sections:[
+        sec("Dishes",["Stir Fry","251e56f5972280d7b5d9dec0ea377d87"],["Pho Ga Vietnamesisk kycklingpho","301e56f59722800cb25fd00406817723"],["Slow laxsida med soja, lime och ingefära","387e56f5972280fb89a7defb3652cf21"]),
+        sec("Proteins",["Glazed Thick Ribs TK","2e1e56f5972280e38133ce5e4914b774"],["Umami Drumsticks TK","2e1e56f5972280ceab5cfb45fdcb85f7"]),
+        sec("Sides & Bases",["Fresh Broccoli Coat","2e1e56f597228056bd85ed563949841a"]),
+        sec("WIP",["Shrimp noodle sallad","3bfe56f597228063b9e6cee94ae6cecd"])]},
+      { title:"India", sections:[sec("Dishes",["Dal palak","373e56f59722803db7b1f70ea13b000e"],["Butter chicken","373e56f5972280bdb2d5c931177781f8"],["Palak paneer (halloumi)","3e8e56f59722805db9b0dc43e1c6bdf9"])]},
+      { title:"Mexico", sections:[sec("Dishes",["Rice n’ Beans","26ae56f5972280d3a207dceacaab08f3"]),sec("Sides & Bases",["Corn Wheat Tortillas","2dee56f5972280c2b0eacda42b023340"])]},
+      { title:"England", sections:[sec(null,["Slow Pork with Leek","2bbe56f59722805593edff631bb0713a"])]},
+      { title:"USA", sections:[
+        sec("Dishes",["Cocoa-Blackened Chicken med Stenfrukter","35de56f597228087b211fbcfaaafacce"],["Cesarsallad","38ae56f5972280ffa045f38253a8f247"]),
+        sec("Proteins",["Pulled Pork TK","2d8e56f59722807cacd5d21424ae702b"]),
+        sec("Sides & Bases",["Coleslaw","2d8e56f5972280a9afb8d7b01e9ca9f2"])]},
+      { title:"Super Simple", sections:[sec(null,["Super Simple Carbonara","251e56f5972280989ee6f2757b37568b"],["Super Simple Pea Pasta","2b9e56f5972280c492f0fedd01c06cb9"])]}
+    )]},
+  { title:"BAKE", sections:[
+    sec("Bullar och frallor",["Klassiska bullar","256e56f59722802cb1c2f242db9d6fd3"],["Surdegsfrallor","2b6e56f5972280e78d89e8e5adb48749"],["Lussebullar","2bbe56f597228082ae4df751df460344"],["Klassiska hamburgerbröd","334e56f597228063a7ccc02ea470a391"]),
+    sec("Glass",["Glass – No Churn","2bbe56f5972280b1a5b1ff972f566fae"],["Fransk vaniljglass – Crème Anglaise","2d8e56f59722804ba3c2e698fdab230b"],["Kaffeglass","3d9e56f5972280bb997fdfde6e80562f"],["Salted Caramel Glass","2dbe56f5972280a4b3c7e41a1f144645"],["Hazelnut Ice Cream","301e56f59722809fb200d3624b07a485"],["Almond Ice Cream","2e4e56f59722804f8611e783591d5d34"],["Gelato Fior Di Latte","3d8e56f5972280b79f6cc796be6755ee"]),
+    sec("Sorbet",["Grundsockerlag – till glass","3a8e56f5972280b7944de3907e0398dd"],["Blåbärssorbet","3a8e56f597228071b654ddb7f5ce4d81"]),
+    sec("Bakverk & desserter",["Kladdkaka High","360e56f59722808b9f30cc3f993b197c"],["Lemon Bars","2e1e56f5972280b5bc8af155861be053"],["Chokladpudding","330e56f59722804d861ee477d4d87d57"],["Leche Flan","331e56f597228094b876e893cea3eb86"],["Knäckig blåbärspaj","333e56f597228035bb25c2c67c455db9"],["Frasvåfflor","330e56f5972280eeb492c504b063e25c"],["Blondies med körsbär/hallon","3bde56f5972280a88915cf431681866d"],["Mugcake Chocochock","3cce56f5972280ec9653e2d1aa04be37"],["Morotskaka","3dce56f59722801f838eeee8fc3c2538"]),
+    sec("Komponenter",["Karamellsås","2bbe56f5972280ecb19ce8191e334428"],["Chokladsås","3dbe56f5972280f0bfb6cc5dab9032c5"]),
+    sec("Bröd",["GULDRUGBRØDET","3d1e56f5972280f59342c30c7ca63d8e"],["Farro Porridge Loaf","360e56f597228088b063dd3c19dc105e"],["Double-Fermented Pumpernickel","360e56f597228035b250db340bd332ea"],["Bananbröd","3a8e56f5972280628260c8d26c4c6699"],["Claus morgenbrød","3d8e56f597228094be93c369781e72cb"]),
+    sec(null,{ title:"Arkiv", sections:[sec(null,["Blåbärspaj V1","2e1e56f59722809e956fe62d9f8762f6"])]},["Flan Parisien","3dee56f5972280b0a113fd8c94f9ac8e"]),
+    sec("WIP",["Baguette","3fce56f59722811aa1e2e74d87fbf06f"],["Knäckig äppelpaj","403e56f597228183a222cc40bd52ab06"])
+  ]}
+)]};
+
+const app = document.getElementById("app");
+const sheet = document.getElementById("sheet");
+let recipe = null, wakeLock = null, done = new Set();
+
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+
+const ingRow = (amt,name) => `<div class="ing ${amt?"":"noamt"}">${amt?`<span class="amt">${amt}</span>`:""}<span>${name}</span></div>`;
+const allIngredients = r => r.groups.map(g=>`<div class="group">${g.name?`<p class="label">${g.name}</p>`:""}${g.items.map(i=>ingRow(i[0],i[1])).join("")}</div>`).join("");
+const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top">
+  <button class="link" ${attr}><span>← ${label}</span></button>
+  <div class="nav-icons">
+    <button class="icon-btn" data-nav-home aria-label="Till startsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/></svg></button>
+    <div class="nav-right"><button class="icon-btn" data-nav-units aria-label="Enheter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0Z"/></svg></button><button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button></div>
+  </div>
+</div></div>`;
+const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
+// [[id|Title]] in recipe text is a link to another recipe, like a link-to-page block in Notion.
+const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class="recipe-link" data-link="$1">$2</button>');
+let cameFrom = [];
+
+const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
+const rowHtml = (row,s,i) => {
+  if (!Array.isArray(row)) return `<li><button data-node="${s}.${i}"><span>${row.title}</span><span class="mark">›</span></button></li>`;
+  const r = recipeFor(row[1]);
+  if (r) return `<li><button data-open="${r.id}"><span>${row[0]}</span><span class="mark">›</span></button></li>`;
+  return `<li><a href="https://app.notion.com/p/${row[1]}" target="_blank" rel="noopener"><span>${row[0]}</span><span class="mark">↗</span></a></li>`;
+};
+
+// `trail` is the path from the start page to the current page, for the back button.
+let trail = [TREE];
+// Marks which cover the current page belongs to, for its accent colors.
+function setSection(path){
+  const name = path && path[1] ? path[1].title.toLowerCase() : "";
+  [app,sheet].forEach(el => { if (name) el.dataset.section = name; else delete el.dataset.section; });
+}
+function showNode(){
+  releaseWake(); recipe = null; cameFrom = [];
+  setSection(trail);
+  const node = trail[trail.length-1], parent = trail[trail.length-2];
+  if (!parent) return showStart();
+  app.innerHTML = `${parent?navBar(parent.title,"data-back"):""}
+  <div class="scroll gutter"><div class="wrap">
+    <h1 class="home-title" ${parent?'style="padding-top:16px"':""}>${node.title}</h1>
+    ${parent?"":`<input id="search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">`}
+    <div id="hits"></div>
+    <div id="browse">${node.sections.map((s,si)=>`${s.name?`<p class="label section-label">${s.name}</p>`:""}<ul class="recipes" ${!s.name&&si?'style="margin-top:32px"':""}>${s.rows.map((row,i)=>rowHtml(row,si,i)).join("")}</ul>`).join("")}</div>
+    <div class="home-bottom"></div>
+  </div></div>`;
+  if (!parent){ document.getElementById("search").value = query; renderHits(); }
+  app.querySelector(".scroll").scrollTop = node.scrollPos || 0;
+}
+
+// Search: forgives typos and accents, finds words inside compounds, and understands food concepts through CONCEPTS.
+// Aliases on the left match a recipe when one of its name, section or ingredient words contains a trigger on the right.
+const CONCEPTS = [
+  ["kött meat", "nöt färs köttgryta dillkött bolognese lamm fläsk pork vildsvin ribs revben pancetta korv saucisse pulled peposa rosmarinsgryta"],
+  ["kyckling chicken fågel", "kyckling chicken drumsticks"],
+  ["fisk fish skaldjur seafood", "lax salmon mussel shrimp"],
+  ["pasta", "carbonara bolognese lasagna maccheroni spaghetti pasta"],
+  ["nudlar noodles", "pho noodle stir"],
+  ["soppa soup", "soppa pho"],
+  ["gryta stew", "gryta dal curry dillkött peposa butter lentilles bräser"],
+  ["vegetariskt vegetarisk vego veg grönt", "pumpa grönkål portabello dal palak beans purjolök tomathalvor polenta vitkål gurksallad västerbottenpaj pea"],
+  ["sallad salad", "sallad coleslaw"],
+  ["dessert efterrätt sött sweet", "flan glass cream gelato sorbet kladdkaka pudding blåbärspaj äppelpaj blondies mugcake morotskaka lemon våfflor"],
+  ["kaka cake tårta fika", "kladdkaka mugcake morotskaka blondies lemon bananbröd bullar"],
+  ["glass icecream", "glass cream gelato sorbet"],
+  ["choklad chocolate", "choklad kladdkaka chocochock"],
+  ["bröd bread", "bröd brød frallor bullar baguette loaf pumpernickel tortillas"],
+  ["paj pie", "paj quiche"],
+  ["frukost breakfast", "chia fattiga porridge morgenbrød"],
+  ["tillbehör sides", "potatismos gratäng gurksallad polenta tomathalvor vitkål coleslaw broccoli"],
+  ["sås sauce dressing", "sås dressing aioli"],
+  ["potatis potato", "potatis gratäng kroppkakor"],
+  ["snabbt snabb quick enkelt enkel easy vardag", "simple mugcake stir snabb"],
+  ["långkok slow", "slow bräser pulled dillkött"],
+  ["tryckkokare", "tk tryckkokare"],
+  ["asiatiskt asian", "asia"], ["italienskt italian", "italy"], ["franskt french", "france"],
+  ["indiskt indian", "india"], ["mexikanskt mexican", "mexico"], ["amerikanskt american", "usa"],
+  ["svenskt swedish nordiskt", "nordic"], ["engelskt english british", "england"], ["baka bakning baking", "bake"]
+];
+const STOP = new Set("med och i nagot jag vill ha till som en ett recept for mat pa lite av utan det att".split(" "));
+const norm = s => s.toLowerCase().replace(/ø/g,"o").replace(/æ/g,"ae").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+const words = s => norm(s).split(" ").filter(Boolean);
+const NORM_CONCEPTS = CONCEPTS.map(([a,t]) => [words(a), words(t)]);
+
+function distance(a,b){
+  let prev = Array.from({length:b.length+1},(_,i)=>i);
+  for (let i=1;i<=a.length;i++){
+    const row = [i];
+    for (let j=1;j<=b.length;j++) row[j] = Math.min(prev[j]+1, row[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev = row;
+  }
+  return prev[b.length];
+}
+const allowedTypos = len => len<4 ? 0 : len<7 ? 1 : 2;
+// How well one search word fits one word from a recipe: 1 is exact, 0 is no match.
+function wordScore(q,w){
+  if (q===w) return 1;
+  if (w.startsWith(q)) return .85;
+  if (q.length>=3 && w.includes(q)) return .7;
+  const max = allowedTypos(q.length);
+  if (max){
+    const d = Math.min(distance(q,w), distance(q,w.slice(0,q.length)));
+    let shared = 0; while (shared<q.length && q[shared]===w[shared]) shared++;
+    if (shared>=4 && shared>=q.length-2) return .6;
+    if (d<=max) return .65-d*.1-(q[0]===w[0]?0:.2);
+  }
+  return 0;
+}
+const bestScore = (q,list) => list.reduce((m,w)=>Math.max(m,wordScore(q,w)),0);
+// Recipe text only counts on a clean match, so a typo can't pull in a recipe through an unrelated word in its method.
+const bodyScore = (q,text) => q.length>=3 && text.includes(q) ? .7 : 0;
+const termScore = (t,it) => Math.max(bestScore(t,it.titleWords), bestScore(t,it.tags)*.75, bestScore(t,it.placeWords)*.6, bodyScore(t,it.bodyText)*.5);
+const termHits = t => INDEX.filter(it=>termScore(t,it)>0).length;
+// A word with no matches is tried as a compound, so "potatissoppa" becomes "potatis soppa".
+function splitCompound(t){
+  if (t.length<7 || termHits(t)) return [t];
+  let best = null, bestCount = 0;
+  for (let i=3;i<=t.length-3;i++){
+    const a = t.slice(0,i), b = t.slice(i), ca = termHits(a), cb = termHits(b);
+    if (ca && cb && ca+cb>bestCount){ best = [a,b]; bestCount = ca+cb; }
+  }
+  return best || [t];
+}
+
+const INDEX = [];
+(function walk(node,path){
+  for (const s of node.sections) for (const row of s.rows){
+    if (!Array.isArray(row)){ walk(row,[...path,row.title]); continue; }
+    const r = recipeFor(row[1]);
+    const place = [...path, s.name||""].join(" ");
+    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ").replace(/\[\[[0-9a-f]+\|([^\]]+)\]\]/g,"$1") : "";
+    const hay = norm(`${row[0]} ${place} ${body}`);
+    const hayWords = hay.split(" ");
+    const tags = NORM_CONCEPTS.filter(([,t]) => t.some(x => x.length<=2 ? hayWords.includes(x) : hay.includes(x))).flatMap(([a])=>a);
+    INDEX.push({ title:row[0], id:row[1], recipe:r, where:path.join(" / "), titleWords:words(row[0]), placeWords:words(place), bodyText:norm(body), tags });
+  }
+})(TREE,[]);
+
+function search(q){
+  const terms = words(q).filter(t=>!STOP.has(t)).flatMap(splitCompound);
+  if (!terms.length) return [];
+  const scored = INDEX.map(it => {
+    let total = 0, hits = 0;
+    for (const t of terms){
+      const s = termScore(t,it);
+      if (s>0){ hits++; total += s; }
+    }
+    return {it, hits, total};
+  }).filter(x=>x.hits);
+  const full = scored.filter(x=>x.hits===terms.length);
+  return (full.length ? full : scored)
+    .sort((a,b)=> b.total-a.total || (b.it.recipe?1:0)-(a.it.recipe?1:0))
+    .slice(0,30).map(x=>x.it);
+}
+
+let query = "";
+function renderHits(){
+  const hits = document.getElementById("hits"), browse = document.getElementById("browse");
+  if (!hits) return;
+  const active = words(query).filter(t=>!STOP.has(t)).length>0;
+  browse.hidden = active;
+  hits.innerHTML = active ? hitsHtml(query) : "";
+}
+function hitsHtml(q){
+  const found = search(q);
+  return found.length
+    ? `<ul class="recipes">${found.map(it => {
+        const inner = `<span class="hit"><span>${it.title}</span><span class="where">${it.where}</span></span>`;
+        return it.recipe
+          ? `<li><button data-open="${it.recipe.id}">${inner}<span class="mark">›</span></button></li>`
+          : `<li><a href="https://app.notion.com/p/${it.id}" target="_blank" rel="noopener">${inner}<span class="mark">↗</span></a></li>`;
+      }).join("")}</ul>`
+    : `<p class="no-hits">Inget recept matchar sökningen.</p>`;
+}
+document.addEventListener("input", e => {
+  if (e.target.id==="search"){ query = e.target.value; renderHits(); }
+  if (e.target.id==="panel-search"){
+    const v = e.target.value;
+    document.getElementById("panel-hits").innerHTML = words(v).some(t=>!STOP.has(t)) ? hitsHtml(v) : "";
+  }
+});
+const panel = document.getElementById("search-panel");
+function openSearch(){
+  panel.hidden = false;
+  document.getElementById("panel-search").focus();
+}
+function closeSearch(clear){
+  panel.hidden = true;
+  if (clear){ document.getElementById("panel-search").value = ""; document.getElementById("panel-hits").innerHTML = ""; }
+}
+// Scrolling the results puts the keyboard away.
+document.getElementById("panel-scroll").addEventListener("touchstart", () => document.getElementById("panel-search").blur(), {passive:true});
+
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Ends entrance animations on a timer, so content is never left invisible if the browser stalls them.
+let settleTimer = null;
+function settleApp(){
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(() => { app.classList.remove("enter-f","enter-b"); app.classList.add("settled"); }, 550);
+}
+const saveScroll = () => { const el = app.querySelector(".scroll"); if (el && !recipe) trail[trail.length-1].scrollPos = el.scrollTop; };
+// Swaps to the new page at once and fades it in. dir is "f" (deeper) or "b" (back).
+function transition(dir, render){
+  app.classList.remove("enter-f","enter-b","settled");
+  render();
+  if (reducedMotion()) return;
+  void app.offsetWidth;
+  app.classList.add("enter-$dir".replace("$dir",dir));
+  settleApp();
+}
+const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
+const ILLUSTRATIONS = [
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M470 1330C410 1090 560 800 860 745C1110 700 1390 830 1450 1090C1500 1310 1400 1560 1170 1680C960 1790 680 1730 570 1580C520 1510 490 1420 470 1330Z"/><path fill="#FFC9D6" d="M1290 560C1270 450 1360 350 1480 355C1590 360 1650 460 1620 565C1595 660 1500 705 1410 680C1345 660 1302 620 1290 560Z"/><path fill="#FFC9D6" d="M1065 440C1060 385 1105 345 1155 352C1205 360 1225 410 1208 455C1190 495 1140 510 1105 492C1082 480 1068 465 1065 440Z"/></svg>',
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>'
+];
+function showStart(){
+  const rows = TREE.sections[0].rows;
+  app.innerHTML = `<div class="gutter top-bar"><div class="wrap top" style="max-width:900px">
+      <h1 class="home-wordmark">RECIPES</h1>
+      <button class="icon-btn" data-app-update aria-label="Uppdatera appen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.3L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.3l1.7-1.8"/><path d="M20 20v-4.5h-4.5"/></svg></button>
+      <div class="nav-right">
+        <button class="icon-btn" data-nav-units aria-label="Enheter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0Z"/></svg></button>
+        <button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+      </div>
+    </div></div>
+    <div class="scroll gutter home-scroll"><div class="home-tiles">
+      ${rows.map((row,i)=>`<button class="tile tile-${row.title.toLowerCase()}" data-node="0.${i}">${ILLUSTRATIONS[i]}<span class="tile-label"><span class="tile-name">${row.title}</span><span class="tile-count">${countRecipes(row)} recept</span></span></button>`).join("")}
+    </div></div>`;
+}
+function findTrail(node,id,path=[node]){
+  for (const s of node.sections) for (const row of s.rows){
+    if (Array.isArray(row)){ if (row[1]===id) return path; }
+    else { const hit = findTrail(row,id,[...path,row]); if (hit) return hit; }
+  }
+  return null;
+}
+
+function showRecipe(r){
+  recipe = r;
+  setSection(findTrail(TREE,r.id));
+  try { done = new Set(JSON.parse(store.get("done:"+r.id)||"[]")); } catch(e){ done = new Set(); }
+  requestWake();
+  let stepNo = 0;
+  const hasIngredients = r.groups.some(g=>g.items.length);
+  const hasMethod = r.method.some(m=>m.steps.length);
+  const backLabel = cameFrom.length ? cameFrom[cameFrom.length-1].title : trail[trail.length-1].title;
+  app.innerHTML = `${navBar(backLabel,"data-up")}
+    <div class="scroll gutter" id="page"><div class="wrap">
+      <h1 class="title">${r.title}</h1>
+      ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
+      ${r.plan?`<p class="plan">${r.plan}</p>`:""}
+      ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
+      ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg när det är klart.</p>`:""}
+      ${r.method.map(m=>`${m.name?`<p class="part-name">${m.name}</p>`:""}<ol class="steps">${m.steps.map(t=>{
+        const i = stepNo++;
+        return `<li class="step ${done.has(i)?"done":""}" data-step="${i}" role="button" tabindex="0" aria-pressed="${done.has(i)}">
+          <span class="no">${i+1}</span>
+          <p class="text">${linkify(markTimes(t))}</p>
+        </li>`;}).join("")}</ol>`).join("")}
+      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
+      <div class="foot">
+        <button class="link" data-reset>Börja om</button>
+        <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
+      </div>
+    </div></div>
+    ${hasIngredients?`<div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`:""}`;
+}
+
+function toggleStep(el){
+  const i = +el.dataset.step;
+  done.has(i) ? done.delete(i) : done.add(i);
+  el.classList.toggle("done",done.has(i));
+  el.setAttribute("aria-pressed",done.has(i));
+  store.set("done:"+recipe.id,JSON.stringify([...done]));
+}
+
+function openSheet(){
+  sheet.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Ingredienser">
+    <div class="gutter"><div class="top"><h2 class="sheet-title">Ingredienser</h2></div></div>
+    <div class="scroll gutter">${allIngredients(recipe)}</div>
+    <div class="sheet-foot gutter"><button class="ing-btn" data-close>Stäng</button></div>
+  </div>`;
+  clearTimeout(sheetTimer);
+  sheet.classList.remove("closing","settled");
+  sheet.hidden = false;
+  sheetTimer = setTimeout(() => sheet.classList.add("settled"), 400);
+  sheet.querySelector("[data-close]").focus();
+}
+let sheetTimer = null;
+function closeSheet(){
+  clearTimeout(sheetTimer);
+  sheet.classList.remove("settled");
+  sheet.classList.add("closing");
+  sheetTimer = setTimeout(() => { sheet.hidden = true; sheet.innerHTML = ""; sheet.classList.remove("closing"); }, reducedMotion() ? 0 : 200);
+}
+
+// Keeps the screen on while a recipe is open, where the browser allows it. Fails silently otherwise.
+async function requestWake(){
+  if (wakeLock || !("wakeLock" in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; });
+  } catch(e){}
+}
+function releaseWake(){ if (wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; } }
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState==="visible" && recipe) requestWake();
+});
+
+document.addEventListener("click", e => {
+  if (e.target===sheet) return closeSheet();
+  const link = e.target.closest("[data-link]");
+  if (link){
+    const target = RECIPES.find(r=>r.id===link.dataset.link);
+    cameFrom = [...cameFrom, recipe];
+    return transition("f", () => showRecipe(target));
+  }
+  const stepEl = e.target.closest("[data-step]");
+  if (stepEl) return toggleStep(stepEl);
+  const t = e.target.closest("button");
+  if (!t) return;
+  const d = t.dataset;
+  if ("appUpdate" in d) return updateApp(t);
+  if ("searchClose" in d) closeSearch(true);
+  else if (d.open){
+    saveScroll();
+    if (!panel.hidden){
+      closeSearch(false);
+      trail = findTrail(TREE,d.open) || [TREE];
+    }
+    transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
+  else if (d.node){
+    const [s,i] = d.node.split(".").map(Number);
+    saveScroll();
+    const next = trail[trail.length-1].sections[s].rows[i];
+    next.scrollPos = 0;
+    trail = [...trail, next];
+    transition("f", showNode);
+  }
+  else if ("navSearch" in d) openSearch();
+  else if ("navHome" in d){
+    trail = [TREE]; TREE.scrollPos = 0; query = "";
+    transition("b", showNode);
+  }
+  else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
+  else if ("up" in d) goBack();
+  else if ("sheet" in d) openSheet();
+  else if ("close" in d) closeSheet();
+  else if ("reset" in d){ store.del("done:"+recipe.id); showRecipe(recipe); }
+});
+document.addEventListener("keydown", e => {
+  if ((e.target.id==="search" || e.target.id==="panel-search") && e.key==="Enter") return e.target.blur();
+  if (!panel.hidden && e.key==="Escape") return closeSearch(true);
+  if (!sheet.hidden && e.key==="Escape") return closeSheet();
+  const stepEl = e.target.closest && e.target.closest("[data-step]");
+  if (stepEl && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); toggleStep(stepEl); }
+});
+
+// Fetches the newest code and recipes past the browser's cache, then reloads. If there's no connection the app stays as it is.
+function updateWipe(x,y,opening){
+  const wipe = document.createElement("div");
+  wipe.className = "update-wipe";
+  // Starts below the header, so the header and the status bar above it stay as they are.
+  const bar = app.querySelector(".top-bar");
+  const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+  wipe.style.top = `${top}px`;
+  const r = Math.ceil(Math.hypot(innerWidth,innerHeight));
+  const circle = document.createElement("b");
+  circle.style.cssText = `left:${x-r}px;top:${y-top-r}px;width:${r*2}px;height:${r*2}px;transform:scale(${opening?1:0})`;
+  const word = document.createElement("span");
+  word.textContent = "RECIPES";
+  word.style.opacity = opening ? 1 : 0;
+  wipe.append(circle,word);
+  document.body.appendChild(wipe);
+  const ease = "cubic-bezier(.65,0,.35,1)";
+  const scales = [{transform:"scale(0)"},{transform:"scale(1)"}], fades = [{opacity:0},{opacity:1}];
+  circle.animate(opening?scales:[...scales].reverse(),{duration:opening?420:380,easing:ease});
+  word.animate(opening?fades:[...fades].reverse(),opening?{duration:200,delay:140,fill:"backwards"}:{duration:140});
+  return wipe;
+}
+function closeWipe(x,y){
+  const closing = updateWipe(x,y,false);
+  setTimeout(() => closing.remove(),400);
+}
+async function updateApp(button){
+  button.classList.add("updating");
+  button.disabled = true;
+  const box = button.getBoundingClientRect(), x = Math.round(box.left+box.width/2), y = Math.round(box.top+box.height/2);
+  const motion = !reducedMotion();
+  const wipe = motion ? updateWipe(x,y,true) : null;
+  try {
+    if (motion) await new Promise(done => setTimeout(done,520));
+    const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
+    const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
+    await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
+    if (motion) try { sessionStorage.setItem("updateWipe",JSON.stringify([x,y,Math.round(app.querySelector(".top-bar").getBoundingClientRect().bottom)])); } catch(e){}
+    location.reload();
+  } catch(e) {
+    if (wipe){ wipe.remove(); closeWipe(x,y); }
+    button.classList.remove("updating");
+    button.disabled = false;
+  }
+}
+// Swipe right to go back, as on iOS: the previous page sits underneath from the first movement.
+// The current page follows the finger and the one below drifts in at a slower pace.
+const canGoBack = () => !!recipe || trail.length>1;
+function stepBack(){
+  if (recipe && cameFrom.length){
+    const previous = cameFrom[cameFrom.length-1];
+    cameFrom = cameFrom.slice(0,-1);
+    showRecipe(previous);
+  }
+  else if (recipe) showNode();
+  else if (trail.length>1){ trail = trail.slice(0,-1); showNode(); }
+}
+function goBack(){ transition("b", stepBack); }
+const PARALLAX = .28;
+let swipe = null, swallowClick = false, swipeTop = null, swipeState = null;
+function liftPage(){
+  swipeState = { trail, recipe, cameFrom, done };
+  clearTimeout(settleTimer);
+  app.classList.remove("enter-f","enter-b");
+  app.classList.add("settled","swiping");
+  swipeTop = document.createElement("div");
+  swipeTop.className = "view swipe-top";
+  if (app.dataset.section) swipeTop.dataset.section = app.dataset.section;
+  const scrolls = [...app.querySelectorAll(".scroll")].map(el=>el.scrollTop);
+  while (app.firstChild) swipeTop.appendChild(app.firstChild);
+  document.body.appendChild(swipeTop);
+  swipeTop.querySelectorAll(".scroll").forEach((el,i)=>{ el.scrollTop = scrolls[i]; });
+  stepBack();
+}
+function moveSwipe(dx){
+  swipeTop.style.transform = `translateX(${dx}px)`;
+  app.style.transform = `translateX(${-(1-dx/innerWidth)*PARALLAX*100}%)`;
+}
+function finishSwipe(commit, dx){
+  const top = swipeTop, state = swipeState;
+  swipeTop = null; swipeState = null;
+  const remaining = commit ? innerWidth-dx : dx;
+  const ms = Math.round(Math.max(120, Math.min(260, remaining/innerWidth*320)));
+  const curve = `${ms}ms cubic-bezier(.2,.8,.2,1)`;
+  top.style.transition = `transform ${curve}`;
+  app.style.transition = `transform ${curve}`;
+  void top.offsetWidth;
+  top.style.transform = commit ? "translateX(100%)" : "translateX(0)";
+  app.style.transform = commit ? "translateX(0)" : `translateX(${-PARALLAX*100}%)`;
+  swipeBusy = true;
+  setTimeout(() => {
+    if (!commit){
+      trail = state.trail; recipe = state.recipe; cameFrom = state.cameFrom; done = state.done;
+      if (top.dataset.section) app.dataset.section = sheet.dataset.section = top.dataset.section;
+      else { delete app.dataset.section; delete sheet.dataset.section; }
+      const scrolls = [...top.querySelectorAll(".scroll")].map(el=>el.scrollTop);
+      app.innerHTML = "";
+      while (top.firstChild) app.appendChild(top.firstChild);
+      app.querySelectorAll(".scroll").forEach((el,i)=>{ el.scrollTop = scrolls[i]; });
+      if (recipe) requestWake();
+    }
+    top.remove();
+    app.style.transition = app.style.transform = "";
+    app.classList.remove("swiping");
+    swipeBusy = false;
+  }, ms+20);
+}
+let swipeBusy = false;
+document.addEventListener("touchstart", e => {
+  swipe = null;
+  if (swipeBusy || e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
+  const t = e.touches[0];
+  swipe = { x:t.clientX, y:t.clientY, dx:0, active:false, lastX:t.clientX, lastTime:Date.now(), speed:0 };
+}, {passive:true});
+document.addEventListener("touchmove", e => {
+  if (!swipe) return;
+  const t = e.touches[0], dx = t.clientX-swipe.x, dy = t.clientY-swipe.y;
+  if (!swipe.active){
+    if (Math.abs(dx)<10 && Math.abs(dy)<10) return;
+    if (dx<=0 || Math.abs(dy)>=dx){ swipe = null; return; }
+    swipe.active = true;
+    swipe.x = t.clientX;
+    liftPage();
+  }
+  swipe.dx = Math.max(0,t.clientX-swipe.x);
+  const now = Date.now();
+  if (now>swipe.lastTime) swipe.speed = (t.clientX-swipe.lastX)/(now-swipe.lastTime);
+  swipe.lastX = t.clientX; swipe.lastTime = now;
+  moveSwipe(swipe.dx);
+}, {passive:true});
+function endSwipe(cancelled){
+  if (!swipe || !swipe.active){ swipe = null; return; }
+  const {dx} = swipe, speed = Date.now()-swipe.lastTime>80 ? 0 : swipe.speed;
+  swipe = null;
+  swallowClick = true;
+  setTimeout(() => { swallowClick = false; }, 300);
+  // Where the page would end up from its current speed decides the outcome, so a quick flick counts.
+  finishSwipe(!cancelled && dx+speed*180>innerWidth*.5, dx);
+}
+document.addEventListener("touchend", () => endSwipe(false), {passive:true});
+document.addEventListener("touchcancel", () => endSwipe(true), {passive:true});
+document.addEventListener("click", e => {
+  if (swallowClick){ e.stopPropagation(); e.preventDefault(); swallowClick = false; }
+}, true);
+
+const start = RECIPES.find(r=>r.id===location.hash.slice(1));
+if (start){ trail = findTrail(TREE,start.notion.split("/").pop()) || [TREE]; showRecipe(start); }
+else showNode();
+settleApp();
+try {
+  const point = JSON.parse(sessionStorage.getItem("updateWipe"));
+  sessionStorage.removeItem("updateWipe");
+  if (point){
+    // Starts shrinking only when the new page is done loading and drawing, so nothing competes with the motion.
+    let started = false;
+    const begin = () => {
+      if (started) return;
+      started = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        closeWipe(point[0],point[1]);
+        document.documentElement.classList.remove("wipe-hold");
+      }));
+    };
+    const ready = document.fonts ? document.fonts.ready : Promise.resolve();
+    addEventListener("load", () => ready.then(begin));
+    setTimeout(begin,1200);
+    setTimeout(() => document.documentElement.classList.remove("wipe-hold"),1600);
+  }
+} catch(e){}
+</script>
