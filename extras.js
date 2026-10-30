@@ -104,7 +104,7 @@
   function showPop(el){
     const list = ingredientKeys(recipe), f = getFactor(recipe.id);
     const rows = el.dataset.hits.split(",").map(i=>list[+i]);
-    pop.innerHTML = `<div class="wrap ing-pop-box">${rows.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${scaleAmount(x.amt,f)}</span>`:""}<span>${x.name}${x.group?` <span class="ing-pop-group">${x.group}</span>`:""}</span></div>`).join("")}</div>`;
+    pop.innerHTML = `<div class="wrap ing-pop-box"><button class="ing-pop-close" data-pop-close aria-label="Stäng">×</button>${rows.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${scaleAmount(x.amt,f)}</span>`:""}<span>${x.name}${x.group?` <span class="ing-pop-group">${x.group}</span>`:""}</span></div>`).join("")}</div>`;
     pop.hidden = false;
   }
 
@@ -212,8 +212,15 @@
 
   document.addEventListener("click", e => {
     const word = e.target.closest(".ing-word");
-    if (word){ e.stopPropagation(); showPop(word); return; }
-    pop.hidden = true;
+    if (pop.hidden){
+      if (word){ e.stopPropagation(); showPop(word); }
+      return;
+    }
+    // While the box is open, a tap only closes it or switches word, so nothing behind it is pressed.
+    e.stopPropagation();
+    e.preventDefault();
+    if (word) showPop(word);
+    else if (!e.target.closest(".ing-pop-box") || e.target.closest("[data-pop-close]")) pop.hidden = true;
   }, true);
   document.addEventListener("click", async e => {
     const b = e.target.closest("button");
@@ -268,7 +275,8 @@
     .shop-btn { margin-top: 16px; }
     .ing-word { border-bottom: 1.5px dotted var(--muted); }
     .ing-pop { position: fixed; left: 0; right: 0; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 12; pointer-events: none; }
-    .ing-pop-box { background: var(--ink); color: var(--bg); border-radius: 14px; padding: 10px 16px; }
+    .ing-pop-box { position: relative; pointer-events: auto; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 10px 48px 10px 16px; }
+    .ing-pop-close { position: absolute; top: 0; right: 0; width: 48px; height: 48px; text-align: center; font-size: 1.5rem; line-height: 1; color: var(--bg); }
     .ing-pop-box .ing { padding-block: 3px; }
     .ing-pop-group { opacity: .65; font-size: .85em; }
     .latest { flex: none; padding-top: 12px; }
