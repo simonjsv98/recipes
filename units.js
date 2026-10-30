@@ -10,37 +10,51 @@
     ["Vikt",[["1 oz","28 g"],["4 oz, ¼ lb","113 g"],["8 oz, ½ lb","227 g"],["1 lb","454 g"],["1 stick smör","113 g"]]],
     ["Svenska mått",[["1 krm","1 ml"],["1 tsk","5 ml"],["1 msk","15 ml, 3 tsk"],["1 dl","100 ml"],["1 kkp","150 ml"]]]
   ];
-  // Core temperatures: Livsmedelsverket for safety, Köket and Svenskt Kött for Swedish practice, Weber, ThermoWorks and USDA for the rest.
+  // Core temperatures from Swedish sources. The last field of each row names its sources (not shown):
+  // lvs  livsmedelsverket.se/livsmedel-och-innehall/bakterier-virus-parasiter-och-mogelsvampar1/bakterier/salmonella
+  // svk  svensktkott.se/wp-content/uploads/2020/03/SVK-1151-kottskolan-not-2024.pdf
+  // koket  koket.se/vilken-temperatur-ska-kottet-ha, koket.se/sa-lyckas-du-med-laxen
+  // landley  landleyskok.se/tips-trix/innertemperatur-och-styckningsdetaljer-for-kott-fagel-och-fisk
+  // smakora  smakora.se/innertemperatur-tabell
+  // lefesk  lefesk.se/blogs/recept/innertemperatur-lax-sa-vet-du-nar-laxen-ar-klar
+  // hank  hankstruebbq.com/se/inner-temperatur
+  // svkoket  sousvidekoket.se/flaskkarre-sous-vide
+  // gards  gardssallskapet.se/kottguiden/tillaga/innertemperaturer
   const CORE = [
     ["kyckling",[
-      ["Bröstfilé, utan ben","70 °C","Säker och fortfarande saftig"],
-      ["Lårfilé, utan ben","70–75 °C","Säker vid 70, mörast vid 75"],
-      ["Lår och klubba, med ben","80–82 °C","Mät intill benet"],
-      ["Hel kyckling","80–82 °C","I låret intill benet"],
-      ["Kycklingfärs","70 °C","Genomstekt"]
+      ["Bröstfilé, utan ben","70 °C","Saftig och säker","koket landley hank lvs"],
+      ["Bröstfilé, sous vide","60–65 °C","1,5–2,5 timmar beroende på tjocklek","svkoket"],
+      ["Lårfilé, utan ben","75–80 °C","Mörast så, säker redan vid 70","smakora koket landley lvs"],
+      ["Lår och klubba, med ben","80–82 °C","Mät intill benet","koket landley smakora"],
+      ["Hel kyckling","82 °C","I låret intill benet","koket smakora landley"],
+      ["Kycklingfärs","70–72 °C","Genomstekt","lvs smakora"]
     ]],
     ["lax och fisk",[
-      ["Lax, glasig","48–52 °C","Saftig och lite genomskinlig i mitten"],
-      ["Lax, klar","52–55 °C","Ljusrosa och flagnar"],
-      ["Vit fisk, torsk och sej","52–56 °C","Vit och flagnar"],
-      ["Fisk, helt genomkokt","63 °C","USDA:s säkerhetsgräns"]
+      ["Lax, glasig","40–45 °C","Saftig och blank i mitten","lefesk koket"],
+      ["Lax, saftig","48–52 °C","Ljusrosa och flagnar","smakora landley koket"],
+      ["Lax, genomstekt","56 °C","","smakora"],
+      ["Vit fisk, torsk och sej","52–54 °C","Saftig och vit","smakora landley hank koket"],
+      ["Vit fisk, genomstekt","56 °C","","smakora landley"]
     ]],
     ["fläsk",[
-      ["Fläskytterfilé, utan ben","65 °C","Ljusrosa"],
-      ["Fläskfilé, utan ben","70 °C",""],
-      ["Kotlett, med ben","70 °C","Mät i mitten, inte mot benet"],
-      ["Fläskkarré, stek","80–85 °C","Mör och saftig"],
-      ["Revben, low and slow","90–95 °C","Lossnar från benet"],
-      ["Pulled pork, bog","93–95 °C","Låt vila inslagen innan du river"],
-      ["Fläskfärs och korv","70 °C","Genomstekt"]
+      ["Fläskfilé, rosa","60–62 °C","","smakora landley"],
+      ["Fläskfilé, saftig","65–68 °C","Ljust rosa","smakora landley"],
+      ["Fläskytterfilé","60–65 °C","Saftig","landley hank"],
+      ["Kotlett, med ben","60–66 °C","Mät i mitten, inte mot benet","landley hank"],
+      ["Fläskkarré, stek","65–70 °C","Saftig, traditionellt 75–85","landley smakora koket"],
+      ["Fläskkarré, sous vide","62 °C","2 timmar för skivor upp till 3 cm","svkoket"],
+      ["Revben, med ben","70–80 °C","Low and slow: lyft dem, är de klara spricker ytan","landley hank"],
+      ["Pulled pork, bog eller karré","90–95 °C","Low and slow tills det går att dra isär","hank"],
+      ["Fläskfärs och korv","70–72 °C","Genomstekt","lvs smakora landley"]
     ]],
     ["nöt och lamm",[
-      ["Nöt, medium rare","52–54 °C","Rosa"],
-      ["Nöt, medium","56–60 °C","Ljusrosa"],
-      ["Nöt, well done","68–75 °C","Genomstekt"],
-      ["Lammfilé och entrecôte","56–70 °C","56 rosa, 70 genomstekt"],
-      ["Lammstek","60–70 °C","60 rosa, 70 genomstekt"],
-      ["Köttfärs","70 °C","Genomstekt"]
+      ["Nöt, medium rare","52–54 °C","Rosa","svk"],
+      ["Nöt, medium","56–60 °C","Ljusrosa","svk"],
+      ["Nöt, well done","68–75 °C","Genomstekt","svk"],
+      ["Lammfilé och lammracks","56–58 °C","Rosa","smakora landley hank"],
+      ["Lammstek","56–60 °C","Rosa","landley smakora hank"],
+      ["Lamm, genomstekt","70 °C","","smakora landley gards"],
+      ["Köttfärs","70–72 °C","Genomstekt","lvs smakora"]
     ]]
   ];
   const coreRow = (name,t,note) => `<div class="core-row"><span class="core-name">${name}${note?`<span class="core-note">${note}</span>`:""}</span><span class="core-t">${t}</span></div>`;
@@ -77,8 +91,8 @@
       <p class="label unit-section">Fahrenheit till Celsius</p>
       ${TEMPS.map(([f,n])=>row(f+" °F",toC(f)+" °C",n)).join("")}
       ${SECTIONS.map(([name,rows])=>`<p class="label unit-section">${name}</p><div class="unit-pairs">${rows.map(r=>row(r[0],r[1])).join("")}</div>`).join("")}
-      ${CORE.map(([name,rows])=>`<p class="label unit-section">Innertemperatur, ${name}</p>${rows.map(r=>coreRow(...r)).join("")}`).join("")}
-      <p class="core-foot">Mät i den tjockaste delen. Temperaturen stiger 2–5 °C medan köttet vilar, så ta ut det lite innan. Källor: Livsmedelsverket, Köket, Svenskt Kött, Weber, ThermoWorks och USDA.</p>
+      ${CORE.map(([name,rows])=>`<p class="label unit-section">Innertemperatur, ${name}</p>${rows.map(([name,t,note])=>coreRow(name,t,note)).join("")}`).join("")}
+      <p class="core-foot">Mät i den tjockaste delen. Temperaturen stiger några grader medan det vilar, så ta ut det lite innan. Källor: Livsmedelsverket, Svenskt Kött, Köket, Landleys Kök, Smakora, Le Fesk, Hank’s True BBQ och Sousvideköket.</p>
     </div></div>`;
   document.body.appendChild(panel);
   // Keeps the swipe-back gesture from starting underneath the panel.
