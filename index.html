@@ -177,6 +177,13 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .tile-cook { background: #E63B1F; color: #FFE3EA; }
 .tile-bake { background: #4A2212; color: #F9E27D; }
 @media (orientation: landscape) { .home-tiles { flex-direction: row; } }
+/* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
+[data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
+[data-section="bake"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #F2C94C; }
+[data-section] .home-title::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .3em; border-radius: 50%; background: var(--dot); vertical-align: .08em; }
+[data-section] .home-title, [data-section] .section-label, [data-section] .recipes .mark, [data-section] .block-label { color: var(--accent); }
+[data-section] .ing-btn { background: var(--cover); color: var(--on-cover); }
+[data-section] .recipe-link { color: var(--accent); }
 </style>
 <script src="units.js" defer></script>
 <script src="extras.js" defer></script>
@@ -273,8 +280,14 @@ const rowHtml = (row,s,i) => {
 
 // `trail` is the path from the start page to the current page, for the back button.
 let trail = [TREE];
+// Marks which cover the current page belongs to, for its accent colors.
+function setSection(path){
+  const name = path && path[1] ? path[1].title.toLowerCase() : "";
+  [app,sheet].forEach(el => { if (name) el.dataset.section = name; else delete el.dataset.section; });
+}
 function showNode(){
   releaseWake(); recipe = null; cameFrom = [];
+  setSection(trail);
   const node = trail[trail.length-1], parent = trail[trail.length-2];
   if (!parent) return showStart();
   app.innerHTML = `${parent?navBar(parent.title,"data-back"):""}
@@ -478,6 +491,7 @@ function findTrail(node,id,path=[node]){
 
 function showRecipe(r){
   recipe = r;
+  setSection(findTrail(TREE,r.id));
   try { done = new Set(JSON.parse(store.get("done:"+r.id)||"[]")); } catch(e){ done = new Set(); }
   requestWake();
   let stepNo = 0;
@@ -663,6 +677,7 @@ function liftPage(){
   app.classList.add("settled","swiping");
   swipeTop = document.createElement("div");
   swipeTop.className = "view swipe-top";
+  if (app.dataset.section) swipeTop.dataset.section = app.dataset.section;
   const scrolls = [...app.querySelectorAll(".scroll")].map(el=>el.scrollTop);
   while (app.firstChild) swipeTop.appendChild(app.firstChild);
   document.body.appendChild(swipeTop);
@@ -688,6 +703,8 @@ function finishSwipe(commit, dx){
   setTimeout(() => {
     if (!commit){
       trail = state.trail; recipe = state.recipe; cameFrom = state.cameFrom; done = state.done;
+      if (top.dataset.section) app.dataset.section = sheet.dataset.section = top.dataset.section;
+      else { delete app.dataset.section; delete sheet.dataset.section; }
       const scrolls = [...top.querySelectorAll(".scroll")].map(el=>el.scrollTop);
       app.innerHTML = "";
       while (top.firstChild) app.appendChild(top.firstChild);
