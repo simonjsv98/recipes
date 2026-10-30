@@ -1,10 +1,7 @@
 // Unit cheat sheet: a full-screen panel opened from the thermometer in the banner.
 (function(){
   const toC = f => Math.round((f-32)*5/9);
-  const TEMPS = [
-    [32,"Vatten fryser"],[100,"Jäsning, varmt"],[120,"Sous vide, rosa lax"],[145,"Fläsk och fisk klart"],[160,"Köttfärs klar"],[165,"Kyckling klar"],[212,"Vatten kokar"],
-    [225,"Low and slow"],[250,""],[275,"Gas 1"],[300,"Gas 2"],[325,"Gas 3"],[350,"Gas 4, vanlig bakning"],[375,"Gas 5"],[400,"Gas 6, rostning"],[425,"Gas 7"],[450,"Gas 8"],[475,"Gas 9"],[500,"Pizza, bröd"],[550,"Hemmaugn på max"]
-  ];
+  const TEMPS = [225,250,275,300,325,350,375,400,425,450,475,500];
   const SECTIONS = [
     ["Volym, USA till metriskt",[["1 cup","237 ml, 2,4 dl"],["¾ cup","178 ml"],["⅔ cup","158 ml"],["½ cup","118 ml"],["⅓ cup","79 ml"],["¼ cup","59 ml"],["1 tbsp","15 ml, 1 msk"],["1 tsp","5 ml, 1 tsk"],["1 fl oz","30 ml"],["1 pint","473 ml"],["1 quart","946 ml"],["1 gallon","3,8 l"]]],
     ["Vikt",[["1 oz","28 g"],["4 oz, ¼ lb","113 g"],["8 oz, ½ lb","227 g"],["1 lb","454 g"],["1 stick smör","113 g"]]],
@@ -89,7 +86,7 @@
   panel.innerHTML = `<div class="gutter"><div class="wrap unit-head"><h2>Enheter</h2><button class="search-close" data-units-close>Stäng</button></div></div>
     <div class="scroll gutter"><div class="wrap">
       <p class="label unit-section">Fahrenheit till Celsius</p>
-      ${TEMPS.map(([f,n])=>row(f+" °F",toC(f)+" °C",n)).join("")}
+      <div class="unit-pairs">${TEMPS.map(f=>row(f+" °F",toC(f)+" °C")).join("")}</div>
       ${SECTIONS.map(([name,rows])=>`<p class="label unit-section">${name}</p><div class="unit-pairs">${rows.map(r=>row(r[0],r[1])).join("")}</div>`).join("")}
       ${CORE.map(([name,rows])=>`<p class="label unit-section">Innertemperatur, ${name}</p>${rows.map(([name,t,note])=>coreRow(name,t,note)).join("")}`).join("")}
       <p class="core-foot">Mät i den tjockaste delen. Temperaturen stiger några grader medan det vilar, så ta ut det lite innan. Källor: Livsmedelsverket, Svenskt Kött, Köket, Landleys Kök, Smakora, Le Fesk, Hank’s True BBQ och Sousvideköket.</p>
