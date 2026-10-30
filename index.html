@@ -119,8 +119,10 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
-/* Update: the cards on the start page close like shutters and open again downward. The banner stays still. */
-.tiles-waiting .tile { opacity: 0; }
+/* Update: a circle grows from the center over everything below the banner, with a smaller one inside it.
+   It leaves the banner alone, because iOS tints the status bar from the top of the page, with a delay. */
+.update-wipe { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #E63B1F; display: flex; align-items: center; justify-content: center; }
+.update-wipe i { width: 84px; height: 84px; border-radius: 50%; background: #FFC9D6; }
 .icon-btn.updating svg { animation: update-spin .8s linear infinite; }
 @keyframes update-spin { to { transform: rotate(360deg); } }
 /* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
@@ -592,36 +594,42 @@ document.addEventListener("keydown", e => {
 });
 
 // Fetches the newest code and recipes past the browser's cache, then reloads. If there's no connection the app stays as it is.
-function tilesOut(){
-  return [...document.querySelectorAll(".tile")].map((tile,i) => tile.animate(
-    [{clipPath:"inset(0 0 0 0 round 20px)"},{clipPath:"inset(100% 0 0 0 round 20px)"}],
-    {duration:260,delay:i*50,easing:"cubic-bezier(.65,0,.35,1)",fill:"both"}));
+function updateWipe(opening){
+  const wipe = document.createElement("div");
+  wipe.className = "update-wipe";
+  const dot = document.createElement("i");
+  wipe.appendChild(dot);
+  const bar = app.querySelector(".top-bar");
+  const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+  wipe.style.top = `${top}px`;
+  document.body.appendChild(wipe);
+  const x = innerWidth/2, y = (innerHeight-top)/2;
+  const small = `circle(0px at ${x}px ${y}px)`, large = `circle(${Math.hypot(x,y)+1}px at ${x}px ${y}px)`;
+  const ease = "cubic-bezier(.65,0,.35,1)";
+  wipe.style.clipPath = opening ? large : small;
+  wipe.animate({clipPath:opening?[small,large]:[large,small]},{duration:opening?460:420,easing:ease});
+  const dotFrames = [{transform:"scale(0)"},{transform:"scale(1)"}];
+  dot.animate(opening?dotFrames:[...dotFrames].reverse(),{duration:opening?360:240,delay:opening?160:0,easing:ease,fill:"both"});
+  return wipe;
 }
-function tilesIn(){
-  const cards = [...document.querySelectorAll(".tile")];
-  cards.forEach((tile,i) => {
-    const options = {duration:560,delay:i*70,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"};
-    const parts = [tile.animate([{clipPath:"inset(0 0 100% 0 round 20px)"},{clipPath:"inset(0 0 0 0 round 20px)"}],options)];
-    const art = tile.querySelector("svg");
-    if (art) parts.push(art.animate([{transform:"translateY(18px) scale(1.06)"},{transform:"none"}],options));
-    setTimeout(() => parts.forEach(a => a.cancel()),900);
-  });
+function closeWipe(){
+  const closing = updateWipe(false);
+  setTimeout(() => closing.remove(),440);
 }
 async function updateApp(button){
   button.classList.add("updating");
   button.disabled = true;
   const motion = !reducedMotion();
-  const out = motion ? tilesOut() : [];
+  const wipe = motion ? updateWipe(true) : null;
   try {
-    if (motion) await new Promise(done => setTimeout(done,330));
+    if (motion) await new Promise(done => setTimeout(done,560));
     const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
     const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
     await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
-    if (motion) try { sessionStorage.setItem("tilesIn","1"); } catch(e){}
+    if (motion) try { sessionStorage.setItem("updateWipe","1"); } catch(e){}
     location.reload();
   } catch(e) {
-    out.forEach(a => a.cancel());
-    if (motion) tilesIn();
+    if (wipe){ wipe.remove(); closeWipe(); }
     button.classList.remove("updating");
     button.disabled = false;
   }
@@ -728,14 +736,9 @@ if (start){ trail = findTrail(TREE,start.notion.split("/").pop()) || [TREE]; sho
 else showNode();
 settleApp();
 try {
-  if (sessionStorage.getItem("tilesIn")){
-    sessionStorage.removeItem("tilesIn");
-    // Waits for the deferred scripts, which render the start page once more.
-    document.documentElement.classList.add("tiles-waiting");
-    document.addEventListener("DOMContentLoaded", () => {
-      tilesIn();
-      document.documentElement.classList.remove("tiles-waiting");
-    });
+  if (sessionStorage.getItem("updateWipe")){
+    sessionStorage.removeItem("updateWipe");
+    closeWipe();
   }
 } catch(e){}
 </script>
