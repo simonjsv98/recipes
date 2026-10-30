@@ -119,7 +119,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
-/* Update: the cards on the start page get tossed like pancakes and land again. The banner stays still. */
+/* Update: the cards on the start page close like shutters and open again downward. The banner stays still. */
 .tiles-waiting .tile { opacity: 0; }
 .icon-btn.updating svg { animation: update-spin .8s linear infinite; }
 @keyframes update-spin { to { transform: rotate(360deg); } }
@@ -594,21 +594,17 @@ document.addEventListener("keydown", e => {
 // Fetches the newest code and recipes past the browser's cache, then reloads. If there's no connection the app stays as it is.
 function tilesOut(){
   return [...document.querySelectorAll(".tile")].map((tile,i) => tile.animate(
-    [{transform:"perspective(900px)",easing:"ease-out"},
-     {transform:"perspective(900px) translateY(10px) scale(1.03,.93)",offset:.26,easing:"cubic-bezier(.45,0,1,.7)"},
-     {transform:`perspective(900px) translateY(${-innerHeight*1.1}px) rotateX(200deg)`}],
-    {duration:380,delay:i*70,fill:"both"}));
+    [{clipPath:"inset(0 0 0 0 round 20px)"},{clipPath:"inset(100% 0 0 0 round 20px)"}],
+    {duration:260,delay:i*50,easing:"cubic-bezier(.65,0,.35,1)",fill:"both"}));
 }
 function tilesIn(){
   const cards = [...document.querySelectorAll(".tile")];
   cards.forEach((tile,i) => {
-    const rise = tile.animate(
-      [{transform:`perspective(900px) translateY(${-innerHeight*1.1}px) rotateX(-200deg)`,easing:"cubic-bezier(.3,0,.75,.6)"},
-       {transform:"perspective(900px) scale(1.04,.9)",offset:.58,easing:"ease-out"},
-       {transform:"perspective(900px) translateY(-18px) scale(.98,1.03)",offset:.78,easing:"ease-in"},
-       {transform:"perspective(900px)"}],
-      {duration:720,delay:(cards.length-1-i)*90,fill:"backwards"});
-    setTimeout(() => rise.cancel(),1100);
+    const options = {duration:560,delay:i*70,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"};
+    const parts = [tile.animate([{clipPath:"inset(0 0 100% 0 round 20px)"},{clipPath:"inset(0 0 0 0 round 20px)"}],options)];
+    const art = tile.querySelector("svg");
+    if (art) parts.push(art.animate([{transform:"translateY(18px) scale(1.06)"},{transform:"none"}],options));
+    setTimeout(() => parts.forEach(a => a.cancel()),900);
   });
 }
 async function updateApp(button){
@@ -617,7 +613,7 @@ async function updateApp(button){
   const motion = !reducedMotion();
   const out = motion ? tilesOut() : [];
   try {
-    if (motion) await new Promise(done => setTimeout(done,470));
+    if (motion) await new Promise(done => setTimeout(done,330));
     const scripts = [...document.scripts].map(s=>s.src).filter(src=>src.startsWith(location.origin));
     const files = [location.href.split("#")[0], ...scripts, "apple-touch-icon.png"];
     await Promise.all(files.map(url => fetch(url,{cache:"reload"}).then(res => { if (!res.ok) throw new Error(url); })));
