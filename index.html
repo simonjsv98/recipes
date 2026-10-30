@@ -119,7 +119,8 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
-/* Update: a colored circle grows from the button, and shrinks back into it once the new version has loaded. */
+/* Update: a colored circle grows out from under the banner and shrinks back once the new version has loaded.
+   It never covers the banner, because iOS tints the status bar from the top of the page, with a delay. */
 .update-wipe { position: fixed; inset: 0; z-index: 30; background: #E63B1F; color: #FFC9D6; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 500; letter-spacing: .02em; }
 .icon-btn.updating svg { animation: update-spin .8s linear infinite; }
 @keyframes update-spin { to { transform: rotate(360deg); } }
@@ -152,7 +153,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 /* iOS 26 blurs the top edge of home screen apps unless a fixed, opaque, full-width element sits there. */
-body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 2px); background: #F3F2EF; z-index: 31; } /* Above the update animation: iOS tints the status bar from this edge, with a delay. */
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 2px); background: #F3F2EF; z-index: 30; }
 .top-bar { position: fixed !important; top: 0; left: 0; right: 0; padding-top: env(safe-area-inset-top, 0px); background: #F3F2EF; z-index: 2; }
 .top-bar + .scroll { margin-top: 57px; }
 .search-panel { top: 0 !important; padding-top: env(safe-area-inset-top, 0px); }
@@ -596,8 +597,12 @@ function updateWipe(x,y,opening){
   const wipe = document.createElement("div");
   wipe.className = "update-wipe";
   wipe.textContent = "RECIPES";
+  const bar = app.querySelector(".top-bar");
+  const top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+  wipe.style.top = `${top}px`;
   document.body.appendChild(wipe);
-  const small = `circle(0px at ${x}px ${y}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${y}px)`;
+  const cy = y-top;
+  const small = `circle(0px at ${x}px ${cy}px)`, large = `circle(${Math.hypot(innerWidth,innerHeight)}px at ${x}px ${cy}px)`;
   const frames = opening ? [small,large] : [large,small];
   wipe.style.clipPath = frames[1];
   wipe.animate({clipPath:frames},{duration:opening?420:380,easing:"cubic-bezier(.65,0,.35,1)"});
