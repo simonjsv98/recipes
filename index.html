@@ -150,6 +150,7 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .search-panel { top: 0 !important; padding-top: env(safe-area-inset-top, 0px); }
 </style>
 
+<script src="units.js" defer></script>
 <div id="app" class="view"></div>
 <div id="sheet" class="sheet-wrap" hidden></div>
 <div id="search-panel" class="search-panel" hidden>
@@ -225,7 +226,7 @@ const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top
   <button class="link" ${attr}><span>← ${label}</span></button>
   <div class="nav-icons">
     <button class="icon-btn" data-nav-home aria-label="Till startsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/></svg></button>
-    <button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+    <div class="nav-right"><button class="icon-btn" data-nav-units aria-label="Enheter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0Z"/></svg></button><button class="icon-btn" data-nav-search aria-label="Sök"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button></div>
   </div>
 </div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
