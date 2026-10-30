@@ -668,7 +668,7 @@ document.addEventListener("touchmove", e => {
 }, {passive:true});
 function endSwipe(cancelled){
   if (!swipe || !swipe.active){ swipe = null; return; }
-  const {dx,speed} = swipe;
+  const {dx} = swipe, speed = Date.now()-swipe.lastTime>80 ? 0 : swipe.speed;
   swipe = null;
   swallowClick = true;
   setTimeout(() => { swallowClick = false; }, 300);
