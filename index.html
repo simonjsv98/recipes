@@ -152,7 +152,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 /* iOS 26 blurs the top edge of home screen apps unless a fixed, opaque, full-width element sits there. */
-body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 2px); background: #F3F2EF; z-index: 30; }
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 2px); background: #F3F2EF; z-index: 31; } /* Above the update animation: iOS tints the status bar from this edge, with a delay. */
 .top-bar { position: fixed !important; top: 0; left: 0; right: 0; padding-top: env(safe-area-inset-top, 0px); background: #F3F2EF; z-index: 2; }
 .top-bar + .scroll { margin-top: 57px; }
 .search-panel { top: 0 !important; padding-top: env(safe-area-inset-top, 0px); }
