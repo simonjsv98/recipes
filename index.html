@@ -65,6 +65,9 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .top-bar .link { flex: 1; min-width: 0; color: var(--ink); font-weight: 500; }
 .top-bar .link span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .nav-icons { display: flex; gap: 2px; flex: none; margin-right: -10px; }
+.top-bar .top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+.nav-icons { display: contents; }
+[data-nav-search] { justify-self: end; margin-right: -10px; }
 .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 .icon-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .intro, .plan, .step .text, .note-line { white-space: pre-line; overflow-wrap: anywhere; }
