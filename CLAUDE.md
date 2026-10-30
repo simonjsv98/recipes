@@ -23,6 +23,7 @@ The recipes come from the Notion pages COOK (`251e56f59722801b91d3f2726f9e4031`)
 Notion is the source of truth for how the text is written. Formatting fixes are made in Notion, and in the batch files to match, not in the build script:
 - A space between number and unit: `800 g`, `3 msk`, `0,5 L`, `2 h`, `40 s`, `1 pk`, `180 °C`.
 - Fractions as decimals with a comma: `0,5`, `1,5`, `0,25`, `0,33`. Scores such as `8/10` stay.
+- No estimated time tacked onto a method step ("Vispa smör och socker, cirka 10 minuter."). It reads as how long to do the action. Estimates for planning belong in the Tid/Planering line. A time stays in a step only when it is how long the action itself takes ("Grädda cirka 15 minuter", "Låt sjuda cirka 2 timmar").
 
 ## Core temperatures in `units.js`
 
