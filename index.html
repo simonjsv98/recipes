@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F3F2EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap">
 <style>
@@ -26,6 +27,14 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+html { background: var(--bg); }
+#app { position: relative; z-index: 1; }
+.search-panel { position: fixed; z-index: 15; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; background: var(--bg); display: flex; flex-direction: column; animation: panel-in .2s ease-out; }
+.search-panel-head { display: flex; align-items: center; gap: 14px; padding-block: 10px; }
+.search-panel-head .search { flex: 1; min-width: 0; margin: 0; }
+.search-close { flex: none; min-height: 44px; font-weight: 500; }
+.search-panel .scroll { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+@keyframes panel-in { from { opacity: 0; transform: translateY(-8px); } }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.45; overflow: hidden; }
 button, a { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; }
@@ -100,7 +109,9 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Motion: short, one curve, pages move in the direction you travel */
 :root { --ease: cubic-bezier(.2, .8, .2, 1); }
-.ghost { position: fixed; inset: 0; z-index: 5; pointer-events: none; background: transparent; }
+/* The outgoing page stays behind the new one, so its text never fades across the banner. */
+.ghost { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); height: auto; z-index: 0; pointer-events: none; background: transparent; overflow: hidden; }
+.top-bar { position: relative; z-index: 2; }
 .ghost *, .settled, .settled * { animation: none !important; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 /* Only the page content moves. The top bar and its back button stay crisp and still. */
@@ -143,6 +154,13 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 
 <div id="app" class="view"></div>
 <div id="sheet" class="sheet-wrap" hidden></div>
+<div id="search-panel" class="search-panel" hidden>
+  <div class="gutter"><div class="wrap search-panel-head">
+    <input id="panel-search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <button class="search-close" data-search-close>Stäng</button>
+  </div></div>
+  <div class="scroll gutter" id="panel-scroll"><div class="wrap" id="panel-hits"></div></div>
+</div>
 
 <script src="recipes-data.js"></script>
 <script>
@@ -350,9 +368,11 @@ function renderHits(){
   if (!hits) return;
   const active = words(query).filter(t=>!STOP.has(t)).length>0;
   browse.hidden = active;
-  if (!active){ hits.innerHTML = ""; return; }
-  const found = search(query);
-  hits.innerHTML = found.length
+  hits.innerHTML = active ? hitsHtml(query) : "";
+}
+function hitsHtml(q){
+  const found = search(q);
+  return found.length
     ? `<ul class="recipes">${found.map(it => {
         const inner = `<span class="hit"><span>${it.title}</span><span class="where">${it.where}</span></span>`;
         return it.recipe
@@ -363,7 +383,22 @@ function renderHits(){
 }
 document.addEventListener("input", e => {
   if (e.target.id==="search"){ query = e.target.value; renderHits(); }
+  if (e.target.id==="panel-search"){
+    const v = e.target.value;
+    document.getElementById("panel-hits").innerHTML = words(v).some(t=>!STOP.has(t)) ? hitsHtml(v) : "";
+  }
 });
+const panel = document.getElementById("search-panel");
+function openSearch(){
+  panel.hidden = false;
+  document.getElementById("panel-search").focus();
+}
+function closeSearch(clear){
+  panel.hidden = true;
+  if (clear){ document.getElementById("panel-search").value = ""; document.getElementById("panel-hits").innerHTML = ""; }
+}
+// Scrolling the results puts the keyboard away.
+document.getElementById("panel-scroll").addEventListener("touchstart", () => document.getElementById("panel-search").blur(), {passive:true});
 
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Ends entrance animations on a timer, so content is never left invisible if the browser stalls them.
@@ -475,7 +510,14 @@ document.addEventListener("click", e => {
   const t = e.target.closest("button");
   if (!t) return;
   const d = t.dataset;
-  if (d.open){ saveScroll(); transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
+  if ("searchClose" in d) closeSearch(true);
+  else if (d.open){
+    saveScroll();
+    if (!panel.hidden){
+      closeSearch(false);
+      trail = findTrail(TREE,RECIPES.find(r=>r.id===d.open).id) || [TREE];
+    }
+    transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
   else if (d.node){
     const [s,i] = d.node.split(".").map(Number);
     saveScroll();
@@ -484,10 +526,10 @@ document.addEventListener("click", e => {
     trail = [...trail, next];
     transition("f", showNode);
   }
-  else if ("navHome" in d || "navSearch" in d){
+  else if ("navSearch" in d) openSearch();
+  else if ("navHome" in d){
     trail = [TREE]; TREE.scrollPos = 0; query = "";
     transition("b", showNode);
-    if ("navSearch" in d) document.getElementById("search").focus();
   }
   else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
   else if ("up" in d) transition("b", showNode);
@@ -496,7 +538,8 @@ document.addEventListener("click", e => {
   else if ("reset" in d){ store.del("done:"+recipe.id); showRecipe(recipe); }
 });
 document.addEventListener("keydown", e => {
-  if (e.target.id==="search" && e.key==="Enter") return e.target.blur();
+  if ((e.target.id==="search" || e.target.id==="panel-search") && e.key==="Enter") return e.target.blur();
+  if (!panel.hidden && e.key==="Escape") return closeSearch(true);
   if (!sheet.hidden && e.key==="Escape") return closeSheet();
   const stepEl = e.target.closest && e.target.closest("[data-step]");
   if (stepEl && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); toggleStep(stepEl); }
@@ -511,7 +554,7 @@ function goBack(){
 let swipe = null, swallowClick = false;
 document.addEventListener("touchstart", e => {
   swipe = null;
-  if (e.touches.length!==1 || !sheet.hidden || !canGoBack()) return;
+  if (e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
   const t = e.touches[0];
   swipe = { x:t.clientX, y:t.clientY, time:Date.now(), dx:0, active:false };
 }, {passive:true});
