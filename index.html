@@ -119,6 +119,10 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 #app, #app * { touch-action: pan-y pinch-zoom; }
 .enter-f > .scroll, .enter-b > .scroll { animation: page-in .16s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
+/* Swipe back: the current page lifts off and follows the finger, the previous page waits underneath. */
+.swipe-top { position: fixed; inset: 0; z-index: 5; background: var(--bg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); will-change: transform; pointer-events: none; }
+.swipe-top::before { content: ""; position: absolute; top: 0; bottom: 0; left: -14px; width: 14px; background: linear-gradient(to left, rgba(20, 18, 10, .14), transparent); }
+#app.swiping { will-change: transform; }
 
 .recipes button, .recipes a { transition: opacity .12s, padding-left .2s var(--ease); }
 .recipes .mark { transition: transform .2s var(--ease); }
@@ -437,7 +441,7 @@ function transition(dir, render){
 }
 const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
 const ILLUSTRATIONS = [
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><circle cx="930" cy="1220" r="490" fill="#FFC9D6"/><circle cx="1440" cy="520" r="150" fill="#FFC9D6"/></svg>',
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M450 1270C425 985 660 730 950 725C1215 720 1435 925 1425 1205C1415 1495 1190 1725 910 1715C670 1705 475 1525 450 1270Z"/><path fill="#FFC9D6" d="M1295 540C1285 440 1370 360 1465 372C1560 384 1610 465 1590 555C1570 640 1485 680 1405 665C1340 652 1303 605 1295 540Z"/></svg>',
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M430 1330C430 900 720 640 1024 640C1328 640 1618 900 1618 1330C1618 1430 1550 1480 1460 1480H588C498 1480 430 1430 430 1330Z"/><path fill="none" stroke="#4A2212" stroke-width="70" stroke-linecap="round" d="M720 1090L850 860M980 1090L1110 860M1240 1090L1370 860"/></svg>'
 ];
 function showStart(){
@@ -580,23 +584,71 @@ document.addEventListener("keydown", e => {
   if (stepEl && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); toggleStep(stepEl); }
 });
 
-// Swipe right to go back. The page follows the finger, then either completes or springs back.
+// Swipe right to go back, as on iOS: the previous page sits underneath from the first movement.
+// The current page follows the finger and the one below drifts in at a slower pace.
 const canGoBack = () => !!recipe || trail.length>1;
-function goBack(){
+function stepBack(){
   if (recipe && cameFrom.length){
     const previous = cameFrom[cameFrom.length-1];
     cameFrom = cameFrom.slice(0,-1);
-    transition("b", () => showRecipe(previous));
+    showRecipe(previous);
   }
-  else if (recipe) transition("b", showNode);
-  else if (trail.length>1){ trail = trail.slice(0,-1); transition("b", showNode); }
+  else if (recipe) showNode();
+  else if (trail.length>1){ trail = trail.slice(0,-1); showNode(); }
 }
-let swipe = null, swallowClick = false;
+function goBack(){ transition("b", stepBack); }
+const PARALLAX = .28;
+let swipe = null, swallowClick = false, swipeTop = null, swipeState = null;
+function liftPage(){
+  swipeState = { trail, recipe, cameFrom, done };
+  clearTimeout(settleTimer);
+  app.classList.remove("enter-f","enter-b");
+  app.classList.add("settled","swiping");
+  swipeTop = document.createElement("div");
+  swipeTop.className = "view swipe-top";
+  const scrolls = [...app.querySelectorAll(".scroll")].map(el=>el.scrollTop);
+  while (app.firstChild) swipeTop.appendChild(app.firstChild);
+  document.body.appendChild(swipeTop);
+  swipeTop.querySelectorAll(".scroll").forEach((el,i)=>{ el.scrollTop = scrolls[i]; });
+  stepBack();
+}
+function moveSwipe(dx){
+  swipeTop.style.transform = `translateX(${dx}px)`;
+  app.style.transform = `translateX(${-(1-dx/innerWidth)*PARALLAX*100}%)`;
+}
+function finishSwipe(commit, dx){
+  const top = swipeTop, state = swipeState;
+  swipeTop = null; swipeState = null;
+  const remaining = commit ? innerWidth-dx : dx;
+  const ms = Math.round(Math.max(120, Math.min(260, remaining/innerWidth*320)));
+  const curve = `${ms}ms cubic-bezier(.2,.8,.2,1)`;
+  top.style.transition = `transform ${curve}`;
+  app.style.transition = `transform ${curve}`;
+  void top.offsetWidth;
+  top.style.transform = commit ? "translateX(100%)" : "translateX(0)";
+  app.style.transform = commit ? "translateX(0)" : `translateX(${-PARALLAX*100}%)`;
+  swipeBusy = true;
+  setTimeout(() => {
+    if (!commit){
+      trail = state.trail; recipe = state.recipe; cameFrom = state.cameFrom; done = state.done;
+      const scrolls = [...top.querySelectorAll(".scroll")].map(el=>el.scrollTop);
+      app.innerHTML = "";
+      while (top.firstChild) app.appendChild(top.firstChild);
+      app.querySelectorAll(".scroll").forEach((el,i)=>{ el.scrollTop = scrolls[i]; });
+      if (recipe) requestWake();
+    }
+    top.remove();
+    app.style.transition = app.style.transform = "";
+    app.classList.remove("swiping");
+    swipeBusy = false;
+  }, ms+20);
+}
+let swipeBusy = false;
 document.addEventListener("touchstart", e => {
   swipe = null;
-  if (e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
+  if (swipeBusy || e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
   const t = e.touches[0];
-  swipe = { x:t.clientX, y:t.clientY, time:Date.now(), dx:0, active:false };
+  swipe = { x:t.clientX, y:t.clientY, dx:0, active:false, lastX:t.clientX, lastTime:Date.now(), speed:0 };
 }, {passive:true});
 document.addEventListener("touchmove", e => {
   if (!swipe) return;
@@ -605,35 +657,23 @@ document.addEventListener("touchmove", e => {
     if (Math.abs(dx)<10 && Math.abs(dy)<10) return;
     if (dx<=0 || Math.abs(dy)>=dx){ swipe = null; return; }
     swipe.active = true;
-    app.classList.remove("enter-f","enter-b");
-    app.classList.add("settled");
-    app.style.transition = "none";
+    swipe.x = t.clientX;
+    liftPage();
   }
-  swipe.dx = Math.max(0,dx);
-  app.style.transform = `translateX(${swipe.dx}px)`;
-  app.style.opacity = 1-Math.min(.5,swipe.dx/innerWidth*.6);
+  swipe.dx = Math.max(0,t.clientX-swipe.x);
+  const now = Date.now();
+  if (now>swipe.lastTime) swipe.speed = (t.clientX-swipe.lastX)/(now-swipe.lastTime);
+  swipe.lastX = t.clientX; swipe.lastTime = now;
+  moveSwipe(swipe.dx);
 }, {passive:true});
 function endSwipe(cancelled){
   if (!swipe || !swipe.active){ swipe = null; return; }
-  const {dx,time} = swipe, fast = dx>40 && dx/(Date.now()-time)>.5;
+  const {dx,speed} = swipe;
   swipe = null;
   swallowClick = true;
   setTimeout(() => { swallowClick = false; }, 300);
-  if (!cancelled && (dx>innerWidth*.28 || fast)){
-    const opacity = app.style.opacity;
-    app.style.transition = app.style.transform = app.style.opacity = "";
-    goBack();
-    const ghost = document.querySelector(".ghost");
-    if (ghost){
-      ghost.classList.remove("leave-b");
-      ghost.animate([{transform:`translateX(${dx}px)`,opacity},{transform:`translateX(${innerWidth}px)`,opacity:0}],{duration:130,easing:"ease-out",fill:"forwards"});
-    }
-  } else {
-    app.style.transition = "transform .22s cubic-bezier(.2,.8,.2,1), opacity .22s";
-    app.style.transform = "";
-    app.style.opacity = "";
-    setTimeout(() => { app.style.transition = ""; }, 240);
-  }
+  // Where the page would end up from its current speed decides the outcome, so a quick flick counts.
+  finishSwipe(!cancelled && dx+speed*180>innerWidth*.5, dx);
 }
 document.addEventListener("touchend", () => endSwipe(false), {passive:true});
 document.addEventListener("touchcancel", () => endSwipe(true), {passive:true});
