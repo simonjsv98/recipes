@@ -117,5 +117,10 @@
 {"id":"409e56f59722812da344e23a86486b85","title":"Hallongrotta cookie style","intro":"Camilla Hamids hallongrottor i cookieformat, från Köket. Halverat recept utan vit choklad: ca 12 kakor.","plan":"10 min (deg, ugnen värms) + 10 min (rulla och fylla) + 15 min (grädda) + 10 min (svalna)\nTotal: ca 45 min","groups":[
 {"name":null,"items":[["75 g","smör, rumsvarmt"],["65 g","strösocker (0,75 dl)"],["30 g","ljus sirap (1,5 msk)"],["100 g","vetemjöl (1,6 dl)"],["2 g","bakpulver (0,5 tsk)"],["4 g","vaniljsocker (1 tsk)"],["1 g","salt (0,25 tsk)"],["130 g","hallonsylt (1 dl)"]]}],
 "method":[{"name":null,"steps":["Sätt ugnen på 175 °C (över- och undervärme) och klä en plåt med bakplåtspapper.","Vispa smör, socker och sirap krämigt. Blanda i vetemjöl, bakpulver, vaniljsocker och salt och arbeta bara tills degen håller ihop.","Dela degen i 12 lika stora bitar och rulla till bollar. Lägg dem glest på plåten, de flyter ut. Gör en grop i varje boll och fyll med hallonsylt.","Grädda mitt i ugnen tills kakorna är ljust gyllenbruna, cirka 15 minuter.","Låt svalna en stund på plåten och flytta sedan till galler, cirka 10 minuter."]}],
-"notes":[],"flags":[]}
+"notes":[],"flags":[]},
+
+{"id":"40ae56f5972281cc8aefd85037bb0a63","title":"Majsbröd","intro":"Enkelt amerikanskt majsbröd från Indian Head, via Epicurious. Bakas i form, ca 12 bitar, eller som 12 muffins.","plan":"10 min (blanda smeten medan ugnen värms) + 20–25 min (grädda)\nTotal: ca 35 min","groups":[
+{"name":null,"items":[["140 g","gult majsmjöl, cornmeal (2,4 dl)"],["125 g","vetemjöl (2 dl)"],["50 g","strösocker (0,6 dl)"],["6 g","salt (1 tsk)"],["12 g","bakpulver (1 msk)"],["55 g","neutral olja (0,6 dl)"],["245 g","mjölk (2,4 dl)"],["1","ägg"]]}],
+"method":[{"name":null,"steps":["Sätt ugnen på 220 °C och smörj en form på 23 × 23 cm.","Blanda majsmjöl, vetemjöl, socker, bakpulver och salt i en bunke.","Vispa ihop olja, ägg och mjölk. Rör ner i de torra ingredienserna tills smeten är jämn.","Häll smeten i formen och grädda mitt i ugnen cirka 20–25 minuter."]}],
+"notes":[{"heading":"Varianter","lines":["Muffins: Fyll 12 smorda eller pappersklädda muffinsformar till cirka två tredjedelar. Grädda i 220 °C cirka 15–20 minuter.","Sötare och saftigare: Ta 165 g mjölk (1,6 dl), 100 g strösocker (1,2 dl), 110 g olja (1,2 dl) och 2 ägg. Grädda i 200 °C cirka 20–25 minuter."]}],"flags":[]}
 ]
