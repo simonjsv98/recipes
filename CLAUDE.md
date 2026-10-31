@@ -25,6 +25,13 @@ Notion is the source of truth for how the text is written. Formatting fixes are 
 - Fractions as decimals with a comma: `0,5`, `1,5`, `0,25`, `0,33`. Scores such as `8/10` stay.
 - No estimated time tacked onto a method step ("Vispa smör och socker, cirka 10 minuter."). It reads as how long to do the action. Estimates for planning belong in the Tid/Planering line. A time stays in a step only when it is how long the action itself takes ("Grädda cirka 15 minuter", "Låt sjuda cirka 2 timmar"). Waiting and process times also stay ("Låt svalna cirka 10 minuter", "bryn köttet i omgångar, cirka 20 minuter", "ta fram ägg ur kylen i god tid, cirka 30 minuter"). Simon has approved this judgement.
 
+## Converting recipes
+
+- Amounts in grams first, with the source's own unit in parentheses: `140 g majsmjöl (1 cup)`, `6 g salt (1 tsp)`. Never convert cups to dl.
+- Fractions become decimals there too: `0,25 cup`, `0,67 cup`.
+- Temperatures in °C and sizes in cm.
+- New recipes go into Notion first (under COOK or BAKE, usually in WIP), then into the batch data and the app.
+
 ## Core temperatures in `units.js`
 
 - Use Swedish or European sources only, no American ones.
