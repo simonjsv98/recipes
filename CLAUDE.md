@@ -15,7 +15,7 @@ Keep this file current. When the workflow, the structure or a standing preferenc
 - `build/recipes-data/batch-*.json` are the recipes as imported from Notion.
 - `build/build-recipes.js` applies corrections and writes `index.html` and `recipes-data.js`. Run `node build/build-recipes.js` after changing `kokslaget.html` or the recipe data, and commit the rebuilt files with the change.
 - `units.js` (the units panel behind the thermometer) and `extras.js` (portion factor, shopping list, latest recipes) are edited directly.
-- In the lists, regions and BAKE sections get a small icon from `ICONS` in `kokslaget.html`, keyed by title. A new region or section needs one drawn in the same simple filled style. Each recipe row shows only the total time from its Tid/Planering line (`metaFor`), when there is one. Each recipe also gets an icon from `RECIPE_ICONS`, keyed by the recipe's emoji in Notion, which is stored as `icon` in the batch files. A new emoji needs a new icon drawn in the same style; until then the recipe shows without one.
+- In the lists, regions and recipes show their Notion emoji in front of the name. A recipe's emoji is stored as `icon` in the batch files; a region's as `icon` on its node in `TREE`. Each recipe row also shows the total time from its Tid/Planering line (`metaFor`), when there is one.
 
 ## Notion
 
