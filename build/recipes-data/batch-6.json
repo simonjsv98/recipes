@@ -1,5 +1,5 @@
 [
-{"id":"360e56f59722808b9f30cc3f993b197c","icon":"🤎","title":"Kladdkaka High","intro":"Källa: Camilla Hamid mykitchenstories.se","plan":"","groups":[
+{"id":"360e56f59722808b9f30cc3f993b197c","icon":"🤎","title":"Kladdkaka High","intro":"Källa: Camilla Hamid mykitchenstories.se","plan":"10 min (smält smöret och rör ihop smeten) + 25–30 min (grädda) + minst 4 h (svalna och kyl, gärna över natten)\nTotal: ca 4 h 45 min, gärna över natten","groups":[
 {"name":"Steg 1","items":[["225 g","smör"],["3 dl / 260 g","strösocker"],["2 dl / 180 g","brunt farinsocker eller muscovadosocker"]]},
 {"name":"Steg 2","items":[["3,5 dl / 210 g","vetemjöl"],["1 dl / 40 g","kakao"],["1 krm / 1 g","salt"]]},
 {"name":"Steg 3","items":[["4 st / ca 220 g","ägg (stora)"]]}],
@@ -23,7 +23,7 @@
 "method":[{"name":null,"steps":["Vispa samman mjölk, socker, ägg, majsstärkelse, kakao och vaniljsocker i en kastrull.","Koka upp under omrörning och sjud 2–3 minuter tills det är en kräm.","Dra av från plattan och rör i chokladen och smöret tills allt smält och du har en len kräm.","Häll upp i portionsformar eller glas och plasta direkt mot ytan så det inte bildas skinn.","Ställ i kylen ca 1 timme tills puddingen är kall.","Servera med vispad grädde och ett bär eller två."]}],
 "notes":[],"flags":[]},
 
-{"id":"331e56f597228094b876e893cea3eb86","icon":"🥮","title":"Leche Flan","intro":"Filippinsk karamellpudding av Vanjo Merano (Panlasang Pinoy). Enkel och klassisk variant av denna populära dessert.","plan":"","groups":[
+{"id":"331e56f597228094b876e893cea3eb86","icon":"🥮","title":"Leche Flan","intro":"Filippinsk karamellpudding av Vanjo Merano (Panlasang Pinoy). Enkel och klassisk variant av denna populära dessert.","plan":"10 min (separera äggulorna och blanda smeten) + 10 min (karamellisera sockret och låt svalna) + 30–35 min (ånga) + svalna och kyl\nTotal: ca 55 min + kyltid","groups":[
 {"name":null,"items":[["10","äggulor"],["1 burk","kondenserad mjölk (ca 400 g)"],["2,5 dl","färsk mjölk eller evaporerad mjölk"],["2,5 dl","strösocker"],["1 tsk","vaniljextrakt"]]}],
 "method":[{"name":null,"steps":["Separera äggulorna från vitorna — bara gulorna används. Vispa dem lätt med en gaffel eller elvisp.","Tillsätt kondenserad mjölk och rör om ordentligt. Häll i mjölken och vaniljen och blanda väl.","Värm formen (llanera eller rund kakform) på låg värme på spisen. Häll i sockret och rör tills det smälter till en ljusbrun karamell.","Fördela karamellen jämnt i botten av formen. Låt svalna i 5 minuter.","Häll ägg- och mjölkblandningen i formen och täck tätt med aluminiumfolie.","Ånga formen i 30–35 minuter. Låt svalna i rumstemperatur och ställ sedan in i kylskåp.","Servera kall som dessert."]}],
 "notes":[],"flags":[]},
@@ -34,25 +34,25 @@
 "method":[{"name":null,"steps":["Sätt ugnen på 175 °C (över- och undervärme).","Blanda blåbär, syltsocker och potatismjöl i en bunke och häll ner i pajformen.","Blanda strösocker, salt, havregryn, vetemjöl och bakpulver i en annan bunke.","Smält smöret och rör ner det tillsammans med sirapen i den torra blandningen. Rör ihop till en jämn smet.","Klicka ut smeten över bärfyllningen och bre försiktigt ut den i ett jämnt lager.","Grädda i mitten av ugnen i 30–40 minuter tills pajen fått fin färg.","Servera varm eller rumstempererad, gärna med vaniljglass eller vaniljsås."]}],
 "notes":[],"flags":[]},
 
-{"id":"330e56f5972280eeb492c504b063e25c","icon":"🧇","title":"Frasvåfflor","intro":"Klassiska frasvåfflor av Hilda Kirkhoff. Smeten sväller i kylen – gärna över natten.","plan":"","groups":[
+{"id":"330e56f5972280eeb492c504b063e25c","icon":"🧇","title":"Frasvåfflor","intro":"Klassiska frasvåfflor av Hilda Kirkhoff. Smeten sväller i kylen – gärna över natten.","plan":"10 min (smält smöret och rör ihop smeten) + tid i kylen, gärna över natten (svälla) + 20 min (grädda våfflorna)\nTotal: ca 30 min + tid i kylen (gärna över natten)","groups":[
 {"name":null,"items":[["100 g","smör, smält"],["2,5 dl","vatten, kallt"],["2 dl","mjölk"],["3,5 dl","vetemjöl"],["1,5 tsk","bakpulver"],["0,25 dl","strösocker"],["0,5 tsk","salt"]]},
 {"name":"Smaksättning","items":[["0,5 tsk","malen kardemumma"],["0,5","citron, skalet"],["0,5 tsk","vaniljsocker"]]}],
 "method":[{"name":null,"steps":["Smält smöret och låt det svalna.","Mät upp övriga ingredienser i en skål och rör om till en klumpfri smet.","Tillsätt smöret och rör om lite till.","Smaksätt med kardemumma, citronskal eller vaniljsocker om du vill.","Ställ smeten i kylen för att svälla, gärna över natten.","Värm upp järnet och grädda smeten till gyllene våfflor."]}],
 "notes":[],"flags":[]},
 
-{"id":"3bde56f5972280a88915cf431681866d","icon":"👱🏼‍♀️","title":"Blondies med körsbär/hallon","intro":"Recept av Emma Brink Rask (Brinken Bakar) — sötsega blondies utan vit choklad. Ger 9 rejäla bitar.","plan":"","groups":[
+{"id":"3bde56f5972280a88915cf431681866d","icon":"👱🏼‍♀️","title":"Blondies med körsbär/hallon","intro":"Recept av Emma Brink Rask (Brinken Bakar) — sötsega blondies utan vit choklad. Ger 9 rejäla bitar.","plan":"10 min (smält smöret och rör ihop smeten) + 20–25 min (grädda)\nTotal: ca 30–35 min","groups":[
 {"name":null,"items":[["110 g","smör"],["120 g","ljus muscovadosocker"],["90 g","strösocker"],["2 tsk","vaniljpulver (eller 3 tsk vaniljsocker)"],["1","ägg"],["0,25 tsk","salt"],["","(75 g vit choklad)"],["120 g","vetemjöl"],["150 g","halverade och urkärnade körsbär alternativt hallon"]]}],
 "method":[{"name":null,"steps":["Värm ugnen till 175 °C vanlig och ta fram eva trio ugnsformen (cirka 20x20)","Smält smöret och låt det svalna något.","Rör ihop båda sockersorterna, vaniljen, ägget och saltet och tillsätt sedan det smälta smöret.","Rör ner mjölet och vänd till sist ner (chokladen och) körsbär/hallon. Spara några till toppen.","Bred ut smeten i formen och strö över resterande körsbär/hallon.","Grädda 20–25 minuter tills kakan fått lite färg och börjar släppa från kanterna. Grädda inte för länge — mitten ska förbli lite kladdig."]}],
 "notes":[],"flags":[]},
 
-{"id":"3cce56f5972280ec9653e2d1aa04be37","icon":"☕","title":"Mugcake Chocochock","intro":"Chokladkaka som görs i en mugg i mikron på ett kvart, av Constance Loeper.","plan":"","groups":[
+{"id":"3cce56f5972280ec9653e2d1aa04be37","icon":"☕","title":"Mugcake Chocochock","intro":"Chokladkaka som görs i en mugg i mikron på ett kvart, av Constance Loeper.","plan":"5 min (smält smöret och rör ihop smeten) + 2 min (mikra muggarna, 40 s var) + 8 min (vispa grädden och garnera)\nTotal: ca 15 min","groups":[
 {"name":null,"items":[["3 msk","smör"],["3 msk","vetemjöl"],["3 msk","strösocker"],["2 msk","kakao"],["1 tsk","vaniljsocker"],["3 msk","standardmjölk"]]},
 {"name":"Topping","items":[["1,5 dl","vispgrädde"],["1 dl","hallon, färska eller frysta"]]}],
 "method":[{"name":null,"steps":["Lägg smöret i en glasmugg och smält det i mikron ca 30 sekunder.","Rör ner mjöl, socker, kakao, vaniljsocker och mjölk till en slät smet. Flytta över hälften av smeten till en likadan mugg.","Kör i mikron 40 s. Ytan ska ha stelnat medan mitten är kvar mjuk och kladdig — kakan efterstelnar utanför micron, så ta hellre ut den för lös än för fast.","Vispa grädden och servera till, garnera med hallon."]}],
 "notes":[{"heading":null,"lines":["Denna blev najs! (Notions nu) (Men skar sig lite tyckte Tilda). Körde 4 msk ist för 3 msk på allt. 45 s blev bra men kan testa 40 s nästa gång.","https://www.arla.se/recept/chocochock-muggkaka/"]}],
 "flags":["Notes mention a first name (Tilda), probably harmless"]},
 
-{"id":"3dce56f59722801f838eeee8fc3c2538","icon":"🥕","title":"Morotskaka","intro":"Saftig klassisk morotskaka med färskostfrosting, av Roy Fares. Ger ca 10 bitar.","plan":"","groups":[
+{"id":"3dce56f59722801f838eeee8fc3c2538","icon":"🥕","title":"Morotskaka","intro":"Saftig klassisk morotskaka med färskostfrosting, av Roy Fares. Ger ca 10 bitar.","plan":"10 min (förbered formen, riv morötterna och vispa smeten) + 30–35 min (grädda) + kakan kallnar helt i formen + 5 min (vispa frostingen medan kakan svalnar och bred på)\nTotal: ca 50 min + tid för kakan att kallna","groups":[
 {"name":"Morotskaka","items":[["170 g","finrivna morötter (ca 3 st)"],["150 g","vetemjöl (2,5 dl)"],["2,5 g","bikarbonat (0,5 tsk)"],["3,5 g","bakpulver (0,75 tsk)"],["2 g","salt (0,25 tsk)"],["3 g","malen kanel (1,25 tsk)"],["110 g","ägg (2 st)"],["150 g","strösocker (1,75 dl)"],["130 g","olja (1,5 dl)"]]},
 {"name":"Frosting","items":[["100 g","osaltat smör, rumsvarmt"],["200 g","färskost (philadelphia)(cream cheese), rumsvarm"],["105 g","florsocker (1,75 dl)"],["6 g","vaniljsocker (1 tsk)"]]}],
 "method":[
@@ -73,7 +73,7 @@
 "notes":[{"heading":null,"lines":["160 g HE vetemjöl","160 g mediumstarkt vetemjöl","16 g (blackstrap molasses) malted barley sirup","50 g starter","240-270 g vatten","8 g salt","160 g cracked rye berries fermented overnight, or up to 3 days","Rye bran for coating"]}],
 "flags":["Unstructured stub: ingredient list only, no method; placed wholly in notes"]},
 
-{"id":"3a8e56f5972280628260c8d26c4c6699","icon":"🍌","title":"Bananbröd","intro":"Ett saftigt bananbröd – mer kaka än bröd. Servera i skivor med jordnötssmör och lite havssalt. Ica recept.","plan":"","groups":[
+{"id":"3a8e56f5972280628260c8d26c4c6699","icon":"🍌","title":"Bananbröd","intro":"Ett saftigt bananbröd – mer kaka än bröd. Servera i skivor med jordnötssmör och lite havssalt. Ica recept.","plan":"15 min (förbered formen, mosa bananerna och rör ihop smeten) + 40–50 min (grädda) + svalna\nTotal: drygt 1 h + svalning","groups":[
 {"name":null,"items":[["","Smör och mjöl till formen"],["5","mogna bananer (ca 750 g)"],["100 g","rumsvarmt smör"],["2 dl","socker"],["2","ägg"],["3,5 dl","vetemjöl (ca 210 g)"],["1 tsk","bakpulver"],["0,5 tsk","salt"]]}],
 "method":[{"name":null,"steps":["Sätt ugnen på 200 °C. Smöra och mjöla en brödform på ca 1,5 liter. (Eva trio 1,75 avlånga blir bra).","Skala och mosa bananerna. Vispa smör och socker poröst med elvisp.","Vispa först ner äggen i smörsmeten och sedan de mosade bananerna.","Blanda alla torra ingredienser och vänd ner i smeten. Rör till en slät smet.","Häll smeten i formen.","Grädda i mitten av ugnen ca 40–50 minuter tills kakan är gyllene och en sticka kommer ut torr. Låt svalna och skär i skivor."]}],
 "notes":[{"heading":"Reflektioner","lines":["Första gången gjorde jag med frusna bananbitar (som släppte vätska när de tinade som jag hade med i) och använde matberedare istället för elvisp. Denna blev väldigt kompakt.","Testa nästa gång med elvisp och färska bananer."]}],
