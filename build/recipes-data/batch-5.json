@@ -1,5 +1,5 @@
 [
-{"id":"256e56f59722802cb1c2f242db9d6fd3","title":"Klassiska bullar","intro":"Favorit (coops).","plan":"1,5 h för degen + 1 h formning och jäsning på plåt + 0,5 h gräddning = 3 h",
+{"id":"256e56f59722802cb1c2f242db9d6fd3","icon":"🇸🇪","title":"Klassiska bullar","intro":"Favorit (coops).","plan":"1,5 h för degen + 1 h formning och jäsning på plåt + 0,5 h gräddning = 3 h",
 "groups":[
 {"name":"Degen","items":[["780 g","mjöl"],["0,5 L","3% mjölk"],["14 g (en påse)","torrjäst"],["90 g (1 dl)","strösocker"],["10 g (1 msk)","mortlade/finkrossade kardemummakärnor"],["6 g (1 tsk)","salt"],["150 g","smör, rumstemp"]]},
 {"name":"Fyllning: För kanelbullar","items":[["150 g","smör, rumstemp"],["90 g (1 dl)","strösocker"],["15 g (2 msk)","malen kanel"]]},
@@ -14,12 +14,12 @@
 ],
 "notes":[],"flags":[]},
 
-{"id":"2b6e56f5972280e78d89e8e5adb48749","title":"Surdegsfrallor","intro":"Klassiska snabba och enkla surdegsfrallor.","plan":"",
+{"id":"2b6e56f5972280e78d89e8e5adb48749","icon":"🌾","title":"Surdegsfrallor","intro":"Klassiska snabba och enkla surdegsfrallor.","plan":"",
 "groups":[{"name":null,"items":[["450 g","mjöl"],["150 g","egenmalt"],["300 g","vete special"],["360 g","vatten"],["100 g","surdeg"],["8 g","salt"]]}],
 "method":[{"name":null,"steps":["Blanda allt utom salt.","30-60 min autolys.","I med salt och kör maskin eller S&F tills degen är go.","Jäs i rumstemp typ 2-3 h, med nån fold inemellan.","Sen in i kylen öven natten.","Nu ska de bakas av.","Sätt ugnen på 250 C.","Ut på mjölat bord och dela upp i ca 8 frallor, o lägg över på plåt med bakplåtspapper.","Baka i ca 15 min, tills fina.","Lägg på galler, klart."]}],
 "notes":[],"flags":["Nested ingredients (150g egenmalt, 300g vete special) flattened into the list after 450g mjöl."]},
 
-{"id":"2bbe56f597228082ae4df751df460344","title":"Lussebullar","intro":"Klassiska lussebullar, med fördeg och lite småfix dagen innan.","plan":"",
+{"id":"2bbe56f597228082ae4df751df460344","icon":"🌕","title":"Lussebullar","intro":"Klassiska lussebullar, med fördeg och lite småfix dagen innan.","plan":"",
 "groups":[
 {"name":"Fördeg","items":[["0,5 L","mjölk"],["1-1,5 g","saffran (ihop med lite socker och 1,5 msk rom)"],["50 g","jäst (blå)"],["600 g","vetemjöl special"],["1 msk","socker"]]},
 {"name":"Dag 2 – Deg","items":[["ca 400 g","vetemjöl special"],["200 g","smör rumstemp"],["1","ägg i rumstemp"],["200 g","socker"],["10 g","salt"]]},
@@ -33,17 +33,17 @@
 "notes":[{"heading":"Generella tips","lines":["Använd rumstemp smör och ägg.","Blöt russinen i glögg eller annat innan.","Mortla saffran med socker och blanda med t.ex. rom dagen innan (eller 30 min innan). (Kan stå i månader).","Knåda degen länge.","Täck helst degen tätt med t.ex. plastfolie.","Flexibel jästid utifrån rumstemp.","Pensla efter gräddning."]}],
 "flags":[]},
 
-{"id":"334e56f597228063a7ccc02ea470a391","title":"Klassiska hamburgerbröd","intro":"Hybrid mellan brioche och enkelt bröd. Går att baka i förväg och frysa.","plan":"1 h för degen + 1 h forma och jäsa + 30 min gräddning och svalna = 2,5 h",
+{"id":"334e56f597228063a7ccc02ea470a391","icon":"🍔","title":"Klassiska hamburgerbröd","intro":"Hybrid mellan brioche och enkelt bröd. Går att baka i förväg och frysa.","plan":"1 h för degen + 1 h forma och jäsa + 30 min gräddning och svalna = 2,5 h",
 "groups":[{"name":null,"items":[["7 g","torrjäst"],["25 g","smör"],["250 g","mjölk"],["0,5 tsk","salt"],["0,5 tsk","strösocker"],["330 g","vetemjöl special"],["1","ägg"],["","Sesamfrön"]]}],
 "method":[{"name":null,"steps":["Smula jästen i en bunke. Smält smöret i en kastrull, häll i mjölken och värm till 37 °C. Häll vätskan över jästen och rör tills den löst sig.","Tillsätt salt, socker, eventuellt gurkmeja och nästan allt mjöl. Arbeta degen 10 minuter i maskin eller 15 minuter för hand.","Låt jäsa under bakduk i 40 minuter.","Knåda degen lätt med resten av mjölet. Dela i 6 delar, rulla till bollar och lägg på bakpappersklädd plåt. Tryck till lätt så de plattas lite. Täck med bakduk och låt jäsa 30 minuter.","Sätt ugnen på 225 °C. Pensla bröden med uppvispat ägg och strö över sesamfrön.","Grädda mitt i ugnen ca 10 minuter tills de fått fin färg. Låt svalna på galler innan de delas."]}],
 "notes":[],"flags":[]},
 
-{"id":"2bbe56f5972280b1a5b1ff972f566fae","title":"Glass – No Churn","intro":"Basrecept på glass som görs i vitamixen utan glassmaskin, med 6 h i frysen.","plan":"",
+{"id":"2bbe56f5972280b1a5b1ff972f566fae","icon":"🍨","title":"Glass – No Churn","intro":"Basrecept på glass som görs i vitamixen utan glassmaskin, med 6 h i frysen.","plan":"",
 "groups":[{"name":null,"items":[["2 cups","grädde"],["1 cup","sötad kondenserad mjölk"],["0,25 cup","sirap"],["0,25 cup","mjölk"],["2 msk","socker"],["1 tsk","vanilj"],["0,25 tsk","salt"]]}],
 "method":[{"name":null,"steps":["Kör grädden 10-20 sek, tills fluffig/håller formen.","Ner med den sötade kondenserade mjölken, sirapen, mjölken, sockret, vaniljen, saltet. (Allt resterande alltså). Blanda det innan du mixar, så att det är jämnt fördelat (men såklart inte perfekt mixat). Nu kan du mixa i typ 20 sek, se till att det inte är något som fastnat uppe eller så.","Ner i en brödform, lägg plastfolie helt täckande på glassens yta. Den ska frysas så snabbt som möjligt nu.","6 h i frysen nu och därefter redo att servera."]}],
 "notes":[],"flags":[]},
 
-{"id":"2d8e56f59722804ba3c2e698fdab230b","title":"Fransk vaniljglass – Crème Anglaise","intro":"","plan":"",
+{"id":"2d8e56f59722804ba3c2e698fdab230b","icon":"🍨","title":"Fransk vaniljglass – Crème Anglaise","intro":"","plan":"",
 "groups":[{"name":null,"items":[["0,5-1","vaniljstång"],["250 g","mjölk"],["250 g","grädde"],["25 g","honung"],["6 st","äggulor"],["125 g","socker"]]}],
 "method":[
 {"name":"Steg 1 – Crème Anglaise","steps":["Skrapa och lägg ner vaniljstång i kastrull á minst 1 L.","Häll i:\nMjölken\nGrädden\nHonungen","Separera äggulorna från vitorna och blanda gulorna med sockret. Vispa till fluffigt/vispat.","Koka upp gräddblandningen.","Blanching: Ta lite av gräddblandningen och vispa i lite i taget i äggulorna. Bara någon dl.","Häll därefter i de vispade äggulorna tillbaka i gräddblandningen (i kastrullen).","Få försiktigt upp hela till 83-85 C. Blanda hela tiden. Håll på denna temp tills det tjocknat. Dra sedan åt sidan för att avstanna upphettning.","Kyl ner kastrullen i ett vattenbad i diskhon, eller isvatten i skål.","Sätt glassmaskinen på pre-cool, medan du får ner tempen på kastrullen."]},
@@ -51,11 +51,11 @@
 ],
 "notes":[],"flags":["Line breaks (<br />) in one step represented as newlines."]},
 
-{"id":"3d9e56f5972280bb997fdfde6e80562f","title":"Kaffeglass","intro":"Följ receptet för fransk vaniljglass nedan och addera 5 g snabbkaffe efter créme anglaise är gjord och är varm, men 80 C max då just, så precis innan du kyler ner blandningen.","plan":"",
+{"id":"3d9e56f5972280bb997fdfde6e80562f","icon":"☕","title":"Kaffeglass","intro":"Följ receptet för fransk vaniljglass nedan och addera 5 g snabbkaffe efter créme anglaise är gjord och är varm, men 80 C max då just, så precis innan du kyler ner blandningen.","plan":"",
 "groups":[],"method":[],"notes":[],
 "flags":["Page contains an unknown/alias block (link to another page, probably the Fransk vaniljglass recipe) that could not be fetched; page marked truncated."]},
 
-{"id":"2dbe56f5972280a4b3c7e41a1f144645","title":"Salted Caramel Glass","intro":"","plan":"",
+{"id":"2dbe56f5972280a4b3c7e41a1f144645","icon":"🍨","title":"Salted Caramel Glass","intro":"","plan":"",
 "groups":[{"name":"Crème anglais","items":[["1,5 dl","grädde 40%"],["5 dl","mjölk 3%"],["125 g + 25 g","socker"],["0,5 dl","vatten."],["1","vaniljstång"],["","Salt"],["5","äggulor"]]}],
 "method":[
 {"name":"Steg 1 – Caramel och prep","steps":["Två kastruller behövs.","I den mindre kastrullen häller du i grädden och vaniljen, skrapad och hela stången.","Få upp grädden att precis börja koka (eller nära) och låt vara på svag värme så den håller sig varm.","Häll 125 g socker i den större kastrullen och tillsätt 0,5 dl vatten.","Sätt värmen relativt högt på kastrullen med sockret. Så fort den börjar få minsta lilla färg så sänker du till medium värme.","Låt karamellisera tills den är djup gyllene (brun).","Så fort den nått rätt färg så häller du ner gräddblandningen i karamellen (det kommer bubbla rejält). Men detta kyler ner karamellen och avstannar karamelliseringen.","Ta av blandingen nu från plattan och låt svalna något."]},
@@ -65,7 +65,7 @@
 "notes":[{"heading":null,"lines":["(Note: Jättegod. Men känns som att lite mer grädde och lite mindre mjölk hade varit godare). Hade man kunnat göra exakt samma recept men med 50/50 grädde/mjölk? Eller finns det egenskaper här i sockermängd eller annat som gör det sämre?"]}],
 "flags":["Nested ingredient (0,5dl vatten.) under socker flattened into list."]},
 
-{"id":"301e56f59722809fb200d3624b07a485","title":"Hazelnut Ice Cream","intro":"","plan":"",
+{"id":"301e56f59722809fb200d3624b07a485","icon":"🍨","title":"Hazelnut Ice Cream","intro":"","plan":"",
 "groups":[{"name":null,"items":[["500 g","mjölk"],["25 g","honung"],["6 st","äggulor"],["150 g","råsocker eller vanligt strösocker"],["100 g","rostade hasselnötter (tog 160 g sist, och det blev lite för mäktig/fet smak)."]]}],
 "method":[
 {"name":"Steg 1 – Hasselnötsmjölk","steps":["Rosta hasselnötterna om de inte är färdigt. (200 C i fem min, sen bara kolla av med 2 min intervall, kan ta upp till 10-20 min).","Skala hasselnötterna genom att lägga i en kökshandduk och skaka/gnida runt dem i handduken.","Häll sedan all mjölk (500 g) i vitamixen och alla hasselnötter och kör i cirka 3 min på max."]},
@@ -74,7 +74,7 @@
 ],
 "notes":[],"flags":["Line breaks (<br />) in one step represented as newlines."]},
 
-{"id":"2e4e56f59722804f8611e783591d5d34","title":"Almond Ice Cream","intro":"","plan":"",
+{"id":"2e4e56f59722804f8611e783591d5d34","icon":"🍨","title":"Almond Ice Cream","intro":"","plan":"",
 "groups":[{"name":null,"items":[["500 g","mjölk"],["25 g","honung"],["6 st","äggulor"],["150 g","råsocker eller vanligt strösocker"],["100 g","rostade mandlar (skala innan du rostar)."]]}],
 "method":[
 {"name":"Steg 1 – Mandelmjölk","steps":["Sätt ugnen på 200 C.","Koka upp vatten som kommer täcka mandlarna gott och väl. Häll därefter i de råa mandlarna och koka i cirka 1 min. Skölj därefter i kallt vatten och ploppa ut de med de mot de spetsiga änden, med fingrarna.","Rosta mandlarna. (200 C i fem min, sen bara kolla av med 2 min intervall, kan ta upp till 10-20 min).","Häll sedan hälften av mjölken (250 g) i vitamixen och alla mandlar och kör i cirka 3 min på max. Häll sedan resten (250 g till) i mixern och kör någon minut tills blandat och finfördelat."]},
@@ -83,17 +83,17 @@
 ],
 "notes":[],"flags":["Line breaks (<br />) in one step represented as newlines."]},
 
-{"id":"3d8e56f5972280b79f6cc796be6755ee","title":"Gelato Fior Di Latte","intro":"Enkel gelato med majsstärkelse som stabilisator, av Lidey Heuck. Ger ca 1 liter.","plan":"",
+{"id":"3d8e56f5972280b79f6cc796be6755ee","icon":"🇮🇹","title":"Gelato Fior Di Latte","intro":"Enkel gelato med majsstärkelse som stabilisator, av Lidey Heuck. Ger ca 1 liter.","plan":"",
 "groups":[{"name":null,"items":[["475 ml","standardmjölk"],["2 msk","majsstärkelse"],["355 ml","vispgrädde"],["150 g","strösocker"],["0,75 tsk","flingsalt"]]}],
 "method":[{"name":null,"steps":["Vispa ihop 60 ml av mjölken med majsstärkelsen i en skål tills det är slätt.","Häll resterande 415 ml mjölk, grädden, sockret och saltet i en stor kastrull. Låt sjuda på medelvärme och rör då och då tills sockret löst sig.","Vispa långsamt ner majsstärkelseblandningen och låt koka upp till en kraftig sjudning. Koka under omrörning tills smeten precis täcker baksidan av en sked, 3–4 minuter.","Låt svalna till rumstemperatur, täck och kyl i kylskåp tills den är riktigt kall, minst 2 timmar.","Kör smeten i glassmaskin tills den får gelatokonsistens, ungefär som mjukglass.","Skeda över i en form och frys tills den är fast, minst 2 timmar och upp till 3 dagar.","Låt gelaton mjukna 5–10 minuter i rumstemperatur innan servering."]}],
 "notes":[],"flags":[]},
 
-{"id":"3a8e56f5972280b7944de3907e0398dd","title":"Grundsockerlag – till glass","intro":"","plan":"",
+{"id":"3a8e56f5972280b7944de3907e0398dd","icon":"⚪","title":"Grundsockerlag – till glass","intro":"","plan":"",
 "groups":[{"name":null,"items":[["100 g","vatten"],["135 g","socker"],["25 g","glukossirap"]]}],
 "method":[{"name":null,"steps":["Blanda vatten och socker ordentligt","Koka upp och pensla ner kanterna med vatten hela tiden.","Häll därefter i glukossirap och låt koka upp (skumma av).","Låt svalna, använd/kyl."]}],
 "notes":[],"flags":[]},
 
-{"id":"3a8e56f597228071b654ddb7f5ce4d81","title":"Blåbärssorbet","intro":"","plan":"",
+{"id":"3a8e56f597228071b654ddb7f5ce4d81","icon":"🫐","title":"Blåbärssorbet","intro":"","plan":"",
 "groups":[
 {"name":"Sockerlag","items":[["66 g","vatten"],["90 g","socker"],["16 g","glukossirap"]]},
 {"name":"Blåbärspuré","items":[["500 g","blåbär (till 300 g blåbärspuré)"],["33 g","socker"],["33 g","vatten"],["","Citronsaft"]]}
@@ -106,13 +106,13 @@
 "notes":[{"heading":"Sockerlag","lines":["Blir 172 g sockerlag."]}],
 "flags":["Step 1 refers to an embedded alias/linked page (probably Grundsockerlag – till glass) that could not be fetched; page marked truncated."]},
 
-{"id":"2bbe56f5972280ecb19ce8191e334428","title":"Karamellsås","intro":"Enkel karamellsås som använder den sötade kondenserade mjölken som blir över när du gör No Churn glass.","plan":"",
+{"id":"2bbe56f5972280ecb19ce8191e334428","icon":"🫗","title":"Karamellsås","intro":"Enkel karamellsås som använder den sötade kondenserade mjölken som blir över när du gör No Churn glass.","plan":"",
 "groups":[{"name":null,"items":[["0,5 dl","sötad kondenserad mjölk"],["2 msk","smör"],["2-3 msk","socker"],["1 nypa","flingsalt (smaka av)"],["1-2 msk","vatten/grädde (häll i efter konsistens mot slutet)"]]}],
 "method":[{"name":null,"steps":["Smält smöret i en kastrull.","Tillsätt strösocker och låt smälta tills gyllene. Använd visp under tiden för att få fin konsistens.","Sänk värmen och rör i kondenserad mjölk.","Vispa och känn efter konsistens, justera med gärdde/vatten.","Smaka av med flingsalt (kylning dämpar sältan, så ta i lite).","Håller sig i kylen i ca 1 vecka. Kan värmas lätt i micro för att få mjukare."]}],
 "notes":[],
 "flags":["Page has an unknown/alias block (link to another page, probably the No Churn glass recipe) after the intro that could not be fetched; page marked truncated."]},
 
-{"id":"3dbe56f5972280f0bfb6cc5dab9032c5","title":"Chokladsås","intro":"Saltig chokladsås med rom, från Lars.","plan":"10 min.",
+{"id":"3dbe56f5972280f0bfb6cc5dab9032c5","icon":"🍫","title":"Chokladsås","intro":"Saltig chokladsås med rom, från Lars.","plan":"10 min.",
 "groups":[{"name":null,"items":[["","Grädde"],["","Kakao"],["","Muscovadosocker"],["","Honung"],["","Salt"],["","Mörk rom"]]}],
 "method":[{"name":null,"steps":["Blanda allt på medelvärme tills balanserat och det gått ihop sig."]}],
 "notes":[],"flags":["Intro mentions a person's first name (Lars) as recipe source; likely fine."]}

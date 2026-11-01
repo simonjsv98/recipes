@@ -1,5 +1,5 @@
 [
-{"id":"251e56f5972280d7b5d9dec0ea377d87","title":"Stir Fry","intro":"Stir-Fry med en bas av tofu eller kyckling grönsaker och sås. Middag, kan vara lunch eller matlådor.","plan":"",
+{"id":"251e56f5972280d7b5d9dec0ea377d87","icon":"🍚","title":"Stir Fry","intro":"Stir-Fry med en bas av tofu eller kyckling grönsaker och sås. Middag, kan vara lunch eller matlådor.","plan":"",
 "groups":[
 {"name":null,"items":[["","Tofu 400 g / Kyckling 400 g"]]},
 {"name":"Veggies","items":[["","Broccoli 1 st"],["","Zucchini 1 st"],["","Purjolök 0,33 - 0,5"],["","Salladslök 2 st"]]},
@@ -11,14 +11,14 @@
 {"heading":"Adderingar","lines":["Skivade sockerärtor (sugar-snaps), snabbstekta.","Enoki, stekta.","Färsk chili.","Vitlök till såsen (lite fräst).","Thaibasilika i slutet. Den som smakar lite lakrits, inte holy basil.","Ingefära, riven eller superfinhackad.","Edamame bönor.","Tunna skivor av fänkål?","Toppa med sesamfrön/jordnötter/cashew.","Kimchi."]}],
 "flags":["Nested ingredient lists (Veggies, Sås) were turned into named groups; the amounts are inside the item names (e.g. 'Broccoli 1st'), so amount column is empty."]},
 
-{"id":"301e56f59722800cb25fd00406817723","title":"Pho Ga Vietnamesisk kycklingpho","intro":"Klassisk vietnamesisk pho med kycklingbuljong och kryddor. Recept av Nagi Maehashi / RecipeTin Eats.","plan":"",
+{"id":"301e56f59722800cb25fd00406817723","icon":"🍲","title":"Pho Ga Vietnamesisk kycklingpho","intro":"Klassisk vietnamesisk pho med kycklingbuljong och kryddor. Recept av Nagi Maehashi / RecipeTin Eats.","plan":"",
 "groups":[
 {"name":null,"items":[["1 msk","neutral olja"],["2","lökar, halverade (skal på är ok)"],["5 cm","ingefära, skivad ca 7 mm tjock (oskalad)"],["2 liter","vatten"],["1,5 kg","kycklinglår med ben och skinn"],["5","stjärnanis"],["1","kanelstång"],["4","kryddnejlikor"],["2 tsk","fänkålsfrön"],["2 tsk","korianderfrön"],["8 tsk","fisksås"],["6 tsk","strösocker"],["0,75 tsk","salt (grovt) eller 0,5 tsk bordsalt"],["360 g","torkade risnudlar, tunna och platta (eller 600 g färska)"],["2","salladslöksstjälkar, fint skivade"]]},
 {"name":"Tillbehör","items":[["3 dl","böngroddar"],["1","litet knippe vardera av thaibasilika, mynta och koriander"],["2","limefrukter, delade i klyftor"],["","Hoisinsås"],["","Sriracha"],["","Röd chili, fint skivad (valfritt)"]]}],
 "method":[{"name":null,"steps":["Hetta upp oljan i en stor gryta (minst 6 liter) på hög värme. Lägg löken och ingefäran med snittytan nedåt och låt stå orört i 2 minuter tills de svartnar. Vänd och låt stå ytterligare 2 minuter.","Tillsätt vatten och alla buljongsingredienser utom salt. Koka upp och sänk sedan värmen så att det puttrar mycket försiktigt med locket på glänt.","Låt puttra i 1,5 timme. Skumma av grumset som stiger upp till ytan ett par gånger under tillagningen.","Ta upp kycklingen. Sila buljongen i en ren gryta – du ska ha ca 1,5 liter. Har du mer, reducera. Har du mindre, fyll på med vatten.","Tillsätt salt och låt buljongen sjuda försiktigt. Den ska smaka lite väl salt – det späds ut av nudlarna.","Strimla kycklingköttet, kassera ben och skinn. Håll buljongen varm till servering.","Ställ fram tillbehören på bordet. Tillaga nudlarna enligt förpackningens anvisningar precis innan servering och låt dem rinna av väl.","Lägg nudlar i skålar, toppa med kyckling och häll över ca 3,75 dl buljong per portion. Strö över salladslök. Servera omedelbart med tillbehören vid sidan om."]}],
 "notes":[],"flags":[]},
 
-{"id":"387e56f5972280fb89a7defb3652cf21","title":"Slow laxsida med soja, lime och ingefära","intro":"Långsamt ugnsbakad laxsida med soja-, lime- och ingefärsglaze, serverad som bowl med krispiga toppings och en enkel chilisås.","plan":"",
+{"id":"387e56f5972280fb89a7defb3652cf21","icon":"🔪","title":"Slow laxsida med soja, lime och ingefära","intro":"Långsamt ugnsbakad laxsida med soja-, lime- och ingefärsglaze, serverad som bowl med krispiga toppings och en enkel chilisås.","plan":"",
 "groups":[
 {"name":"Lax","items":[["1","hel laxsida"],["3–4 msk","soja"],["1–2 msk","honung"],["1","lime, saft och rivet skal"],["1–2","vitlöksklyftor, finrivna"],["1","bit färsk ingefära, finriven"],["1–2 tsk","sesamolja"],["","Svartpeppar"],["","Chili efter smak"]]},
 {"name":"Mise en place till bowl","items":[["","Gurka i stavar eller halvmånar"],["","Morot i tunna stavar"],["","Rödkål eller spetskål, fint strimlad"],["","Salladslök, tunt på snedden"],["","Chili, tunt skivad"],["","Limeklyftor"],["","Persilja eller mynta"],["","Sesamfrön"],["","Picklad rödlök"],["","(Mango och avokado i tärningar)"]]},
@@ -26,7 +26,7 @@
 "method":[{"name":null,"steps":["Sätt ugnen på 100–120 °C. Lägg laxsidan på bakplåtspapper, skinnsidan nedåt om skinnet är kvar.","Blanda soja, honung, lime, vitlök, ingefära, sesamolja och peppar till en glaze. Pensla över laxen. Spara gärna lite glaze till servering, men bara om den inte varit i kontakt med rå fisk.","Baka långsamt i mitten av ugnen i cirka 35–55 minuter beroende på tjocklek och temperatur. Sikta på en innertemperatur runt 42–45 °C för väldigt saftig och mjuk lax, 46–50 °C för lite fastare men fortfarande saftig, eller 52 °C+ för mer genomlagad.","Ta ut laxen och låt vila några minuter. Skeda över extra glaze, limejuice och sesamfrön precis före servering.","Preppa all mise en place i små skålar medan laxen går i ugnen.","Rör ihop såsen.","Servera med ris eller nudlar, laxen i stora mjuka bitar och all mise en place runtom."]}],
 "notes":[],"flags":["Page has no 'Ingredienser' heading; the three ingredient sections (Lax, Mise en place till bowl, Sås) were mapped to named groups."]},
 
-{"id":"2e1e56f5972280e38133ce5e4914b774","title":"Glazed Thick Ribs TK","intro":"","plan":"",
+{"id":"2e1e56f5972280e38133ce5e4914b774","icon":"🐖","title":"Glazed Thick Ribs TK","intro":"","plan":"",
 "groups":[
 {"name":"Ribs i buljong","items":[["1 kg","tjocka knäckta revben"],["2 st","gula lökar"],["15","svartpepparkorn"],["3 st","lagerblad"],["2 st","köttbuljongtärningar"],["1 L","vatten"],["2 tsk","salt"]]},
 {"name":"Glaze","items":[["0,75 dl","hoisinsås"],["0,75 dl","oystersås"],["2 msk","flytande honung"],["3","klyftor vitlök, skalade och rivna"],["1,5 tsk","svart risvinäger"],["","Salt att smaka av med"]]}],
@@ -35,7 +35,7 @@
 {"name":"Glaze","steps":["Blanda ihop alla ingredienser till glazen.","När det börjar närma sig klart i TK, så sätt ugnen på 225 C.","Pensla sedan de kokta revbenen runtom hela med glaze, och lägg på en ugnssäker form. Men spara glaze till senare (och om det är för mycket).","Sätt in de i ugnen på 20 minuter, men vänd alla efter ca 10 min när de fått lite yta/färg och lägg glaze på igen.","Servera."]}],
 "notes":[],"flags":[]},
 
-{"id":"2e1e56f5972280ceab5cfb45fdcb85f7","title":"Umami Drumsticks TK","intro":"","plan":"",
+{"id":"2e1e56f5972280ceab5cfb45fdcb85f7","icon":"🍗","title":"Umami Drumsticks TK","intro":"","plan":"",
 "groups":[
 {"name":"Kyckling & aromatics","items":[["1 kg","kycklingben (drumsticks)"],["0,25","purjolök eller 3 salladslökar"],["4","klyftor vitlök krossade/hackade"],["2 cm","ingefära i skivor"]]},
 {"name":"Sojablandning","items":[["1 dl","light soy sauce"],["0,5 dl","dark soy sauce"],["0,5 dl","Shaoxing wine"],["1 msk","sesamolja"],["0,5 dl","råsocker/brunt socker"],["1 dl","vatten"],["2 st","stjärnanis"],["3 st","lagerblad"]]}],
@@ -43,17 +43,17 @@
 "notes":[{"heading":null,"lines":["Första gången jag gjorde detta gjorde jag ett kokad broccoli med dressing."]}],
 "flags":["Page is truncated: one unsupported 'alias' block (likely a link/synced reference, probably to the Fresh Broccoli Coat page) could not be fetched.","Paragraph 'Servera kycklingklubborna...' sat after the method list; placed as final method step."]},
 
-{"id":"2e1e56f597228056bd85ed563949841a","title":"Fresh Broccoli Coat","intro":"","plan":"",
+{"id":"2e1e56f597228056bd85ed563949841a","icon":"🥦","title":"Fresh Broccoli Coat","intro":"","plan":"",
 "groups":[{"name":null,"items":[["1 st","broccoli"],["1 msk","vitvinsvinäger"],["1 tsk","honung"],["1 tsk","sesamolja"],["1 tsk","gochugaru"],["","Nypa salt"]]}],
 "method":[{"name":null,"steps":["Dela upp broccolin i sina små buketter, och sedan i mindre buketter för att vara trevliga i en tugga.","Koka upp rikligt med vatten, salta halvvägs till pastavatten.","Koka broccolin i 1,5 min och skölj med kallt vatten direkt efter. Låt rinna av en stund för att torka upp.","Blanda övriga ingredienser i en skål, smaka av.","Tossa broccolin i dressingen. Servera."]}],
 "notes":[],"flags":[]},
 
-{"id":"3bfe56f597228063b9e6cee94ae6cecd","title":"Shrimp noodle sallad","intro":"","plan":"",
+{"id":"3bfe56f597228063b9e6cee94ae6cecd","icon":"🦐","title":"Shrimp noodle sallad","intro":"","plan":"",
 "groups":[{"name":null,"items":[["400 g","Risnudlar M"],["400 g","vannameiräkor"],["","Halvt huvud romansallad"],["","Vitlök"],["","Risvinäger/Lime/Vitvinsvinäger"]]}],
 "method":[],"notes":[],
 "flags":["Metod section is empty on the page (stub recipe).","One empty trailing ingredient bullet was dropped."]},
 
-{"id":"373e56f59722803db7b1f70ea13b000e","title":"Dal palak","intro":"Indisk linsgryta med spenat och tempererade hela kryddor, från Bon Appétit (Epicurious).","plan":"",
+{"id":"373e56f59722803db7b1f70ea13b000e","icon":"🍛","title":"Dal palak","intro":"Indisk linsgryta med spenat och tempererade hela kryddor, från Bon Appétit (Epicurious).","plan":"",
 "groups":[{"name":null,"items":[["200 g","röda linser (masoor dal)"],["0,25 tsk","malen gurkmeja"],["1","lime, halverad"],["1 tsk","salt, delat, plus mer efter smak"],["30 g","ghee eller osaltat smör"],["0,5 tsk","svarta senapsfrön"],["0,5 tsk","hela spiskumminfrön"],["0,5 tsk","fänkålsfrön"],["1","liten torkad röd chili, bruten på mitten"],["1","liten gul lök, grovhackad"],["2","vitlöksklyftor, finhackade"],["1 tsk","finriven färsk ingefära"],["90 g","spenat, grovhackad"],["","Kokt ris, korianderblad och limeklyftor, till servering"]]}],
 "method":[
 {"name":"Steg 1","steps":["Skölj linserna i en finmaskig sil. Lägg dem i en medelstor kastrull och häll i 6 dl vatten. Koka upp på hög värme (håll koll, det kan lätt koka över).","Låt koka och skumma av ytan tills blandningen slutar skumma, ca 3 minuter.","Rör i gurkmejan, sänk till medel–låg värme, lägg på lock på glänt och låt sjuda tills linserna är mjuka, 25–30 minuter.","Ta från värmen, pressa i saften från en limehalva och rör i ca 0,5 tsk salt.","Börja koka ris."]},
@@ -61,7 +61,7 @@
 {"name":"Steg 3","steps":["Lägg i spenaten och ca 0,25 tsk salt och fräs under omrörning tills spenaten faller ihop men fortfarande är klargrön, ca 1 minut.","Ta från värmen och pressa i saften från den andra limehalvan.","Rör ner spenatblandningen i linserna och smaka av med salt.","Fördela ris och dal i skålar, (toppa med koriander) och servera med limeklyftor."]}],
 "notes":[],"flags":[]},
 
-{"id":"373e56f5972280bdb2d5c931177781f8","title":"Butter chicken","intro":"Indisk butter chicken med yoghurtmarinerad, ugnsgrillad kyckling i krämig tomat- och gräddsås, från Dennis Prescotts Eat Delicious (Epicurious).","plan":"Marinering minst 12 h (gärna natten över) + aktiv tillagning ca 1 h",
+{"id":"373e56f5972280bdb2d5c931177781f8","icon":"🟠","title":"Butter chicken","intro":"Indisk butter chicken med yoghurtmarinerad, ugnsgrillad kyckling i krämig tomat- och gräddsås, från Dennis Prescotts Eat Delicious (Epicurious).","plan":"Marinering minst 12 h (gärna natten över) + aktiv tillagning ca 1 h",
 "groups":[
 {"name":"Kyckling","items":[["900 g","benfri, skinnfri kycklingfilé"],["1 msk","färskpressad citronsaft"],["1 tsk","kashmirisk chilipulver (gochu garu)"],["2,5 dl","naturell yoghurt"],["1 tsk","malen gurkmeja"],["1 tsk","garam masala"],["3","vitlöksklyftor, finhackade"],["1 msk","riven färsk ingefära"],["1 msk","solros- eller rapsolja"],["1 tsk","havssalt"],["30 g","smör, smält"]]},
 {"name":"Curry","items":[["55 g","smör"],["2","hela kryddnejlikor"],["4","gröna kardemummakapslar"],["1","svart kardemummakapsel"],["1","bit kanelstång (ca 5 cm)"],["8","vitlöksklyftor, finhackade"],["1 msk","finhackad färsk ingefära"],["0,5 tsk","bockhornsklöverfrön"],["1–2","röda chili, tärnade"],["4 msk","tomatpuré"],["1","burk krossade tomater (ca 800 g)"],["1 tsk","kashmirisk chilipulver"],["7 dl","kycklingbuljong"],["1 tsk","havssalt"],["1 msk","äkta lönnsirap"],["1 msk","torkade krossade bockhornsklöverblad, kasuri methi (finns hos välsorterade kryddaffärer eller online)"],["2,5 dl","vispgrädde"],["1 msk","garam masala"]]},
@@ -72,12 +72,12 @@
 {"name":"Curry — starta medan kycklingen är i ugnen","steps":["Smält smöret i en stor tjockbottnad gryta på medelvärme. Tillsätt kryddnejlikor, kardemummakapslar och kanelstång och fräs 2–3 minuter tills det doftar. Rör i vitlök, ingefära, bockhornsklöverfrön, chili och tomatpuré och fräs 2 minuter under omrörning.","Rör i de krossade tomaterna och chilipulvret och låt koka under flitig omrörning så att såsen inte fastnar, ca 20 minuter.","Ta från värmen och mixa såsen slät i vitamixen. Häll tillbaka och sätt på medelvärme, rör i buljongen och saltet, koka upp och låt sjuda ca 15 minuter tills såsen börjar tjockna.","Rör ner den grillade kycklingen i såsen tillsammans med lönnsirapen och de torkade bockhornsklöverbladen. Lägg på lock och koka 8 minuter.","Sänk till medel–låg värme, rör i grädden och garam masalan och låt sjuda en sista gång i 5 minuter.","Toppa varje portion med en skvätt grädde, färsk koriander och skivad röd chili efter smak. Servera med ris eller naan."]}],
 "notes":[],"flags":[]},
 
-{"id":"3e8e56f59722805db9b0dc43e1c6bdf9","title":"Palak paneer (halloumi)","intro":"Mild och snabblagad palak paneer från ICA med halloumi i krämig grädd- och spenatsås med garam masala, vitlök, ingefära och tomat. 4 portioner.","plan":"",
+{"id":"3e8e56f59722805db9b0dc43e1c6bdf9","icon":"🍲","title":"Palak paneer (halloumi)","intro":"Mild och snabblagad palak paneer från ICA med halloumi i krämig grädd- och spenatsås med garam masala, vitlök, ingefära och tomat. 4 portioner.","plan":"",
 "groups":[{"name":null,"items":[["4 port","ris"],["1","blomkålshuvud"],["1","gul lök eller schalottenlök"],["2","vitlöksklyftor"],["2","tomater"],["2 msk","riven ingefära"],["3 msk","olivolja"],["2 msk","tomatpuré"],["1 msk","garam masala"],["390 g","krossade tomater"],["1 dl","vatten"],["2 dl","vispgrädde"],["1","grönsaksbuljongtärning"],["200 g","färsk spenat"],["400 g","halloumi eller grillost"],["2 krm","salt"]]}],
 "method":[{"name":null,"steps":["Sätt ugnen på 225 C","Dela blomkålshuvudet i små buketter och ringla olivolja och salt över på en plåt. Rosta i ugnen i ca 30 min.","Koka riset.","Skala lök och vitlök. Skär löken och tomaterna i skivor, vitlöken i tunna skivor och riv ingefäran fint.","Hetta upp hälften av olivoljan i en stekgryta eller kastrull. Fräs lök och tomarpuré i 2 min. Därefter i med vitlök, ingefära och garam masala i 2 min.","Tillsätt tomater, krossade tomater, vatten, grädde och smulad buljongtärning. Låt sjuda 6–7 minuter. Vänd ner spenaten.","Skär osten i tärningar (och stek dem gyllene i resten av olivoljan i en stekpanna).","Blanda ner osten i grytan, smaka av med salt och servera med ris och blomkål."]}],
 "notes":[],"flags":[]},
 
-{"id":"26ae56f5972280d3a207dceacaab08f3","title":"Rice n’ Beans","intro":"","plan":"",
+{"id":"26ae56f5972280d3a207dceacaab08f3","icon":"🍛","title":"Rice n’ Beans","intro":"","plan":"",
 "groups":[],"method":[],
 "notes":[
 {"heading":null,"lines":["0,5 L torra svarta bönor","(Se så alla är fina/bra, skölj alla)","1 L vatten","I kylen över natten"]},
@@ -89,22 +89,22 @@
 {"heading":null,"lines":["Platea.","Queso fresco på bönorna. Som mild feta."]}],
 "flags":["Unstructured page (no Ingredienser/Metod headings); whole content placed in notes. Blank lines separated paragraphs, represented here as separate note blocks."]},
 
-{"id":"2dee56f5972280c2b0eacda42b023340","title":"Corn Wheat Tortillas","intro":"För 12 st små tortillas eller 6 st medelstora.","plan":"",
+{"id":"2dee56f5972280c2b0eacda42b023340","icon":"🌮","title":"Corn Wheat Tortillas","intro":"För 12 st små tortillas eller 6 st medelstora.","plan":"",
 "groups":[{"name":null,"items":[["1 dl","vetemjöl"],["1 dl","majsmöl"],["1 krm","salt"],["1-2 msk","olivolja"],["1 dl","kokande vatten"],["","vetemjöl i kavling"]]}],
 "method":[{"name":null,"steps":["Blanda vetemjöl, majsmjöl och salt i en bunke.","Tillsätt olivolja för att få det som en smulig blandning. (Kan behövas mer olivolja).","Häll i det kokande vattnet och vänd med slickepott eller träslev till en jämn deg.","Dela i 6 eller 12 delar, beroende på önskad storlek.","Förbered en lite fuktig kökshandduk i en rund form.","Sätt en eller två stekpannor på värmning. De ska vara riktigt varma på “6.” eller “7”.","Kavla ut degbitarna till runda tortillas och stek i cirka 1 min per sida.","Lägg dem därefter i kökshandduken inför servering."]}],
 "notes":[],"flags":[]},
 
-{"id":"2bbe56f59722805593edff631bb0713a","title":"Slow Pork with Leek","intro":"Boneless ribs with a splash of white wine and tons of leek, served with mash.","plan":"",
+{"id":"2bbe56f59722805593edff631bb0713a","icon":"🥩","title":"Slow Pork with Leek","intro":"Boneless ribs with a splash of white wine and tons of leek, served with mash.","plan":"",
 "groups":[{"name":null,"items":[["1 kg","benfria revbensspjäll"],["","En bunke med purjolök"],["1-2 dl","vitt vin"],["2","klyftor vitlök"],["","Cirka 0,5-1 dl grädde"],["","Cirka 0,5 L vatten (gå på känsla/visuellt i grytan, ska inte täcka, men minst 50% typ)."]]}],
 "method":[{"name":null,"steps":["Skär köttet i bitar. Salta generöst och låt vara i minst 10 min, gärna någon timme eller kylen över natten. Men se till att det blir rumstemp inför tillagning.","Förbered under tiden purjolök som kan ligga och dra i en skål med kallt vatten en stund (några minuter).","Hacka därefter i ett några millimeters skivor.","Slå till vitlöksklyftorna.","Sätt på ugnen på 175 C.","Värm en traktör eller kastrull att bryna i och tillaga allt i.","Torka rent köttet med hushållspapper så att det är torrt.","Bryn köttet på hög värme. Lägg därefter över på tallrik.","Sänk värmen och fräs typ 70% av purjolöken i samma panna. Lägg i vitlöken efter en stund.","Häll i vinet, därefter tillbaka med köttet.","Häll i vattnet (gärna förkokat) och se till att det är uppe i temp.","Ställ in kärlet med lock i 1 h i ugnen, på 175 C.","Därefter ner med resten av löken och in igen i 15 min på 200 C.","Sist, ner med grädden och blanda runt så det som fått färg hamnar uppochner (lite grovt). Låt detta gå 15 min till på 200 C.","Nu kan den smakas av med salt (och ev något annat för balans. Behövdes inte förra gången).","Servera med potatismos."]}],
 "notes":[],"flags":["Page is truncated: one unsupported 'alias' block (likely a link/synced reference) could not be fetched."]},
 
-{"id":"35de56f597228087b211fbcfaaafacce","title":"Cocoa-Blackened Chicken med Stenfrukter","intro":"Kycklinglår dammade i kakao och Old Bay som svartnar vackert under tillagning — serveras på en frisk salsa av stenfrukter, mynta och lime. Recept från Bon Appétit / Epicurious.","plan":"",
+{"id":"35de56f597228087b211fbcfaaafacce","icon":"🤎","title":"Cocoa-Blackened Chicken med Stenfrukter","intro":"Kycklinglår dammade i kakao och Old Bay som svartnar vackert under tillagning — serveras på en frisk salsa av stenfrukter, mynta och lime. Recept från Bon Appétit / Epicurious.","plan":"",
 "groups":[{"name":null,"items":[["900 g","skinless kycklinglår utan ben (4–6 st), torkade"],["15 g","osötat kakaopulver, gärna Dutch-process"],["30 g","Old Bay eller Creole-krydda (t.ex. Tony Chachere’s eller Zatarain’s)"],["90 ml","olivolja, delat"],["3","vitlöksklyftor, fint rivna"],["","Saft av 3 lime"],["15 g","honung"],["2","schalottenlökar, tunt skivade i ringar"],["680 g","blandade stenfrukter (persikor, nektariner och/eller plommon, aprikoser), skivade"],["15 g","färska myntablad"],["","Salt och nymalen svartpeppar"]]}],
 "method":[{"name":null,"steps":["Blanda kakaopulver och Old Bay i en liten skål. Gnid in kycklingstyckena runtom med kryddblandningen och krydda med salt.","Hetta upp 45 ml av olivoljan i en stor stekpanna på medelhög till hög värme. Lägg ner kycklingen i ett lager och stek under vändning tills den är svartnad i fläckar, genomstekt och en termometer visar 74 °C i tjockaste delen, totalt 10–14 minuter beroende på tjocklek. Lyft upp och lägg på en tallrik.","Vispa ihop limesaft, vitlök, honung, salt, peppar och resterande 45 ml olivolja i en stor skål. Tillsätt schalottenlöken, stenfrukterna och myntan och vänd försiktigt runt. Smaka av och justera salt och peppar.","Lägg upp fruktsalladen på ett fat. Skiva kycklingen och arrangera ovanpå. Häll över eventuellt kvarvarande dressing från skålen."]}],
 "notes":[{"heading":null,"lines":["(+extra bulgur/quinoa och kanske feta för matighet)"]}],"flags":[]},
 
-{"id":"38ae56f5972280ffa045f38253a8f247","title":"Cesarsallad","intro":"Klassisk caesarsallad från Coop med romansallad, parmesan och kyckling, toppad med en krämig caesardressing.","plan":"",
+{"id":"38ae56f5972280ffa045f38253a8f247","icon":"🥬","title":"Cesarsallad","intro":"Klassisk caesarsallad från Coop med romansallad, parmesan och kyckling, toppad med en krämig caesardressing.","plan":"",
 "groups":[
 {"name":"Sallad","items":[["140 g","bacon, strimlat"],["1","romansalladshuvuden"],["500 g","kycklinglårfilé"],["1 dl","hyvlad parmesan"],["0,5","rödlök i skivor"]]},
 {"name":"Caesardressing","items":[["1","ägg"],["6","sardellfiléer (alt. 1 tsk worcestershiresås + 1 tsk fisksås)"],["1","vitlöksklyfta, finriven"],["1 msk","vitvinsvinäger"],["1 tsk","dijonsenap"],["1 tsk","worcestershiresås"],["2 dl","neutral olja"],["2 dl","finriven parmesan"],["","salt och svartpeppar"]]},
@@ -112,7 +112,7 @@
 "method":[{"name":null,"steps":["Salta och peppra kycklingfiléerna och stek i olja tills de fått fin färg och har en innertemperatur på 70 grader, cirka 15 minuter.","Gör dressingen. Mixa ägg, sardeller, vitlök, vinäger, senap, worcestershiresås och olja till en majonnäs, i matberedare eller med en mixerstav. Rör ner parmesanen och smaka av med salt och peppar.","Blanda brödtärningar, vitlök och olja på en plåt med bakplåtspapper. Rosta mitt i ugnen på 200 °, ca 5-7 min. Stek baconet knaprigt.","Bryt salladen i bitar. Skiva kycklingen. Hacka rödlöken. Blanda sallad och kyckling med hälften av dressingen. Toppa med bacon och krutonger och servera med resten av dressingen."]}],
 "notes":[],"flags":[]},
 
-{"id":"2d8e56f59722807cacd5d21424ae702b","title":"Pulled Pork TK","intro":"","plan":"",
+{"id":"2d8e56f59722807cacd5d21424ae702b","icon":"🐽","title":"Pulled Pork TK","intro":"","plan":"",
 "groups":[
 {"name":"Kött","items":[["1 kg","Picnicbog"],["","Salt"]]},
 {"name":"Kryddblandning","items":[["2 msk","paprika"],["1 msk","malen spiskummin"],["1-2 tsk","liquid smoke"],["1 tsk","cayenne"],["4 msk","mörkt muscovadosocker"],["3 dl","vatten"],["4 tsk","äppelcidervinäger"],["1 dl","bbq-sås, ex Sweet Baby Rays"]]},
@@ -126,19 +126,19 @@
 {"heading":"V1 (helt ok)","lines":["Tillbehör: Picklad rödlök, coleslaw, refried beans."]}],
 "flags":["Page contains two full versions: main recipe and a second 'V1 (helt ok)' section after a divider. V1 ingredients/method kept as extra groups/part with names I prefixed 'V1 (helt ok) – ' (added labels); human may want to split into two recipes.","A '<br />' line break in the V1 meat item was replaced by a space.","Horizontal divider (---) not represented."]},
 
-{"id":"2d8e56f5972280a9afb8d7b01e9ca9f2","title":"Coleslaw","intro":"","plan":"",
+{"id":"2d8e56f5972280a9afb8d7b01e9ca9f2","icon":"🥬","title":"Coleslaw","intro":"","plan":"",
 "groups":[
 {"name":"Bas","items":[["250 g","vitkål"],["2","små morötter."],["1","liten rödlök"]]},
 {"name":"Dressing","items":[["1 dl","creme fraiche"],["0,5 dl","majonnäs"],["1 tsk","fransk senap, dijon"],["1 tsk","socker"],["0,5 tsk","salt"],["1 krm","svartpeppar"]]}],
 "method":[{"name":null,"steps":["Ta fram mandolin och ställ in lagom tunnt.","Skiva vitkålen och rödlöken.","Byt blad till finaste julienne och skär de två morötterna så mycket som går (två halvor blir kvar, som kan ätas direkt eller sparas).","Rör samman dressingen, alla ingredienser. Smaka av med salt och socker.","Blanda allt och låt gärna stå kallt en stund innan servering."]}],
 "notes":[],"flags":[]},
 
-{"id":"251e56f5972280989ee6f2757b37568b","title":"Super Simple Carbonara","intro":"Snabb fulcarbonara för enkel o lite go middag eller lunch.","plan":"",
+{"id":"251e56f5972280989ee6f2757b37568b","icon":"🥓","title":"Super Simple Carbonara","intro":"Snabb fulcarbonara för enkel o lite go middag eller lunch.","plan":"",
 "groups":[{"name":null,"items":[["","Pasta för 2"],["","Bacon 1 pk"],["","Ägg 2 st"],["","(Parmesan)"],["","Salt"]]}],
 "method":[{"name":null,"steps":["Koka upp vatten och salt.","Skär bacon och stek.","Blanda kokt pasta med en äggula och ett helt ägg.","Blanda med bacon och riven parmesan."]}],
 "notes":[],"flags":[]},
 
-{"id":"2b9e56f5972280c492f0fedd01c06cb9","title":"Super Simple Pea Pasta","intro":"","plan":"",
+{"id":"2b9e56f5972280c492f0fedd01c06cb9","icon":"🐲","title":"Super Simple Pea Pasta","intro":"","plan":"",
 "groups":[
 {"name":null,"items":[["","Pasta för 2"],["3 dl","frysta ärtor"]]},
 {"name":"Blanda med","items":[["200 g","fetaost (ett paket)"],["","En bunt persilja"],["","Zest från 0,5 citron"],["","Svartpeppar"],["3 msk","olivolja"],["1-2","finhackade vitlöksklyftor"]]}],
