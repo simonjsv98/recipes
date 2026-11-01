@@ -340,27 +340,12 @@ let cameFrom = [];
 
 const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
 
-// A short line under each recipe in the lists: main ingredient, total time and how it is cooked.
-// Read from the recipe itself, so it follows Notion without extra fields.
-const PROTEINS = [["Kalkon",/kalkon/],["Kyckling",/kyckling/],["Lax",/\blax/],["Fisk",/torsk|sej\b|kolja|fisk/],["Skaldjur",/räk|mussl/],["Lamm",/lamm/],["Vilt",/vildsvin|hjort|älg|rådjur/],["Nöt",/nötfärs|högrev|oxfilé|entrecôte|nötkött|kalv/],["Fläsk",/fläsk|bacon|pancetta|chorizo|korv|skinka|karré|guanciale/]];
-const METHODS = [["Sous vide",/sous vide/],["Tryckkokare",/tryckkokare|\btk\b/],["Grill",/grill/],["Ugn",/ugn/],["Spis",/stekpanna|kastrull|gryta|panna|koka|fräs|stek/]];
-function metaFor(r,sectionName){
-  const path = findTrail(TREE,r.id), cover = path && path[1] ? path[1].title : "";
-  const parts = [];
-  if (cover==="COOK" && /^(Dishes|Proteins)$|^null$/.test(String(sectionName))){
-    const items = r.groups.flatMap(g=>g.items.map(i=>i[1].toLowerCase()));
-    // The first kind in PROTEINS that appears wins, so bacon in a chicken salad doesn't make it pork.
-    const hit = PROTEINS.find(([,re])=>items.some(t=>re.test(t)));
-    if (hit) parts.push(hit[0]);
-  }
+// Under each recipe in the lists: the total time from its Tid/Planering line, when it has one.
+function metaFor(r){
   const total = (r.plan.match(/Total:?\s*([^\n]+)/i)||[])[1];
-  if (total){ const t = total.split(/,\s|[(+]| för | på | plus | beroende/)[0].trim(); if (/\d/.test(t)) parts.push(t); }
-  if (cover==="COOK"){
-    const text = (r.title+" "+r.method.flatMap(m=>m.steps).join(" ")).toLowerCase();
-    const how = METHODS.find(([,re])=>re.test(text));
-    if (how) parts.push(how[0]);
-  }
-  return parts.join(" · ");
+  if (!total) return "";
+  const t = total.split(/,\s|[(+]| för | på | plus | beroende/)[0].trim();
+  return /\d/.test(t) ? t : "";
 }
 
 // Small shapes for regions and kinds of baking, in the style of the start page illustrations.
@@ -388,7 +373,7 @@ const rowHtml = (row,s,i,sectionName) => {
   if (!Array.isArray(row)) return `<li><button class="node-row" data-node="${s}.${i}"><span class="row-name">${icon(row.title)}<span>${row.title}</span></span><span class="mark"><span class="row-count">${countRecipes(row)}</span>›</span></button></li>`;
   const r = recipeFor(row[1]);
   if (r && row[2]==="link") return `<li><button class="link-row" data-open="${r.id}"><span class="link-text"><span>${row[0]}</span><span class="link-where">Länk till ${placeOf(r.id)}</span></span><span class="mark">→</span></button></li>`;
-  const meta = r && metaFor(r,sectionName);
+  const meta = r && metaFor(r);
   if (r && meta) return `<li><button data-open="${r.id}"><span class="link-text"><span>${row[0]}</span><span class="row-meta">${meta}</span></span><span class="mark">›</span></button></li>`;
   if (r) return `<li><button data-open="${r.id}"><span>${row[0]}</span><span class="mark">›</span></button></li>`;
   return `<li><a href="https://app.notion.com/p/${row[1]}" target="_blank" rel="noopener"><span>${row[0]}</span><span class="mark">↗</span></a></li>`;
