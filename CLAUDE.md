@@ -15,6 +15,7 @@ Keep this file current. When the workflow, the structure or a standing preferenc
 - `build/recipes-data/batch-*.json` are the recipes as imported from Notion.
 - `build/build-recipes.js` applies corrections and writes `index.html` and `recipes-data.js`. Run `node build/build-recipes.js` after changing `kokslaget.html` or the recipe data, and commit the rebuilt files with the change.
 - `units.js` (the units panel behind the thermometer) and `extras.js` (portion factor, shopping list, latest recipes) are edited directly.
+- In the lists, regions and BAKE sections get a small icon from `ICONS` in `kokslaget.html`, keyed by title. A new region or section needs one drawn in the same simple filled style. Each recipe row shows a line from `metaFor`: main protein (COOK Dishes and Proteins), the total time from the Tid/Planering line, and how it is cooked (COOK only).
 
 ## Notion
 

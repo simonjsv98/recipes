@@ -45,7 +45,13 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .recipes a { color: var(--muted); }
 .recipes .mark { color: var(--muted); flex: none; }
 .link-text { display: flex; flex-direction: column; text-align: left; }
-.link-where { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+.link-where, .row-meta { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+.recipes .node-row { align-items: center; }
+.row-name { display: flex; align-items: center; gap: 12px; text-align: left; }
+.row-icon { width: 1.5em; height: 1.5em; flex: none; fill: var(--accent, var(--ink)); color: var(--accent, var(--ink)); }
+.row-icon .cut { fill: var(--bg); stroke: var(--bg); }
+.section-label .row-icon { width: 1.15em; height: 1.15em; margin-right: 10px; vertical-align: -.15em; }
+.row-count { font-size: .9rem; color: var(--muted); margin-right: 10px; font-variant-numeric: tabular-nums; }
 .linked-in { color: var(--muted); margin-top: 6px; }
 .home-bottom { height: 40px; }
 .search { display: block; width: 100%; min-height: 52px; padding: 0 16px; border: 1px solid var(--line); border-radius: 26px; background: var(--surface); color: var(--ink); font: inherit; font-size: 1.05rem; margin-bottom: 24px; outline: none; transition: border-color .16s; -webkit-appearance: none; appearance: none; }
@@ -333,10 +339,57 @@ const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class=
 let cameFrom = [];
 
 const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
-const rowHtml = (row,s,i) => {
-  if (!Array.isArray(row)) return `<li><button data-node="${s}.${i}"><span>${row.title}</span><span class="mark">›</span></button></li>`;
+
+// A short line under each recipe in the lists: main ingredient, total time and how it is cooked.
+// Read from the recipe itself, so it follows Notion without extra fields.
+const PROTEINS = [["Kalkon",/kalkon/],["Kyckling",/kyckling/],["Lax",/\blax/],["Fisk",/torsk|sej\b|kolja|fisk/],["Skaldjur",/räk|mussl/],["Lamm",/lamm/],["Vilt",/vildsvin|hjort|älg|rådjur/],["Nöt",/nötfärs|högrev|oxfilé|entrecôte|nötkött|kalv/],["Fläsk",/fläsk|bacon|pancetta|chorizo|korv|skinka|karré|guanciale/]];
+const METHODS = [["Sous vide",/sous vide/],["Tryckkokare",/tryckkokare|\btk\b/],["Grill",/grill/],["Ugn",/ugn/],["Spis",/stekpanna|kastrull|gryta|panna|koka|fräs|stek/]];
+function metaFor(r,sectionName){
+  const path = findTrail(TREE,r.id), cover = path && path[1] ? path[1].title : "";
+  const parts = [];
+  if (cover==="COOK" && /^(Dishes|Proteins)$|^null$/.test(String(sectionName))){
+    const items = r.groups.flatMap(g=>g.items.map(i=>i[1].toLowerCase()));
+    // The first kind in PROTEINS that appears wins, so bacon in a chicken salad doesn't make it pork.
+    const hit = PROTEINS.find(([,re])=>items.some(t=>re.test(t)));
+    if (hit) parts.push(hit[0]);
+  }
+  const total = (r.plan.match(/Total:?\s*([^\n]+)/i)||[])[1];
+  if (total){ const t = total.split(/,\s|[(+]| för | på | plus | beroende/)[0].trim(); if (/\d/.test(t)) parts.push(t); }
+  if (cover==="COOK"){
+    const text = (r.title+" "+r.method.flatMap(m=>m.steps).join(" ")).toLowerCase();
+    const how = METHODS.find(([,re])=>re.test(text));
+    if (how) parts.push(how[0]);
+  }
+  return parts.join(" · ");
+}
+
+// Small shapes for regions and kinds of baking, in the style of the start page illustrations.
+const ICONS = {
+  "France":'<path d="M3 15.5C3 10 7 6 12 6s9 4 9 9.5c-1.6-.9-3.2-1.3-4.8-1.2L12 18l-4.2-3.7c-1.6-.1-3.2.3-4.8 1.2Z"/>',
+  "Italy":'<circle cx="12" cy="13.5" r="7"/><path d="M8.5 6.3C9.6 5.4 10.8 5 12 5s2.4.4 3.5 1.3C14.4 7 13.2 7.3 12 7.3S9.6 7 8.5 6.3ZM11.3 3h1.4v3h-1.4Z"/>',
+  "Nordic":'<path d="M4.5 12.5C4.5 8.6 7.8 6 12.2 6c4.1 0 7.3 2.2 7.3 5.8 0 4-3.3 6.7-7.6 6.7-4.3 0-7.4-2.4-7.4-6Z"/><circle class="cut" cx="9.5" cy="11" r="1"/><circle class="cut" cx="14.5" cy="13.5" r="1"/>',
+  "Asia":'<path d="M3 11.5h18c0 4.4-4 7.5-9 7.5s-9-3.1-9-7.5ZM13.6 3l1.3.6-3.2 6.9h-1.5ZM18.3 3.6l1.1.8-4.5 6.1h-1.6Z"/>',
+  "India":'<path d="M5 10.5h14c0 4.4-3.1 7.5-7 7.5s-7-3.1-7-7.5ZM2.5 10.5h3V12h-3ZM18.5 10.5h3V12h-3ZM9 4.5c.8 1 .8 2 0 3M12 4c.8 1 .8 2.3 0 3.5M15 4.5c.8 1 .8 2 0 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="currentColor"/>',
+  "Mexico":'<path d="M17.2 6.2c1.2 0 2 .9 1.9 2.1-.8 6.7-5.6 11.4-12.5 12.4-1 .1-1.2-.9-.2-1.3 4.8-1.9 7.8-5.6 8.8-10.6.3-1.6 1-2.6 2-2.6ZM17 6.4c0-1.3.6-2.4 1.8-3l.6.9c-.8.4-1.2 1.1-1.2 2Z"/>',
+  "England":'<path d="M4 8.5h12V13a6 6 0 0 1-12 0Zm12 1h1.3a2.6 2.6 0 0 1 0 5.2H15.6v-1.6h1.7a1 1 0 0 0 0-2H16ZM3 19.5h14V21H3Z"/>',
+  "USA":'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  "Super Simple":'<path d="M4.5 11c0-3.6 3.1-6 6.7-6 4.4 0 8.3 2.4 8.3 6.6 0 4.1-3.3 7.4-7.6 7.4-4.3 0-7.4-3.3-7.4-8Z"/><circle class="cut" cx="12" cy="11.8" r="3.1"/><circle cx="12" cy="11.8" r="1.9"/>',
+  "Arkiv":'<path fill-rule="evenodd" d="M3.5 6.5h17v3.5h-17ZM5 11h14v8H5Zm5 2v1.6h4V13Z"/>',
+  "Allahelgonamiddag":'<path d="M14.5 4a8 8 0 1 0 5.8 12.6A6.8 6.8 0 0 1 14.5 4Z"/>',
+  "Bullar och frallor":'<path d="M3.5 15c0-4.5 3.8-8 8.5-8s8.5 3.5 8.5 8c0 1.1-.9 2-2 2h-13c-1.1 0-2-.9-2-2Z"/><path class="cut" d="M9 11.5c1.6-1.6 4.4-1.6 6 0" stroke-width="1.4" fill="none" stroke-linecap="round"/>',
+  "Glass":'<circle cx="12" cy="8" r="5"/><path d="M7.4 11.2h9.2L12 21.5Z"/>',
+  "Sorbet":'<circle cx="12" cy="9.5" r="4.6"/><path d="M5.5 13h13l-1.6 6.5H7.1Z"/>',
+  "Bakverk & desserter":'<path d="M3 14.5L18 8v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="18" cy="5" r="1.8"/>',
+  "Komponenter":'<path d="M12 3c3 4.5 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-6.5 6-11Z"/>',
+  "Bröd":'<path d="M3 14.5c0-4.2 4-7.5 9-7.5s9 3.3 9 7.5c0 1.4-1 2.5-2.4 2.5H5.4C4 17 3 15.9 3 14.5Z"/><path class="cut" d="M8.5 13l1.2-2.6M11.6 13l1.2-2.6M14.7 13l1.2-2.6" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
+};
+const icon = name => ICONS[name] ? `<svg class="row-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>` : "";
+const rowHtml = (row,s,i,sectionName) => {
+  if (!Array.isArray(row)) return `<li><button class="node-row" data-node="${s}.${i}"><span class="row-name">${icon(row.title)}<span>${row.title}</span></span><span class="mark"><span class="row-count">${countRecipes(row)}</span>›</span></button></li>`;
   const r = recipeFor(row[1]);
   if (r && row[2]==="link") return `<li><button class="link-row" data-open="${r.id}"><span class="link-text"><span>${row[0]}</span><span class="link-where">Länk till ${placeOf(r.id)}</span></span><span class="mark">→</span></button></li>`;
+  const meta = r && metaFor(r,sectionName);
+  if (r && meta) return `<li><button data-open="${r.id}"><span class="link-text"><span>${row[0]}</span><span class="row-meta">${meta}</span></span><span class="mark">›</span></button></li>`;
   if (r) return `<li><button data-open="${r.id}"><span>${row[0]}</span><span class="mark">›</span></button></li>`;
   return `<li><a href="https://app.notion.com/p/${row[1]}" target="_blank" rel="noopener"><span>${row[0]}</span><span class="mark">↗</span></a></li>`;
 };
@@ -358,7 +411,7 @@ function showNode(){
     <h1 class="home-title" ${parent?'style="padding-top:16px"':""}>${node.title}</h1>
     ${parent?"":`<input id="search" class="search" type="search" placeholder="Sök recept, ingrediens eller typ av mat" aria-label="Sök recept" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">`}
     <div id="hits"></div>
-    <div id="browse">${node.sections.map((s,si)=>`${s.name?`<p class="label section-label">${s.name}</p>`:""}<ul class="recipes" ${!s.name&&si?'style="margin-top:32px"':""}>${s.rows.map((row,i)=>rowHtml(row,si,i)).join("")}</ul>`).join("")}</div>
+    <div id="browse">${node.sections.map((s,si)=>`${s.name?`<p class="label section-label">${icon(s.name)}${s.name}</p>`:""}<ul class="recipes" ${!s.name&&si?'style="margin-top:32px"':""}>${s.rows.map((row,i)=>rowHtml(row,si,i,s.name)).join("")}</ul>`).join("")}</div>
     <div class="home-bottom"></div>
   </div></div>`;
   if (!parent){ document.getElementById("search").value = query; renderHits(); }
