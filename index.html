@@ -52,6 +52,9 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .recipes li:last-child > * { border-bottom: 1px solid var(--line); }
 .recipes a { color: var(--muted); }
 .recipes .mark { color: var(--muted); flex: none; }
+.link-text { display: flex; flex-direction: column; text-align: left; }
+.link-where { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+.linked-in { color: var(--muted); margin-top: 6px; }
 .home-bottom { height: 40px; }
 .search { display: block; width: 100%; min-height: 52px; padding: 0 16px; border: 1px solid var(--line); border-radius: 26px; background: var(--surface); color: var(--ink); font: inherit; font-size: 1.05rem; margin-bottom: 24px; outline: none; transition: border-color .16s; -webkit-appearance: none; appearance: none; }
 .search::placeholder { color: var(--muted); }
@@ -164,7 +167,7 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 </style>
 
 <style>
-/* Start page: two full colour tiles, one per kitchen. */
+/* Start page: one full colour tile per cover. */
 .home-wordmark { font: 600 1.15rem/1 var(--display); letter-spacing: .04em; }
 .home-scroll { display: flex; }
 .home-tiles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding-block: 12px calc(16px + env(safe-area-inset-bottom, 0px)); max-width: 900px; margin-inline: auto; }
@@ -176,10 +179,12 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .tile-count { font-size: .95rem; margin-top: 4px; opacity: .85; }
 .tile-cook { background: #E63B1F; color: #FFE3EA; }
 .tile-bake { background: #4A2212; color: #F9E27D; }
+.tile-högtider { background: #2F5233; color: #F6DDB0; }
 @media (orientation: landscape) { .home-tiles { flex-direction: row; } }
 /* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
 [data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
 [data-section="bake"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #F2C94C; }
+[data-section="högtider"] { --accent: #2F5233; --cover: #2F5233; --on-cover: #F6DDB0; --dot: #E0A93B; }
 [data-section] .home-title::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .3em; border-radius: 50%; background: var(--dot); vertical-align: .08em; }
 [data-section] .home-title, [data-section] .section-label, [data-section] .recipes .mark, [data-section] .block-label { color: var(--accent); }
 [data-section] .ing-btn { background: var(--cover); color: var(--on-cover); }
@@ -200,7 +205,8 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 <script src="recipes-data.js"></script>
 <script>
 
-// Same structure as the COOK and BAKE pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
+// Same structure as the COOK, BAKE and HÖGTIDER pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
+// [title, id, "link"] is a link to a recipe that lives elsewhere, like the links under HÖGTIDER.
 const sec = (name, ...rows) => ({name, rows});
 const TREE = { title:"RECIPES", sections:[sec(null,
   { title:"COOK", sections:[
@@ -215,7 +221,6 @@ const TREE = { title:"RECIPES", sections:[sec(null,
         sec("Sides & Bases",["Fransk Potatisgratäng","283e56f5972280579a7ad600bc1b94ef"],["Potatismos","2bbe56f59722805d91c9e7fe5c0f82ae"],["Gurksallad Krispig","3b8e56f59722800ebf95f80e8b254ea5"],["Västerbottenpaj","3d1e56f597228073897ff20468e68e11"],["Rostade Tomathalvor","3dae56f5972280a0abbbdfb03c28a4a9"],["Stuvad vitkål","3dae56f597228003b7c4f88b576d565c"]),
         sec("Sauces & Process",["Dijondressing","2dbe56f5972280f09abbc0cc77ee98ea"],["Inläggning: 1-2-3-lag","2dee56f597228047860feff9280e8a2c"],["Dry Brine principles","3bae56f5972280f799d9deab469ba282"],["Wet Brine principles","3bae56f59722802ebf8bd09a984605a7"],["Baljväxter / Bönor","31be56f5972280238a08f467e0fa4128"]),
         sec("Breakfast & Snacks",["Chia Bircher Bowl","261e56f5972280a8b518c4037e446221"],["Fattiga riddare","3a9e56f5972280fab55edbc215cf7e4a"]),
-        sec("Allahelgonamiddag",["Hel kalkon i ugnen","40be56f59722817484a5d19a544a3428"],["Brysselkål med pancetta","40be56f59722815b8ab3d0375b93caa3"],["Majsbröd","40ae56f5972281cc8aefd85037bb0a63"],["Pumpapaj med karamelliserad honung","40be56f5972281cd8317e26f689b6dc6"],["Flaky All-Butter Pie Dough","40be56f59722817191d6dae60030f9cf"]),
         sec("WIP",["Snabb aioli","3fce56f597228135bed1e86a15dc8ca0"])]},
       { title:"Asia", sections:[
         sec("Dishes",["Stir Fry","251e56f5972280d7b5d9dec0ea377d87"],["Pho Ga Vietnamesisk kycklingpho","301e56f59722800cb25fd00406817723"],["Slow laxsida med soja, lime och ingefära","387e56f5972280fb89a7defb3652cf21"]),
@@ -241,6 +246,9 @@ const TREE = { title:"RECIPES", sections:[sec(null,
     sec("Bröd",["GULDRUGBRØDET","3d1e56f5972280f59342c30c7ca63d8e"],["Farro Porridge Loaf","360e56f597228088b063dd3c19dc105e"],["Double-Fermented Pumpernickel","360e56f597228035b250db340bd332ea"],["Bananbröd","3a8e56f5972280628260c8d26c4c6699"],["Claus morgenbrød","3d8e56f597228094be93c369781e72cb"],["Majsbröd","40ae56f5972281cc8aefd85037bb0a63"]),
     sec(null,{ title:"Arkiv", sections:[sec(null,["Blåbärspaj V1","2e1e56f59722809e956fe62d9f8762f6"])]},["Flan Parisien","3dee56f5972280b0a113fd8c94f9ac8e"]),
     sec("WIP",["Baguette","3fce56f59722811aa1e2e74d87fbf06f"],["Knäckig äppelpaj","403e56f597228183a222cc40bd52ab06"],["Hallongrotta cookie style","409e56f59722812da344e23a86486b85"])
+  ]},
+  { title:"HÖGTIDER", sections:[
+    sec(null,{ title:"Allahelgonamiddag", sections:[sec(null,["Hel kalkon i ugnen","40be56f59722817484a5d19a544a3428","link"],["Gravy – sky till kalkonen","40be56f5972281c59083eaffea56ccde","link"],["Brysselkål med pancetta","40be56f59722815b8ab3d0375b93caa3","link"],["Majsbröd","40ae56f5972281cc8aefd85037bb0a63","link"],["Pumpapaj med karamelliserad honung","40be56f5972281cd8317e26f689b6dc6","link"],["Flaky All-Butter Pie Dough","40be56f59722817191d6dae60030f9cf","link"])]})
   ]}
 )]};
 
@@ -272,6 +280,7 @@ const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
 const rowHtml = (row,s,i) => {
   if (!Array.isArray(row)) return `<li><button data-node="${s}.${i}"><span>${row.title}</span><span class="mark">›</span></button></li>`;
   const r = recipeFor(row[1]);
+  if (r && row[2]==="link") return `<li><button class="link-row" data-open="${r.id}"><span class="link-text"><span>${row[0]}</span><span class="link-where">Länk till ${placeOf(r.id)}</span></span><span class="mark">→</span></button></li>`;
   if (r) return `<li><button data-open="${r.id}"><span>${row[0]}</span><span class="mark">›</span></button></li>`;
   return `<li><a href="https://app.notion.com/p/${row[1]}" target="_blank" rel="noopener"><span>${row[0]}</span><span class="mark">↗</span></a></li>`;
 };
@@ -378,6 +387,7 @@ const INDEX = [];
 (function walk(node,path){
   for (const s of node.sections) for (const row of s.rows){
     if (!Array.isArray(row)){ walk(row,[...path,row.title]); continue; }
+    if (row[2]==="link") continue;
     const r = recipeFor(row[1]);
     const place = [...path, s.name||""].join(" ");
     const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ").replace(/\[\[[0-9a-f]+\|([^\]]+)\]\]/g,"$1") : "";
@@ -463,7 +473,8 @@ function transition(dir, render){
 const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)=>m+(Array.isArray(row)?(recipeFor(row[1])?1:0):countRecipes(row)),0),0);
 const ILLUSTRATIONS = [
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M470 1330C410 1090 560 800 860 745C1110 700 1390 830 1450 1090C1500 1310 1400 1560 1170 1680C960 1790 680 1730 570 1580C520 1510 490 1420 470 1330Z"/><path fill="#FFC9D6" d="M1290 560C1270 450 1360 350 1480 355C1590 360 1650 460 1620 565C1595 660 1500 705 1410 680C1345 660 1302 620 1290 560Z"/><path fill="#FFC9D6" d="M1065 440C1060 385 1105 345 1155 352C1205 360 1225 410 1208 455C1190 495 1140 510 1105 492C1082 480 1068 465 1065 440Z"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>',
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F6DDB0" d="M1024 430C1120 560 1175 650 1155 740C1137 820 1082 850 1024 850C966 850 911 820 893 740C873 650 928 560 1024 430Z"/><path fill="#E0A93B" d="M1024 620C1066 680 1085 720 1077 765C1070 800 1050 815 1024 815C998 815 978 800 971 765C963 720 982 680 1024 620Z"/><path fill="#F6DDB0" d="M850 960C850 925 875 900 910 900H1138C1173 900 1198 925 1198 960V1780H850Z"/><path fill="#2F5233" d="M1014 850H1034V905H1014Z"/><circle fill="#F6DDB0" cx="560" cy="700" r="38"/><circle fill="#F6DDB0" cx="1480" cy="560" r="30"/><circle fill="#F6DDB0" cx="1560" cy="1100" r="44"/><circle fill="#F6DDB0" cx="520" cy="1300" r="28"/></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
@@ -481,11 +492,27 @@ function showStart(){
 }
 function findTrail(node,id,path=[node]){
   for (const s of node.sections) for (const row of s.rows){
-    if (Array.isArray(row)){ if (row[1]===id) return path; }
+    if (Array.isArray(row)){ if (row[1]===id && row[2]!=="link") return path; }
     else { const hit = findTrail(row,id,[...path,row]); if (hit) return hit; }
   }
   return null;
 }
+
+// Where a recipe lives, shown on the rows that link to it.
+function placeOf(id){
+  const path = findTrail(TREE,id);
+  if (!path) return "";
+  const s = path[path.length-1].sections.find(s=>s.rows.some(row=>Array.isArray(row) && row[1]===id && row[2]!=="link"));
+  return [...path.slice(1).map(n=>n.title), s && s.name].filter(Boolean).join(" › ");
+}
+// The pages that link to each recipe, shown on the recipe as "Ingår i".
+const LINKED_IN = {};
+(function walkLinks(node,path){
+  for (const s of node.sections) for (const row of s.rows){
+    if (!Array.isArray(row)) walkLinks(row,[...path,row]);
+    else if (row[2]==="link") (LINKED_IN[row[1]] ||= []).push(path);
+  }
+})(TREE,[TREE]);
 
 function showRecipe(r){
   recipe = r;
@@ -499,6 +526,7 @@ function showRecipe(r){
   app.innerHTML = `${navBar(backLabel,"data-up")}
     <div class="scroll gutter" id="page"><div class="wrap">
       <h1 class="title">${r.title}</h1>
+      ${(LINKED_IN[r.id]||[]).map((p,k)=>`<p class="linked-in">Ingår i <button class="recipe-link" data-linked-in="${k}">${p[p.length-1].title}</button></p>`).join("")}
       ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
       ${r.plan?`<p class="plan">${r.plan}</p>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
@@ -581,6 +609,12 @@ document.addEventListener("click", e => {
       trail = findTrail(TREE,d.open) || [TREE];
     }
     transition("f", () => showRecipe(RECIPES.find(r=>r.id===d.open))); }
+  else if (d.linkedIn){
+    saveScroll();
+    trail = LINKED_IN[recipe.id][+d.linkedIn];
+    trail[trail.length-1].scrollPos = 0;
+    transition("f", showNode);
+  }
   else if (d.node){
     const [s,i] = d.node.split(".").map(Number);
     saveScroll();
