@@ -171,12 +171,12 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .tile-count { font-size: .95rem; margin-top: 4px; opacity: .85; }
 .tile-cook { background: #E63B1F; color: #FFE3EA; }
 .tile-bake { background: #4A2212; color: #F9E27D; }
-.tile-högtider { background: #2F5233; color: #F6DDB0; }
+.tile-feast { background: #2F5233; color: #F6DDB0; }
 @media (orientation: landscape) { .home-tiles { flex-direction: row; } }
 /* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
 [data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
 [data-section="bake"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #F2C94C; }
-[data-section="högtider"] { --accent: #2F5233; --cover: #2F5233; --on-cover: #F6DDB0; --dot: #E0A93B; }
+[data-section="feast"] { --accent: #2F5233; --cover: #2F5233; --on-cover: #F6DDB0; --dot: #E0A93B; }
 [data-section] .home-title::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .3em; border-radius: 50%; background: var(--dot); vertical-align: .08em; }
 [data-section] .home-title, [data-section] .section-label, [data-section] .recipes .mark, [data-section] .block-label { color: var(--accent); }
 [data-section] .ing-btn { background: var(--cover); color: var(--on-cover); }
@@ -261,8 +261,8 @@ const RECIPES = [
   ]}
 ];
 
-// Same structure as the COOK, BAKE and HÖGTIDER pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
-// [title, id, "link"] is a link to a recipe that lives elsewhere, like the links under HÖGTIDER.
+// Same structure as the COOK, BAKE and FEAST pages in Notion. [title, Notion page id] is a recipe; only those in RECIPES open here.
+// [title, id, "link"] is a link to a recipe that lives elsewhere, like the links under FEAST.
 const sec = (name, ...rows) => ({name, rows});
 const TREE = { title:"RECIPES", sections:[sec(null,
   { title:"COOK", sections:[
@@ -303,7 +303,7 @@ const TREE = { title:"RECIPES", sections:[sec(null,
     sec(null,{ title:"Arkiv", sections:[sec(null,["Blåbärspaj V1","2e1e56f59722809e956fe62d9f8762f6"])]},["Flan Parisien","3dee56f5972280b0a113fd8c94f9ac8e"]),
     sec("WIP",["Baguette","3fce56f59722811aa1e2e74d87fbf06f"],["Knäckig äppelpaj","403e56f597228183a222cc40bd52ab06"],["Hallongrotta cookie style","409e56f59722812da344e23a86486b85"])
   ]},
-  { title:"HÖGTIDER", sections:[
+  { title:"FEAST", sections:[
     sec(null,{ title:"Allahelgonamiddag", sections:[sec(null,["Hel kalkon i ugnen","40be56f59722817484a5d19a544a3428","link"],["Gravy – sky till kalkonen","40be56f5972281c59083eaffea56ccde","link"],["Brysselkål med pancetta","40be56f59722815b8ab3d0375b93caa3","link"],["Majsbröd","40ae56f5972281cc8aefd85037bb0a63","link"],["Pumpapaj med karamelliserad honung","40be56f5972281cd8317e26f689b6dc6","link"],["Flaky All-Butter Pie Dough","40be56f59722817191d6dae60030f9cf","link"])]})
   ]}
 )]};
@@ -530,7 +530,7 @@ const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)
 const ILLUSTRATIONS = [
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M470 1330C410 1090 560 800 860 745C1110 700 1390 830 1450 1090C1500 1310 1400 1560 1170 1680C960 1790 680 1730 570 1580C520 1510 490 1420 470 1330Z"/><path fill="#FFC9D6" d="M1290 560C1270 450 1360 350 1480 355C1590 360 1650 460 1620 565C1595 660 1500 705 1410 680C1345 660 1302 620 1290 560Z"/><path fill="#FFC9D6" d="M1065 440C1060 385 1105 345 1155 352C1205 360 1225 410 1208 455C1190 495 1140 510 1105 492C1082 480 1068 465 1065 440Z"/></svg>',
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F6DDB0" d="M1024 430C1120 560 1175 650 1155 740C1137 820 1082 850 1024 850C966 850 911 820 893 740C873 650 928 560 1024 430Z"/><path fill="#E0A93B" d="M1024 620C1066 680 1085 720 1077 765C1070 800 1050 815 1024 815C998 815 978 800 971 765C963 720 982 680 1024 620Z"/><path fill="#F6DDB0" d="M850 960C850 925 875 900 910 900H1138C1173 900 1198 925 1198 960V1780H850Z"/><path fill="#2F5233" d="M1014 850H1034V905H1014Z"/><circle fill="#F6DDB0" cx="560" cy="700" r="38"/><circle fill="#F6DDB0" cx="1480" cy="560" r="30"/><circle fill="#F6DDB0" cx="1560" cy="1100" r="44"/><circle fill="#F6DDB0" cx="520" cy="1300" r="28"/></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F6DDB0" d="M380 1500C380 1180 660 940 1020 940C1380 940 1670 1180 1670 1500C1670 1560 1630 1600 1570 1600H480C420 1600 380 1560 380 1500Z"/><path fill="#E0A93B" d="M1410 600C1520 600 1600 690 1590 800C1580 900 1500 960 1410 955C1310 950 1240 870 1245 775C1250 675 1320 600 1410 600Z"/><path fill="#F6DDB0" d="M1000 470C1060 470 1105 520 1100 580C1095 635 1050 668 1000 665C945 662 905 618 908 565C911 510 950 470 1000 470Z"/><path fill="#2F5233" d="M760 1250C760 1150 840 1080 940 1070C965 1068 975 1095 955 1110C890 1150 850 1200 830 1265C820 1300 760 1295 760 1250Z"/></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
