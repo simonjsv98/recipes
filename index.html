@@ -57,6 +57,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .recipes .node-row, .recipes .recipe-row, .recipes .link-row { align-items: center; }
 .row-name { display: flex; align-items: center; gap: 12px; text-align: left; }
 .row-icon { width: 1.5em; height: 1.5em; flex: none; fill: var(--accent, var(--ink)); color: var(--accent, var(--ink)); }
+.row-emoji { display: inline-flex; align-items: center; justify-content: center; font-size: 1.25em; line-height: 1; }
 .row-icon .cut { fill: var(--bg); stroke: var(--bg); }
 .section-label .row-icon { width: 1.15em; height: 1.15em; margin-right: 10px; vertical-align: -.15em; }
 .row-count { font-size: .9rem; color: var(--muted); margin-right: 10px; font-variant-numeric: tabular-nums; }
@@ -381,7 +382,9 @@ const RECIPE_ICONS = {
 "🦃":'<path d="M3 13a9 9 0 0 1 18 0Z"/><path class="cut" d="M12 13V5.5M12 13 6.5 7.5M12 13l5.5-5.5M12 13H4.5M12 13h7.5" stroke-width="1.1" fill="none"/><path d="M12 10c3 0 5 2.3 5 5.2S14.8 20 12 20s-5-1.9-5-4.8S9 10 12 10Z"/><circle cx="12" cy="9" r="2.3"/><path d="M10.6 19.5h1.1v2.2h-1.1ZM12.3 19.5h1.1v2.2h-1.1Z"/>',
 "🥣":'<path d="M3 11.5h18c0 4.4-4 7.5-9 7.5s-9-3.1-9-7.5ZM10.3 18.6h3.4l.6 2.4H9.7Z"/><path d="M14.5 10.5 19 3l1.1.7-4.1 6.8Z"/>'
 };
-const recipeIcon = r => RECIPE_ICONS[r.icon] ? `<svg class="row-icon" viewBox="0 0 24 24" aria-hidden="true">${RECIPE_ICONS[r.icon]}</svg>` : `<span class="row-icon"></span>`;
+// Test: show the Notion emoji itself instead of the drawn icon. Set to false to go back to the icons.
+const USE_EMOJI = true;
+const recipeIcon = r => USE_EMOJI ? `<span class="row-icon row-emoji" aria-hidden="true">${r.icon||""}</span>` : RECIPE_ICONS[r.icon] ? `<svg class="row-icon" viewBox="0 0 24 24" aria-hidden="true">${RECIPE_ICONS[r.icon]}</svg>` : `<span class="row-icon"></span>`;
 const icon = name => ICONS[name] ? `<svg class="row-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>` : "";
 const rowHtml = (row,s,i,sectionName) => {
   if (!Array.isArray(row)) return `<li><button class="node-row" data-node="${s}.${i}"><span class="row-name">${icon(row.title)}<span>${row.title}</span></span><span class="mark"><span class="row-count">${countRecipes(row)}</span>›</span></button></li>`;
