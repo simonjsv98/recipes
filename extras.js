@@ -84,11 +84,11 @@
       const ws = (text.match(/[\p{L}]+/gu)||[]).filter(m=>m.length>=3).map(norm);
       const hits = list.filter(x => ws.some(w => x.keys.some(k=>wordMatches(w,k))));
       const box = document.createElement("div");
-      box.className = "step-ings";
+      box.className = hits.length ? "step-ings" : "step-ings empty";
       box.hidden = true;
       box.innerHTML = hits.length
         ? hits.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${x.amt}</span>`:""}<span>${x.name}${x.group?` <span class="step-ings-group">${x.group}</span>`:""}</span></div>`).join("")
-        : `<p class="step-ings-none">Inga ingredienser från listan i det här steget.</p>`;
+        : `<span class="step-ings-none" aria-label="Inga ingredienser">–</span>`;
       step.appendChild(box);
     });
   }
@@ -253,7 +253,8 @@
     .step-ings { grid-column: 2; margin-top: 12px; padding: 4px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 1rem; }
     .step-ings .ing { padding-block: 7px; }
     .step-ings-group { color: var(--muted); font-size: .85em; }
-    .step-ings-none { color: var(--muted); padding-block: 8px; }
+    .step-ings.empty { justify-self: start; padding: 2px 16px; }
+    .step-ings-none { color: var(--muted); font-size: 1.2rem; line-height: 1.6; }
     .latest { flex: none; padding-top: 12px; }
     .latest .label { padding-bottom: 10px; }
     .tile { min-height: 210px; }
