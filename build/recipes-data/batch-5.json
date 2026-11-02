@@ -1,5 +1,5 @@
 [
-{"id":"256e56f59722802cb1c2f242db9d6fd3","icon":"🇸🇪","title":"Klassiska bullar","intro":"Favorit (coops).","plan":"1,5 h för degen + 1 h formning och jäsning på plåt + 0,5 h gräddning = 3 h",
+{"id":"256e56f59722802cb1c2f242db9d6fd3","icon":"🇸🇪","title":"Klassiska bullar","intro":"Favorit (coops).","plan":"1,5 h för degen + 1 h formning och jäsning på plåt + 0,5 h gräddning\nTotal: ca 3 h",
 "groups":[
 {"name":"Degen","items":[["780 g","mjöl"],["0,5 L","3% mjölk"],["14 g (en påse)","torrjäst"],["90 g (1 dl)","strösocker"],["10 g (1 msk)","mortlade/finkrossade kardemummakärnor"],["6 g (1 tsk)","salt"],["150 g","smör, rumstemp"]]},
 {"name":"Fyllning: För kanelbullar","items":[["150 g","smör, rumstemp"],["90 g (1 dl)","strösocker"],["15 g (2 msk)","malen kanel"]]},
@@ -38,12 +38,12 @@
 "method":[{"name":null,"steps":["Smula jästen i en bunke. Smält smöret i en kastrull, häll i mjölken och värm till 37 °C. Häll vätskan över jästen och rör tills den löst sig.","Tillsätt salt, socker, eventuellt gurkmeja och nästan allt mjöl. Arbeta degen 10 minuter i maskin eller 15 minuter för hand.","Låt jäsa under bakduk i 40 minuter.","Knåda degen lätt med resten av mjölet. Dela i 6 delar, rulla till bollar och lägg på bakpappersklädd plåt. Tryck till lätt så de plattas lite. Täck med bakduk och låt jäsa 30 minuter.","Sätt ugnen på 225 °C. Pensla bröden med uppvispat ägg och strö över sesamfrön.","Grädda mitt i ugnen ca 10 minuter tills de fått fin färg. Låt svalna på galler innan de delas."]}],
 "notes":[],"flags":[]},
 
-{"id":"2bbe56f5972280b1a5b1ff972f566fae","icon":"🍨","title":"Glass – No Churn","intro":"Basrecept på glass som görs i vitamixen utan glassmaskin, med 6 h i frysen.","plan":"",
+{"id":"2bbe56f5972280b1a5b1ff972f566fae","icon":"🍨","title":"Glass – No Churn","intro":"Basrecept på glass som görs i vitamixen utan glassmaskin, med 6 h i frysen.","plan":"15 min (vispa grädden och mixa i resten) + 6 h (frys)\nTotal: ca 6 h 15 min",
 "groups":[{"name":null,"items":[["2 cups","grädde"],["1 cup","sötad kondenserad mjölk"],["0,25 cup","sirap"],["0,25 cup","mjölk"],["2 msk","socker"],["1 tsk","vanilj"],["0,25 tsk","salt"]]}],
 "method":[{"name":null,"steps":["Kör grädden 10-20 sek, tills fluffig/håller formen.","Ner med den sötade kondenserade mjölken, sirapen, mjölken, sockret, vaniljen, saltet. (Allt resterande alltså). Blanda det innan du mixar, så att det är jämnt fördelat (men såklart inte perfekt mixat). Nu kan du mixa i typ 20 sek, se till att det inte är något som fastnat uppe eller så.","Ner i en brödform, lägg plastfolie helt täckande på glassens yta. Den ska frysas så snabbt som möjligt nu.","6 h i frysen nu och därefter redo att servera."]}],
 "notes":[],"flags":[]},
 
-{"id":"2d8e56f59722804ba3c2e698fdab230b","icon":"🍨","title":"Fransk vaniljglass – Crème Anglaise","intro":"","plan":"",
+{"id":"2d8e56f59722804ba3c2e698fdab230b","icon":"🍨","title":"Fransk vaniljglass – Crème Anglaise","intro":"","plan":"10 min (vanilj, mjölk och grädde i kastrullen, vispa gulor och socker) + 15 min (koka upp, temperera och värm till 83–85 °C tills det tjocknar) + 20–30 min (kyl ner i vattenbad, förkyl glassmaskinen) + 50–60 min (kör i glassmaskinen)\nTotal: ca 1,5–2 h (gärna 12–24 h i kylen före körning)",
 "groups":[{"name":null,"items":[["0,5-1","vaniljstång"],["250 g","mjölk"],["250 g","grädde"],["25 g","honung"],["6 st","äggulor"],["125 g","socker"]]}],
 "method":[
 {"name":"Steg 1 – Crème Anglaise","steps":["Skrapa och lägg ner vaniljstång i kastrull á minst 1 L.","Häll i:\nMjölken\nGrädden\nHonungen","Separera äggulorna från vitorna och blanda gulorna med sockret. Vispa till fluffigt/vispat.","Koka upp gräddblandningen.","Blanching: Ta lite av gräddblandningen och vispa i lite i taget i äggulorna. Bara någon dl.","Häll därefter i de vispade äggulorna tillbaka i gräddblandningen (i kastrullen).","Få försiktigt upp hela till 83-85 C. Blanda hela tiden. Håll på denna temp tills det tjocknat. Dra sedan åt sidan för att avstanna upphettning.","Kyl ner kastrullen i ett vattenbad i diskhon, eller isvatten i skål.","Sätt glassmaskinen på pre-cool, medan du får ner tempen på kastrullen."]},
