@@ -64,7 +64,7 @@
 {"name":"Servering","steps":["Halvera körsbärstomaterna och plocka basilikabladen. Fördela över gratängen och servera direkt med pastan."]}],
 "notes":[],"flags":[]},
 {"id":"2b6e56f59722804b9d91c7e6a5c6d4c3","icon":"🌽","title":"Polenta","intro":"Enkel och smaksatt polenta.","plan":"5 min (koka upp vattnet med buljongtärningen) + 3 min (koka polentan under omrörning) + 2 min (rör ner smör och parmesan, smaka av)\nTotal: ca 10 min","groups":[
-{"name":null,"items":[["7,5 L","vatten"],["1","köttbuljongtärning (eller annan)"],["2 dl","polenta"],["40 g","smör"],["2 dl","riven parmesan"],["","Salt"],["","Svartpeppar"]]}],
+{"name":null,"items":[["7,5 dl","vatten"],["1","köttbuljongtärning (eller annan)"],["2 dl","polenta"],["40 g","smör"],["2 dl","riven parmesan"],["","Salt"],["","Svartpeppar"]]}],
 "method":[{"name":null,"steps":["Koka upp vattnet tillsammans med buljongtärningen.","Vispa ner polentan och låt koka på låg värme i 3 minuter under omrörning.","Rör ner smör och parmesan och smaka av med salt och peppar."]}],
 "notes":[],"flags":["Amount '7,5L vatten' looks like a possible typo in the source (kept as written)."]},
 {"id":"357e56f5972280618177eb6b848968af","icon":"🥓","title":"Lentilles Saucisse","intro":"Lentilles saucisse med Morteau-korv, rökt sidfläsk och portvin. Recept av Simon Auscher.","plan":"15 min (hacka grönsakerna, stek sidfläsket) + 10 min (fräs grönsakerna, tomatpuré, reducera portvinet) + 25 min (sjud linserna) + 20–25 min (sjud med korvarna) + 5 min (skär korven, smaka av)\nTotal: ca 1 h 20 min","groups":[
