@@ -176,12 +176,12 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .tile-count { font-size: .95rem; margin-top: 4px; opacity: .85; }
 .tile-cook { background: #E63B1F; color: #FFE3EA; }
 .tile-bake { background: #4A2212; color: #F9E27D; }
-.tile-feast { background: #FBFAF8; color: #4A2212; box-shadow: inset 0 0 0 1px #DEDCD6; }
+.tile-feast { background: #FFC9D6; color: #4A2212; }
 @media (orientation: landscape) { .home-tiles { flex-direction: row; } }
 /* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
 [data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
 [data-section="bake"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #F2C94C; }
-[data-section="feast"] { --accent: #4A2212; --cover: #4A2212; --on-cover: #F9E27D; --dot: #E63B1F; }
+[data-section="feast"] { --accent: #4A2212; --cover: #FFC9D6; --on-cover: #4A2212; --dot: #F7A8BC; }
 [data-section] .home-title::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .3em; border-radius: 50%; background: var(--dot); vertical-align: .08em; }
 [data-section] .home-title, [data-section] .section-label, [data-section] .recipes .mark, [data-section] .block-label { color: var(--accent); }
 [data-section] .ing-btn { background: var(--cover); color: var(--on-cover); }
@@ -554,7 +554,7 @@ const countRecipes = node => node.sections.reduce((n,s)=>n+s.rows.reduce((m,row)
 const ILLUSTRATIONS = [
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#FFC9D6" d="M470 1330C410 1090 560 800 860 745C1110 700 1390 830 1450 1090C1500 1310 1400 1560 1170 1680C960 1790 680 1730 570 1580C520 1510 490 1420 470 1330Z"/><path fill="#FFC9D6" d="M1290 560C1270 450 1360 350 1480 355C1590 360 1650 460 1620 565C1595 660 1500 705 1410 680C1345 660 1302 620 1290 560Z"/><path fill="#FFC9D6" d="M1065 440C1060 385 1105 345 1155 352C1205 360 1225 410 1208 455C1190 495 1140 510 1105 492C1082 480 1068 465 1065 440Z"/></svg>',
   '<svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="#F9E27D" d="M400 1370C350 1130 470 850 720 730C960 615 1300 640 1490 800C1660 945 1720 1170 1650 1370C1615 1470 1510 1510 1400 1500C1150 1480 900 1490 650 1510C520 1520 425 1480 400 1370Z"/><path fill="#4A2212" d="M690 1150C690 1020 760 900 860 810C885 790 915 815 900 845C850 940 800 1040 775 1150C765 1195 695 1195 690 1150Z"/><path fill="#4A2212" d="M960 1180C965 1030 1035 880 1150 780C1178 758 1208 785 1192 818C1130 925 1075 1040 1050 1180C1040 1228 962 1228 960 1180Z"/><path fill="#4A2212" d="M1245 1150C1255 1040 1315 940 1395 870C1420 850 1448 872 1435 900C1392 985 1355 1065 1332 1150C1322 1195 1250 1195 1245 1150Z"/></svg>',
-  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><g transform="translate(-380 -358) scale(1.3)"><path fill="#E63B1F" d="M1260 590C1000 600 760 790 740 1060C720 1330 930 1520 1190 1500C1300 1492 1390 1450 1450 1390C1230 1400 1040 1260 1010 1050C985 860 1080 680 1260 590Z"/></g></svg>'
+  '<svg viewBox="0 0 2048 2048" aria-hidden="true"><g transform="translate(-380 -358) scale(1.3)"><path fill="#4A2212" d="M1260 590C1000 600 760 790 740 1060C720 1330 930 1520 1190 1500C1300 1492 1390 1450 1450 1390C1230 1400 1040 1260 1010 1050C985 860 1080 680 1260 590Z"/></g></svg>'
 ];
 function showStart(){
   const rows = TREE.sections[0].rows;
