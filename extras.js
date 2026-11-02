@@ -1,4 +1,4 @@
-// Portion factor, tappable ingredient words, latest recipes and shopping list.
+// Portion factor, ingredients under each step, latest recipes and shopping list.
 // Wraps the app's render functions, so the recipe data and core navigation stay untouched.
 (function(){
   const store2 = {
@@ -76,36 +76,21 @@
     if (s.length>=3 && key.endsWith(s) && key.length>s.length) return true;
     return false;
   }
-  function markWords(r){
+  // Each step gets the ingredients its text mentions, shown when the step is tapped.
+  function addStepIngredients(r){
     const list = ingredientKeys(r);
-    if (!list.length) return;
-    document.querySelectorAll("#page .step .text").forEach(el => {
-      const walker = document.createTreeWalker(el,NodeFilter.SHOW_TEXT), nodes = [];
-      while (walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach(node => {
-        const html = esc(node.nodeValue).replace(/[\p{L}]+/gu, m => {
-          if (m.length<3) return m;
-          const w = norm(m);
-          const hits = list.map((x,i)=>x.keys.some(k=>wordMatches(w,k))?i:-1).filter(i=>i>=0);
-          return hits.length ? `<span class="ing-word" data-hits="${hits.join(",")}">${m}</span>` : m;
-        });
-        if (html!==esc(node.nodeValue)){
-          const span = document.createElement("span");
-          span.innerHTML = html;
-          node.replaceWith(span);
-        }
-      });
+    document.querySelectorAll("#page .step").forEach(step => {
+      const text = step.querySelector(".text").textContent;
+      const ws = (text.match(/[\p{L}]+/gu)||[]).filter(m=>m.length>=3).map(norm);
+      const hits = list.filter(x => ws.some(w => x.keys.some(k=>wordMatches(w,k))));
+      const box = document.createElement("div");
+      box.className = "step-ings";
+      box.hidden = true;
+      box.innerHTML = hits.length
+        ? hits.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${x.amt}</span>`:""}<span>${x.name}${x.group?` <span class="step-ings-group">${x.group}</span>`:""}</span></div>`).join("")
+        : `<p class="step-ings-none">Inga ingredienser från listan i det här steget.</p>`;
+      step.appendChild(box);
     });
-  }
-  const pop = document.createElement("div");
-  pop.className = "ing-pop gutter";
-  pop.hidden = true;
-  document.body.appendChild(pop);
-  function showPop(el){
-    const list = ingredientKeys(recipe), f = getFactor(recipe.id);
-    const rows = el.dataset.hits.split(",").map(i=>list[+i]);
-    pop.innerHTML = `<div class="wrap ing-pop-box"><button class="ing-pop-close" data-pop-close aria-label="Stäng">×</button>${rows.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${scaleAmount(x.amt,f)}</span>`:""}<span>${x.name}${x.group?` <span class="ing-pop-group">${x.group}</span>`:""}</span></div>`).join("")}</div>`;
-    pop.hidden = false;
   }
 
   /* Latest */
@@ -192,8 +177,8 @@
       label.insertAdjacentHTML("beforebegin",factorHtml(recipe.id));
       groups[groups.length-1].insertAdjacentHTML("afterend",`<button class="chip shop-btn" data-shop-add>Lägg i inköpslista</button>`);
     }
+    addStepIngredients(recipe);
     applyScale(page);
-    markWords(recipe);
     remember(recipe.id);
   }
 
@@ -201,8 +186,8 @@
     const orig = window[name];
     window[name] = function(){ const out = orig.apply(this,arguments); after(); return out; };
   };
-  wrap("showRecipe",() => { pop.hidden = true; decorateRecipe(); addNavButton(); });
-  wrap("showNode",() => { pop.hidden = true; addNavButton(); });
+  wrap("showRecipe",() => { decorateRecipe(); addNavButton(); });
+  wrap("showNode",() => { addNavButton(); });
   wrap("showStart",() => {
     const tiles = document.querySelector(".home-tiles");
     if (tiles) tiles.insertAdjacentHTML("beforeend",latestHtml());
@@ -210,18 +195,6 @@
   });
   wrap("openSheet",() => applyScale(sheet));
 
-  document.addEventListener("click", e => {
-    const word = e.target.closest(".ing-word");
-    if (pop.hidden){
-      if (word){ e.stopPropagation(); showPop(word); }
-      return;
-    }
-    // While the box is open, a tap only closes it or switches word, so nothing behind it is pressed.
-    e.stopPropagation();
-    e.preventDefault();
-    if (word) showPop(word);
-    else if (!e.target.closest(".ing-pop-box") || e.target.closest("[data-pop-close]")) pop.hidden = true;
-  }, true);
   document.addEventListener("click", async e => {
     const b = e.target.closest("button");
     if (!b) return;
@@ -260,7 +233,7 @@
     saveShop(); renderShop();
     document.getElementById("shop-new").focus();
   });
-  document.addEventListener("keydown", e => { if (e.key==="Escape"){ shopPanel.hidden = true; pop.hidden = true; } });
+  document.addEventListener("keydown", e => { if (e.key==="Escape") shopPanel.hidden = true; });
 
   const style = document.createElement("style");
   style.textContent = `
@@ -277,12 +250,10 @@
     .chip-input:has(input:placeholder-shown):not(:focus-within) .times { display: none; }
     .factor-note { color: var(--muted); font-size: .88rem; margin-top: 8px; }
     .shop-btn { margin-top: 16px; }
-    .ing-word { border-bottom: 1.5px dotted var(--muted); }
-    .ing-pop { position: fixed; left: 0; right: 0; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 12; pointer-events: none; }
-    .ing-pop-box { position: relative; pointer-events: auto; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 10px 48px 10px 16px; }
-    .ing-pop-close { position: absolute; top: 0; right: 0; width: 48px; height: 48px; text-align: center; font-size: 1.5rem; line-height: 1; color: var(--bg); }
-    .ing-pop-box .ing { padding-block: 3px; }
-    .ing-pop-group { opacity: .65; font-size: .85em; }
+    .step-ings { grid-column: 2; margin-top: 12px; padding: 4px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 1rem; }
+    .step-ings .ing { padding-block: 7px; }
+    .step-ings-group { color: var(--muted); font-size: .85em; }
+    .step-ings-none { color: var(--muted); padding-block: 8px; }
     .latest { flex: none; padding-top: 12px; }
     .latest .label { padding-bottom: 10px; }
     .tile { min-height: 210px; }

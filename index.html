@@ -535,7 +535,6 @@ const LINKED_IN = {};
 function showRecipe(r){
   recipe = r;
   setSection(findTrail(TREE,r.id));
-  try { done = new Set(JSON.parse(store.get("done:"+r.id)||"[]")); } catch(e){ done = new Set(); }
   requestWake();
   let stepNo = 0;
   const hasIngredients = r.groups.some(g=>g.items.length);
@@ -548,28 +547,28 @@ function showRecipe(r){
       ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
       ${r.plan?`<p class="plan">${r.plan}</p>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
-      ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg när det är klart.</p>`:""}
+      ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg för att se dess ingredienser.</p>`:""}
       ${r.method.map(m=>`${m.name?`<p class="part-name">${m.name}</p>`:""}<ol class="steps">${m.steps.map(t=>{
         const i = stepNo++;
-        return `<li class="step ${done.has(i)?"done":""}" data-step="${i}" role="button" tabindex="0" aria-pressed="${done.has(i)}">
+        return `<li class="step" data-step="${i}" role="button" tabindex="0" aria-expanded="false">
           <span class="no">${i+1}</span>
           <p class="text">${linkify(markTimes(t))}</p>
         </li>`;}).join("")}</ol>`).join("")}
       ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
       <div class="foot">
-        <button class="link" data-reset>Börja om</button>
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>
     </div></div>
     ${hasIngredients?`<div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`:""}`;
 }
 
+// Tapping a step folds out the ingredients it uses, added by extras.js.
 function toggleStep(el){
-  const i = +el.dataset.step;
-  done.has(i) ? done.delete(i) : done.add(i);
-  el.classList.toggle("done",done.has(i));
-  el.setAttribute("aria-pressed",done.has(i));
-  store.set("done:"+recipe.id,JSON.stringify([...done]));
+  const open = !el.classList.contains("open");
+  el.classList.toggle("open",open);
+  el.setAttribute("aria-expanded",open);
+  const box = el.querySelector(".step-ings");
+  if (box) box.hidden = !open;
 }
 
 function openSheet(){
@@ -650,7 +649,6 @@ document.addEventListener("click", e => {
   else if ("up" in d) goBack();
   else if ("sheet" in d) openSheet();
   else if ("close" in d) closeSheet();
-  else if ("reset" in d){ store.del("done:"+recipe.id); showRecipe(recipe); }
 });
 document.addEventListener("keydown", e => {
   if ((e.target.id==="search" || e.target.id==="panel-search") && e.key==="Enter") return e.target.blur();
