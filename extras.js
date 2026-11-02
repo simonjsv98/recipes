@@ -74,15 +74,29 @@
     const s = stem(w);
     if (s.length>=4 && (key.startsWith(s) && key.length-s.length<=3)) return true;
     if (s.length>=3 && key.endsWith(s) && key.length>s.length) return true;
+    if (s.length>=3 && key.includes(s) && key.length-s.length<=6) return true;
     return false;
   }
   // Each step gets the ingredients its text mentions, shown when the step is tapped.
+  // Each step gets the ingredients its text mentions. Tapping the step folds them out under the
+  // text and marks the words in the text that point to them, so the list reads as part of the step.
   function addStepIngredients(r){
     const list = ingredientKeys(r);
     document.querySelectorAll("#page .step").forEach(step => {
-      const text = step.querySelector(".text").textContent;
-      const ws = (text.match(/[\p{L}]+/gu)||[]).filter(m=>m.length>=3).map(norm);
-      const hits = list.filter(x => ws.some(w => x.keys.some(k=>wordMatches(w,k))));
+      const textEl = step.querySelector(".text"), found = new Set();
+      const walker = document.createTreeWalker(textEl,NodeFilter.SHOW_TEXT), nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        const html = esc(node.nodeValue).replace(/[\p{L}]+/gu, m => {
+          if (m.length<3) return m;
+          const w = norm(m);
+          const hits = list.map((x,i)=>x.keys.some(k=>wordMatches(w,k))?i:-1).filter(i=>i>=0);
+          hits.forEach(i=>found.add(i));
+          return hits.length ? `<span class="hit">${m}</span>` : m;
+        });
+        if (html!==esc(node.nodeValue)){ const span = document.createElement("span"); span.innerHTML = html; node.replaceWith(span); }
+      });
+      const hits = list.filter((x,i)=>found.has(i));
       const box = document.createElement("div");
       box.className = hits.length ? "step-ings" : "step-ings empty";
       box.hidden = true;
@@ -250,11 +264,15 @@
     .chip-input:has(input:placeholder-shown):not(:focus-within) .times { display: none; }
     .factor-note { color: var(--muted); font-size: .88rem; margin-top: 8px; }
     .shop-btn { margin-top: 16px; }
-    .step-ings { grid-column: 2; margin-top: 12px; padding: 4px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 1rem; }
-    .step-ings .ing { padding-block: 7px; }
+    .step.open { background: color-mix(in srgb, var(--accent) 7%, var(--bg)); margin-inline: -12px; padding-inline: 12px; border-radius: 14px; border-top-color: transparent; }
+    .step.open + .step { border-top-color: transparent; }
+    .step.open .hit { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    .step-ings { grid-column: 2; margin-top: 14px; padding-left: 14px; border-left: 2px solid var(--accent); }
+    .step-ings .ing { grid-template-columns: 5.2em minmax(0, 1fr); padding-block: 5px; border: 0; font-size: 1.05rem; }
+    .step-ings .amt { color: var(--accent); }
+    .step-ings.empty { border-left: 0; padding-left: 0; margin-top: 6px; }
+    .step-ings-none { color: var(--muted); font-size: 1.3rem; }
     .step-ings-group { color: var(--muted); font-size: .85em; }
-    .step-ings.empty { justify-self: start; padding: 2px 16px; }
-    .step-ings-none { color: var(--muted); font-size: 1.2rem; line-height: 1.6; }
     .latest { flex: none; padding-top: 12px; }
     .latest .label { padding-bottom: 10px; }
     .tile { min-height: 210px; }
