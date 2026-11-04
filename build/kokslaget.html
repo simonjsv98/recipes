@@ -89,7 +89,8 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 /* Without an amount the name still sits in the name column, in line with the others. */
 .ing.noamt > span:only-child { grid-column: 2; }
 .ing.noamt { color: var(--muted); }
-.ing.noamt::before { content: "e.b."; grid-column: 1; grid-row: 1; align-self: center; font-size: .8rem; }
+.ing.noamt::before { content: attr(data-label); grid-column: 1; grid-row: 1; align-self: center; font-size: .8rem; }
+.ing.noamt.inline { color: inherit; }
 .ing .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .steps { display: flex; flex-direction: column; }
@@ -333,7 +334,19 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 
-const ingRow = (amt,name) => `<div class="ing ${amt?"":"noamt"}">${amt?`<span class="amt">${amt}</span>`:""}<span>${name}</span></div>`;
+// An ingredient without an amount gets a short label in the amount column: "e.b." (efter behov) by default,
+// "ev." when the name says it is optional, and nothing when the name already says how much or what for.
+// A name with a number in it carries its own amount and is shown in normal colour.
+function noAmt(name){
+  const n = String(name).toLowerCase();
+  if (/\d/.test(n)) return { cls:"noamt inline", label:"" };
+  if (/^\(justera|^valfria|^halvt|^hel /.test(n)) return { cls:"noamt", label:"" };
+  if (/^\(|valfri|eventuellt|^ev\./.test(n)) return { cls:"noamt", label:"ev." };
+  if (/nypa|lite |några|lagom|efter smak|smaka av|vid behov|bunt|bunke|droppar|till servering|till stekning|till formen|att toppa|till dekoration|till att täcka|i kavling|efter konsistens|eller andra|^valfria/.test(n)) return { cls:"noamt", label:"" };
+  return { cls:"noamt", label:"e.b." };
+}
+const ingClass = (amt,name) => { if (amt) return `class="ing"`; const x = noAmt(name); return `class="ing ${x.cls}" data-label="${x.label}"`; };
+const ingRow = (amt,name) => `<div ${ingClass(amt,name)}>${amt?`<span class="amt">${amt}</span>`:""}<span>${name}</span></div>`;
 const allIngredients = r => r.groups.map(g=>`<div class="group">${g.name?`<p class="label">${g.name}</p>`:""}${g.items.map(i=>ingRow(i[0],i[1])).join("")}</div>`).join("");
 const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top">
   <button class="link" ${attr}><span>← ${label}</span></button>

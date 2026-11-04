@@ -101,7 +101,7 @@
       box.className = hits.length ? "step-ings" : "step-ings empty";
       box.hidden = true;
       box.innerHTML = hits.length
-        ? hits.map(x=>`<div class="ing ${x.amt?"":"noamt"}">${x.amt?`<span class="amt">${x.amt}</span>`:""}<span>${x.name}${x.group?` <span class="step-ings-group">${x.group}</span>`:""}</span></div>`).join("")
+        ? hits.map(x=>`<div ${ingClass(x.amt,x.name)}>${x.amt?`<span class="amt">${x.amt}</span>`:""}<span>${x.name}${x.group?` <span class="step-ings-group">${x.group}</span>`:""}</span></div>`).join("")
         : `<span class="step-ings-none" aria-label="Inga ingredienser">–</span>`;
       step.appendChild(box);
     });
