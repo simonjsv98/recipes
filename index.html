@@ -99,6 +99,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .ing.noamt { color: var(--muted); }
 .ing.noamt::before { content: attr(data-label); grid-column: 1; grid-row: 1; align-self: center; font-size: .8rem; }
 .ing.noamt.inline { color: inherit; }
+.ing.noamt.inline::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); opacity: .6; }
 .ing .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .steps { display: flex; flex-direction: column; }
