@@ -1,10 +1,10 @@
 [
 {"id":"251e56f5972280d7b5d9dec0ea377d87","icon":"🍚","title":"Stir Fry","intro":"Stir-Fry med en bas av tofu eller kyckling grönsaker och sås. Middag, kan vara lunch eller matlådor.","plan":"",
 "groups":[
-{"name":null,"items":[["","Tofu 400 g / Kyckling 400 g"]]},
-{"name":"Veggies","items":[["","Broccoli 1 st"],["","Zucchini 1 st"],["","Purjolök 0,33 - 0,5"],["","Salladslök 2 st"]]},
-{"name":"Sås","items":[["","Gochujang 4 msk"],["","Socker 4 msk"],["","Soja 4 msk (kinesisk ljus)"],["","(Justera efter smak)"]]},
-{"name":null,"items":[["","Jasminris 2 riskoppar (rk)"]]}],
+{"name":null,"items":[["400 g","tofu eller kyckling"]]},
+{"name":"Veggies","items":[["1","broccoli"],["1","zucchini"],["0,33–0,5","purjolök"],["2","salladslökar"]]},
+{"name":"Sås","items":[["4 msk","gochujang"],["4 msk","socker"],["4 msk","soja (kinesisk ljus)"],["","(Justera efter smak)"]]},
+{"name":null,"items":[["2 riskoppar","jasminris (rk)"]]}],
 "method":[{"name":null,"steps":["Sätt igång riskokaren med 2 rk ris och 2,4 rk vatten, ett par nypor salt.","Stek tofu i bitar i nonstick-panna, ganska länge.","Stek grönsaker i lagom mängd/omgång hackade i bra bite-size bitar.","Fräs purjolök och vita delen av salladslöken.","Värm upp såsen och blanda i grönsaker och tofu.","Ringla gröna delen av skivade salladslöken."]}],
 "notes":[
 {"heading":"Alternativ","lines":["Stek kyckling istället för tofu.","Byt ut zucchini mot Pak Choi.","Byt sås."]},
@@ -95,12 +95,12 @@
 "notes":[],"flags":[]},
 
 {"id":"2bbe56f59722805593edff631bb0713a","icon":"🥩","title":"Slow Pork with Leek","intro":"Boneless ribs with a splash of white wine and tons of leek, served with mash.","plan":"",
-"groups":[{"name":null,"items":[["1 kg","benfria revbensspjäll"],["","En bunke med purjolök"],["1-2 dl","vitt vin"],["2","klyftor vitlök"],["","Cirka 0,5-1 dl grädde"],["","Cirka 0,5 L vatten (gå på känsla/visuellt i grytan, ska inte täcka, men minst 50% typ)."]]}],
+"groups":[{"name":null,"items":[["1 kg","benfria revbensspjäll"],["","En bunke med purjolök"],["1-2 dl","vitt vin"],["2","klyftor vitlök"],["0,5–1 dl","grädde"],["ca 0,5 L","vatten (gå på känsla/visuellt i grytan, ska inte täcka, men minst 50% typ)."]]}],
 "method":[{"name":null,"steps":["Skär köttet i bitar. Salta generöst och låt vara i minst 10 min, gärna någon timme eller kylen över natten. Men se till att det blir rumstemp inför tillagning.","Förbered under tiden purjolök som kan ligga och dra i en skål med kallt vatten en stund (några minuter).","Hacka därefter i ett några millimeters skivor.","Slå till vitlöksklyftorna.","Sätt på ugnen på 175 C.","Värm en traktör eller kastrull att bryna i och tillaga allt i.","Torka rent köttet med hushållspapper så att det är torrt.","Bryn köttet på hög värme. Lägg därefter över på tallrik.","Sänk värmen och fräs typ 70% av purjolöken i samma panna. Lägg i vitlöken efter en stund.","Häll i vinet, därefter tillbaka med köttet.","Häll i vattnet (gärna förkokat) och se till att det är uppe i temp.","Ställ in kärlet med lock i 1 h i ugnen, på 175 C.","Därefter ner med resten av löken och in igen i 15 min på 200 C.","Sist, ner med grädden och blanda runt så det som fått färg hamnar uppochner (lite grovt). Låt detta gå 15 min till på 200 C.","Nu kan den smakas av med salt (och ev något annat för balans. Behövdes inte förra gången).","Servera med potatismos."]}],
 "notes":[],"flags":["Page is truncated: one unsupported 'alias' block (likely a link/synced reference) could not be fetched."]},
 
 {"id":"35de56f597228087b211fbcfaaafacce","icon":"🤎","title":"Cocoa-Blackened Chicken med Stenfrukter","intro":"Kycklinglår dammade i kakao och Old Bay som svartnar vackert under tillagning — serveras på en frisk salsa av stenfrukter, mynta och lime. Recept från Bon Appétit / Epicurious.","plan":"10 min (krydda kycklingen och skiva frukten) + 15 min (stek kycklingen) + 10 min (gör salladen och lägg upp)\nTotal: ca 35 min",
-"groups":[{"name":null,"items":[["900 g","skinless kycklinglår utan ben (4–6 st), torkade"],["15 g","osötat kakaopulver, gärna Dutch-process"],["30 g","Old Bay eller Creole-krydda (t.ex. Tony Chachere’s eller Zatarain’s)"],["90 ml","olivolja, delat"],["3","vitlöksklyftor, fint rivna"],["","Saft av 3 lime"],["15 g","honung"],["2","schalottenlökar, tunt skivade i ringar"],["680 g","blandade stenfrukter (persikor, nektariner och/eller plommon, aprikoser), skivade"],["15 g","färska myntablad"],["","Salt och nymalen svartpeppar"]]}],
+"groups":[{"name":null,"items":[["900 g","skinless kycklinglår utan ben (4–6 st), torkade"],["15 g","osötat kakaopulver, gärna Dutch-process"],["30 g","Old Bay eller Creole-krydda (t.ex. Tony Chachere’s eller Zatarain’s)"],["90 ml","olivolja, delat"],["3","vitlöksklyftor, fint rivna"],["3","lime, saften"],["15 g","honung"],["2","schalottenlökar, tunt skivade i ringar"],["680 g","blandade stenfrukter (persikor, nektariner och/eller plommon, aprikoser), skivade"],["15 g","färska myntablad"],["","Salt och nymalen svartpeppar"]]}],
 "method":[{"name":null,"steps":["Blanda kakaopulver och Old Bay i en liten skål. Gnid in kycklingstyckena runtom med kryddblandningen och krydda med salt.","Hetta upp 45 ml av olivoljan i en stor stekpanna på medelhög till hög värme. Lägg ner kycklingen i ett lager och stek under vändning tills den är svartnad i fläckar, genomstekt och en termometer visar 74 °C i tjockaste delen, totalt 10–14 minuter beroende på tjocklek. Lyft upp och lägg på en tallrik.","Vispa ihop limesaft, vitlök, honung, salt, peppar och resterande 45 ml olivolja i en stor skål. Tillsätt schalottenlöken, stenfrukterna och myntan och vänd försiktigt runt. Smaka av och justera salt och peppar.","Lägg upp fruktsalladen på ett fat. Skiva kycklingen och arrangera ovanpå. Häll över eventuellt kvarvarande dressing från skålen."]}],
 "notes":[{"heading":null,"lines":["(+extra bulgur/quinoa och kanske feta för matighet)"]}],"flags":[]},
 
@@ -134,14 +134,14 @@
 "notes":[],"flags":[]},
 
 {"id":"251e56f5972280989ee6f2757b37568b","icon":"🥓","title":"Super Simple Carbonara","intro":"Snabb fulcarbonara för enkel o lite go middag eller lunch.","plan":"",
-"groups":[{"name":null,"items":[["","Pasta för 2"],["","Bacon 1 pk"],["","Ägg 2 st"],["","(Parmesan)"],["","Salt"]]}],
+"groups":[{"name":null,"items":[["2 portioner","pasta"],["1 pk","bacon"],["2","ägg"],["","(Parmesan)"],["","Salt"]]}],
 "method":[{"name":null,"steps":["Koka upp vatten och salt.","Skär bacon och stek.","Blanda kokt pasta med en äggula och ett helt ägg.","Blanda med bacon och riven parmesan."]}],
 "notes":[],"flags":[]},
 
 {"id":"2b9e56f5972280c492f0fedd01c06cb9","icon":"🐲","title":"Super Simple Pea Pasta","intro":"","plan":"",
 "groups":[
-{"name":null,"items":[["","Pasta för 2"],["3 dl","frysta ärtor"]]},
-{"name":"Blanda med","items":[["200 g","fetaost (ett paket)"],["","En bunt persilja"],["","Zest från 0,5 citron"],["","Svartpeppar"],["3 msk","olivolja"],["1-2","finhackade vitlöksklyftor"]]}],
+{"name":null,"items":[["2 portioner","pasta"],["3 dl","frysta ärtor"]]},
+{"name":"Blanda med","items":[["200 g","fetaost (ett paket)"],["","En bunt persilja"],["0,5","citron, rivet skal"],["","Svartpeppar"],["3 msk","olivolja"],["1-2","finhackade vitlöksklyftor"]]}],
 "method":[{"name":null,"steps":["Koka upp vatten och salt.","Gör blandingen med allt utom fetaosten först, lägg i den sist.","Koka pastan och rör ihop med blandningen. (Spara pastavatten att blanda i för rätt konsistens)"]}],
 "notes":[],"flags":[]}
 ]
