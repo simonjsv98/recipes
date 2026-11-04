@@ -96,10 +96,9 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .ing + .ing { border-top: 1px solid var(--line); }
 /* Without an amount the name still sits in the name column, in line with the others. */
 .ing.noamt > span:only-child { grid-column: 2; }
-.ing.noamt { color: var(--muted); }
-.ing.noamt::before { content: attr(data-label); grid-column: 1; grid-row: 1; align-self: center; font-size: .8rem; }
-.ing.noamt.inline { color: inherit; }
-.ing.noamt.inline::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); opacity: .6; }
+.ing.noamt::before { content: attr(data-label); grid-column: 1; grid-row: 1; align-self: center; font-size: .8rem; color: var(--muted); }
+.ing.noamt.minor { color: var(--muted); }
+.ing.noamt.dot::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); opacity: .6; }
 .ing .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .steps { display: flex; flex-direction: column; }
@@ -279,16 +278,19 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 
-// An ingredient without an amount gets a short label in the amount column: "e.b." (efter behov) by default,
-// "ev." when the name says it is optional, and nothing when the name already says how much or what for.
-// A name with a number in it carries its own amount and is shown in normal colour.
+// An ingredient without an amount still lines up with the others. Only the small extras (salt, pepper, water,
+// oil or butter for the pan, thickening) are grey; real ingredients keep the normal colour.
+// The amount column says "e.b." (efter behov), "ev." when the name says it is optional, or shows a grey dot
+// when the name itself already says how much or what for ("Ägg 2 st", "En bunt persilja", "Olja till stekning").
 function noAmt(name){
-  const n = String(name).toLowerCase();
-  if (/\d/.test(n)) return { cls:"noamt inline", label:"" };
-  if (/^\(justera|^valfria|^halvt|^hel /.test(n)) return { cls:"noamt", label:"" };
-  if (/^\(|valfri|eventuellt|^ev\./.test(n)) return { cls:"noamt", label:"ev." };
-  if (/nypa|lite |några|lagom|efter smak|smaka av|vid behov|bunt|bunke|droppar|till servering|till stekning|till formen|att toppa|till dekoration|till att täcka|i kavling|efter konsistens|eller andra|^valfria/.test(n)) return { cls:"noamt", label:"" };
-  return { cls:"noamt", label:"e.b." };
+  const n = String(name).toLowerCase().replace(/&amp;/g,"&");
+  const minor = /^(en )?nypa|^(fin )?(havs)?salt|^flingsalt|^(nymalen |nymald )?(svart|vit)?peppar|^vatten|^(oliv|raps)?olja|^neutral (raps)?olja|^lite (neutral )?olja|^lite smör|^smör( |$)|^smaka av|majsstärkelse|maizena|till stekning|till formen|i kavling|till kokning|^\(justera|^\(\d+ g salt/.test(n);
+  let label;
+  if (/\d/.test(n)) label = "";
+  else if (/^\((?!justera)|valfritt|eventuellt|^ev\./.test(n)) label = "ev.";
+  else if (/nypa|lite |några|lagom|efter smak|smaka av|vid behov|bunt|bunke|droppar|till servering|till stekning|till formen|att toppa|till dekoration|till att täcka|i kavling|till kokning|efter konsistens|eller andra|^valfria|^halvt|^hel |^\(justera/.test(n)) label = "";
+  else label = "e.b.";
+  return { cls: "noamt" + (minor ? " minor" : "") + (label ? "" : " dot"), label };
 }
 const ingClass = (amt,name) => { if (amt) return `class="ing"`; const x = noAmt(name); return `class="ing ${x.cls}" data-label="${x.label}"`; };
 const ingRow = (amt,name) => `<div ${ingClass(amt,name)}>${amt?`<span class="amt">${amt}</span>`:""}<span>${name}</span></div>`;
