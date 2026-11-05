@@ -136,6 +136,11 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .sheet .scroll { padding-bottom: 12px; }
 .sheet-foot { padding-top: 12px; padding-bottom: 16px; }
 .sheet .group:first-child { margin-top: 0; }
+/* Photo of the dish from the recipe's source page, at the bottom of the recipe. */
+.dish { margin: 28px 0 0; }
+.dish img { display: block; width: 100%; max-height: 420px; object-fit: cover; border-radius: 14px; background: var(--line); }
+.dish figcaption { margin-top: 6px; font-size: .85rem; color: var(--muted); }
+.dish figcaption a { color: inherit; }
 .sheet.tall { height: 92%; max-height: 92%; }
 .sched-label { margin-top: 16px; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .sched-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
@@ -685,6 +690,7 @@ function showRecipe(r){
           <p class="text">${linkify(markTimes(t))}</p>
         </li>`;}).join("")}</ol>`).join("")}
       ${otherNotes(r).length?`<p class="label block-label">Anteckningar</p>${otherNotes(r).map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
+      ${r.image?`<figure class="dish"><img src="${r.image.url}" alt="${r.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"><figcaption>Bild: <a href="${r.image.source}" target="_blank" rel="noopener">${r.image.site} ↗</a></figcaption></figure>`:""}
       <div class="foot">
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>

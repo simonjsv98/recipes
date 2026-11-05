@@ -60,7 +60,7 @@ const out = all.map(r => {
   }) }));
   const method = (r.method || []).filter(Boolean).map(m => ({ name: E(m.name), steps: (m.steps || []).map(E) }));
   const notes = (r.notes || []).filter(Boolean).map(n => ({ heading: E(n.heading), lines: (n.lines || []).map(E) }));
-  return { id: r.id, notion: `https://app.notion.com/p/${r.id}`, icon: r.icon || null, title: E(r.title), intro: E(r.intro), plan: E(r.plan), groups, method, notes };
+  return { id: r.id, notion: `https://app.notion.com/p/${r.id}`, icon: r.icon || null, image: r.image || null, title: E(r.title), intro: E(r.intro), plan: E(r.plan), groups, method, notes };
 });
 // Escapes like the original PowerShell build, so the output stays byte for byte the same.
 const json = JSON.stringify(out).replace(/[<>&']/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
