@@ -136,6 +136,10 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .sheet .scroll { padding-bottom: 12px; }
 .sheet-foot { padding-top: 12px; padding-bottom: 16px; }
 .sheet .group:first-child { margin-top: 0; }
+.sheet.tall { height: 92%; max-height: 92%; }
+.sched-label { margin-top: 16px; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.sched-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sched-btn { min-height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 500; font-size: .95rem; }
 
 /* Motion: short, one curve, pages move in the direction you travel */
 :root { --ease: cubic-bezier(.2, .8, .2, 1); }
@@ -671,6 +675,7 @@ function showRecipe(r){
       ${(LINKED_IN[r.id]||[]).map((p,k)=>`<p class="linked-in">Ingår i <button class="recipe-link" data-linked-in="${k}">${p[p.length-1].title}</button></p>`).join("")}
       ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
       ${r.plan?`<p class="plan">${r.plan}</p>`:""}
+      ${schedules(r).length?`<p class="sched-label">Tidsplaner</p><div class="sched-btns">${schedules(r).map((n,i)=>`<button class="sched-btn" data-schedule="${i}">${(h=>h.charAt(0).toUpperCase()+h.slice(1))(n.heading.replace(/^Tidsplan\s*[–-]\s*/,""))} <span aria-hidden="true">→</span></button>`).join("")}</div>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
       ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg för att se dess ingredienser.</p>`:""}
       ${r.method.map(m=>`${m.name?`<p class="part-name">${m.name}</p>`:""}<ol class="steps">${m.steps.map(t=>{
@@ -679,7 +684,7 @@ function showRecipe(r){
           <span class="no">${i+1}</span>
           <p class="text">${linkify(markTimes(t))}</p>
         </li>`;}).join("")}</ol>`).join("")}
-      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${timeline(n.lines) || n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
+      ${otherNotes(r).length?`<p class="label block-label">Anteckningar</p>${otherNotes(r).map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
       <div class="foot">
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>
@@ -696,10 +701,13 @@ function toggleStep(el){
   if (box) box.hidden = !open;
 }
 
-function openSheet(){
-  sheet.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Ingredienser">
-    <div class="gutter"><div class="top"><h2 class="sheet-title">Ingredienser</h2></div></div>
-    <div class="scroll gutter">${allIngredients(recipe)}</div>
+// Notes that are schedules open from buttons under the plan; the rest stay at the bottom of the recipe.
+const schedules = r => r.notes.filter(n => n.heading && timeline(n.lines));
+const otherNotes = r => r.notes.filter(n => !(n.heading && timeline(n.lines)));
+function openSheet(title = "Ingredienser", body = allIngredients(recipe), tall = false){
+  sheet.innerHTML = `<div class="sheet${tall?" tall":""}" role="dialog" aria-modal="true" aria-label="${title}">
+    <div class="gutter"><div class="top"><h2 class="sheet-title">${title}</h2></div></div>
+    <div class="scroll gutter">${body}</div>
     <div class="sheet-foot gutter"><button class="ing-btn" data-close>Stäng</button></div>
   </div>`;
   clearTimeout(sheetTimer);
@@ -773,6 +781,7 @@ document.addEventListener("click", e => {
   else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
   else if ("up" in d) goBack();
   else if ("sheet" in d) openSheet();
+  else if ("schedule" in d){ const n = schedules(recipe)[+d.schedule]; openSheet(n.heading, timeline(n.lines), true); }
   else if ("close" in d) closeSheet();
 });
 document.addEventListener("keydown", e => {

@@ -15,7 +15,7 @@ Keep this file current. When the workflow, the structure or a standing preferenc
 - `build/recipes-data/batch-*.json` are the recipes as imported from Notion.
 - `build/build-recipes.js` applies corrections and writes `index.html` and `recipes-data.js`. Run `node build/build-recipes.js` after changing `kokslaget.html` or the recipe data, and commit the rebuilt files with the change.
 - `files/` holds files a recipe links to, such as a printed PDF. In recipe text `[[files/name.pdf|Text]]` becomes a link in the app; in Notion link to `https://simonjsv98.github.io/recipes/files/name.pdf`.
-- A note whose lines read `Lördag 10:00 · Deg — full text` (day optional, ` · ` and ` — ` exact) shows as a timeline with short titles, followed by the full schedule. The space between two times grows with the time between them (square root, capped) and gaps of 45 min or more show their length. Write schedules that way in Notion too.
+- A note whose lines read `Lördag 10:00 · Deg — full text` (day optional, ` · ` and ` — ` exact) opens from a button under the plan (in a sheet): a timeline with short titles, followed by the full schedule. The space between two times grows with the time between them (square root, capped) and gaps of 45 min or more show their length. Write schedules that way in Notion too.
 - `units.js` (the units panel behind the thermometer) and `extras.js` (portion factor, fold-out ingredients under each method step, shopping list, latest recipes) are edited directly.
 - In the lists, regions and recipes show their Notion emoji in front of the name. A recipe's emoji is stored as `icon` in the batch files; a region's as `icon` on its node in `TREE`. Each recipe row also shows the total time from its Tid/Planering line (`metaFor`), when there is one.
 
