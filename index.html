@@ -304,7 +304,9 @@ const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top
 </div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
 // [[id|Title]] in recipe text is a link to another recipe, like a link-to-page block in Notion.
-const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class="recipe-link" data-link="$1">$2</button>');
+// [[files/name.pdf|Title]] links to a file kept in the repo's files folder, such as a printed recipe.
+const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class="recipe-link" data-link="$1">$2</button>')
+  .replace(/\[\[(files\/[\w.-]+)\|([^\]]+)\]\]/g, '<a class="recipe-link" href="$1" target="_blank" rel="noopener">$2 ↗</a>');
 let cameFrom = [];
 
 const recipeFor = id => RECIPES.find(r=>r.notion.endsWith(id));
@@ -433,7 +435,7 @@ const INDEX = [];
     if (row[2]==="link") continue;
     const r = recipeFor(row[1]);
     const place = [...path, s.name||""].join(" ");
-    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ").replace(/\[\[[0-9a-f]+\|([^\]]+)\]\]/g,"$1") : "";
+    const body = r ? [...r.groups.flatMap(g=>g.items.map(i=>i[1])), ...r.method.flatMap(m=>m.steps), ...r.notes.flatMap(n=>n.lines)].join(" ").replace(/\[\[[^|\]]+\|([^\]]+)\]\]/g,"$1") : "";
     const hay = norm(`${row[0]} ${place} ${body}`);
     const hayWords = hay.split(" ");
     const tags = NORM_CONCEPTS.filter(([,t]) => t.some(x => x.length<=2 ? hayWords.includes(x) : hay.includes(x))).flatMap(([a])=>a);
