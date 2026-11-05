@@ -92,8 +92,14 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .tl-dot { position: relative; align-self: stretch; }
 .tl-dot::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--line); }
 .tl-dot::after { content: ""; position: absolute; left: 4px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--accent); }
-.tl-day + .tl-row .tl-dot::before, .tl > .tl-row:first-child .tl-dot::before { top: 50%; }
+.tl > .tl-row:first-child .tl-dot::before, .tl > .tl-day:first-child + .tl-row .tl-dot::before { top: 50%; }
 .tl-row.last .tl-dot::before { bottom: 50%; }
+/* The space between two times grows with the time between them (square root, capped), with the length written beside the line. */
+.tl-gap { display: grid; grid-template-columns: 3.3em 18px minmax(0,1fr); column-gap: 8px; }
+.tl-gap .tl-dot::after { content: none; }
+.tl-gap-len { align-self: center; font-size: .75rem; color: var(--muted); }
+.tl .tl-day { margin: 0; align-self: center; }
+.tl .tl-day-in { padding: 6px 0 4px; }
 .tl-full { margin-top: 22px; padding-top: 4px; border-top: 1px solid var(--line); }
 .tl-full .tl-day { margin-top: 16px; }
 .tl-full .note-line { margin-top: 6px; }
@@ -324,7 +330,18 @@ function timeline(lines){
   const items = lines.map(l=>l.match(TL_LINE));
   if (items.filter(Boolean).length < 3) return "";
   const rows = items.filter(Boolean), rest = lines.filter((l,i)=>!items[i]);
-  const short = rows.map((m,i)=>`${m[1]?`<p class="tl-day">${m[1]}</p>`:""}<div class="tl-row${i===rows.length-1?" last":""}"><span class="tl-time">${m[2]}</span><span class="tl-dot"></span><span>${m[3]}</span></div>`).join("");
+  const mins = t => { const [h,m] = t.split(":").map(Number); return h*60+m; };
+  const fmt = d => d < 60 ? `${d} min` : d >= 600 ? `ca ${Math.round(d/60)} h` : (d % 60 ? `${Math.floor(d/60)} h ${d%60} min` : `${d/60} h`);
+  const short = rows.map((m,i)=>{
+    let gap = "";
+    if (i) {
+      let d = mins(m[2]) - mins(rows[i-1][2]);
+      if (d <= 0 || m[1]) d += d <= 0 ? 24*60 : 0;
+      const h = Math.min(150, Math.max(0, Math.round(6*Math.sqrt(d)) - 24));
+      gap = `<div class="tl-gap" style="min-height:${h}px"><span class="tl-gap-len"></span><span class="tl-dot"></span><span class="tl-gap-len">${d>=45?fmt(d):""}</span></div>${m[1]?`<p class="tl-day tl-day-in">${m[1]}</p>`:""}`;
+    } else if (m[1]) gap = `<p class="tl-day" style="margin-bottom:4px">${m[1]}</p>`;
+    return `${gap}<div class="tl-row${i===rows.length-1?" last":""}"><span class="tl-time">${m[2]}</span><span class="tl-dot"></span><span>${m[3]}</span></div>`;
+  }).join("");
   const full = rows.map(m=>`${m[1]?`<p class="tl-day">${m[1]}</p>`:""}<p class="note-line"><b>${m[2]}</b> ${linkify(m[4])}</p>`).join("");
   return `<div class="tl">${short}</div><div class="tl-full">${full}</div>${rest.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`;
 }
