@@ -75,6 +75,21 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .part-name { font-weight: 600; font-size: 1.05rem; padding-block: 18px 2px; }
 .note-heading { font-weight: 600; margin-top: 18px; }
 .note-line { margin-top: 8px; font-size: 1.05rem; }
+/* A schedule note ("Tidsplan …") whose lines read "Dag 10:00 · Kort rubrik — hela texten" becomes a timeline, with the full schedule below. */
+.tl { margin-top: 12px; }
+.tl-day { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 4px; }
+.tl-day:first-child { margin-top: 0; }
+.tl-row { display: grid; grid-template-columns: 3.3em 18px minmax(0,1fr); align-items: center; column-gap: 8px; min-height: 30px; font-variant-numeric: tabular-nums; }
+.tl-time { font-weight: 600; color: var(--accent); font-size: .95rem; }
+.tl-dot { position: relative; align-self: stretch; }
+.tl-dot::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.tl-dot::after { content: ""; position: absolute; left: 4px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--accent); }
+.tl-day + .tl-row .tl-dot::before, .tl > .tl-row:first-child .tl-dot::before { top: 50%; }
+.tl-row.last .tl-dot::before { bottom: 50%; }
+.tl-full { margin-top: 22px; padding-top: 4px; border-top: 1px solid var(--line); }
+.tl-full .tl-day { margin-top: 16px; }
+.tl-full .note-line { margin-top: 6px; }
+.tl-full .note-line b { font-variant-numeric: tabular-nums; }
 .recipe-link { display: inline-block; font: inherit; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; padding-block: 4px; }
 .link { min-height: 44px; display: flex; align-items: center; font-size: .95rem; color: var(--muted); }
 .link.strong { color: var(--ink); font-weight: 600; }
@@ -359,6 +374,16 @@ const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top
   </div>
 </div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
+// Lines like "Lördag 10:00 · Deg — Blanda, knåda …" make a timeline: day, time and short title, then the full text below.
+const TL_LINE = /^(?:(.+?)\s)?(\d{1,2}:\d{2})\s·\s(.+?)\s—\s(.+)$/s;
+function timeline(lines){
+  const items = lines.map(l=>l.match(TL_LINE));
+  if (items.filter(Boolean).length < 3) return "";
+  const rows = items.filter(Boolean), rest = lines.filter((l,i)=>!items[i]);
+  const short = rows.map((m,i)=>`${m[1]?`<p class="tl-day">${m[1]}</p>`:""}<div class="tl-row${i===rows.length-1?" last":""}"><span class="tl-time">${m[2]}</span><span class="tl-dot"></span><span>${m[3]}</span></div>`).join("");
+  const full = rows.map(m=>`${m[1]?`<p class="tl-day">${m[1]}</p>`:""}<p class="note-line"><b>${m[2]}</b> ${linkify(m[4])}</p>`).join("");
+  return `<div class="tl">${short}</div><div class="tl-full">${full}</div>${rest.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`;
+}
 // [[id|Title]] in recipe text is a link to another recipe, like a link-to-page block in Notion.
 // [[files/name.pdf|Title]] links to a file kept in the repo's files folder, such as a printed recipe.
 const linkify = s => s.replace(/\[\[([0-9a-f]+)\|([^\]]+)\]\]/g, '<button class="recipe-link" data-link="$1">$2</button>')
@@ -637,7 +662,7 @@ function showRecipe(r){
           <span class="no">${i+1}</span>
           <p class="text">${linkify(markTimes(t))}</p>
         </li>`;}).join("")}</ol>`).join("")}
-      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
+      ${r.notes.length?`<p class="label block-label">Anteckningar</p>${r.notes.map(n=>`${n.heading?`<p class="note-heading">${n.heading}</p>`:""}${timeline(n.lines) || n.lines.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`).join("")}`:""}
       <div class="foot">
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>
