@@ -84,32 +84,25 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .note-heading { font-weight: 600; margin-top: 18px; }
 .note-line { margin-top: 8px; font-size: 1.05rem; }
 /* A schedule note ("Tidsplan …") whose lines read "Dag 10:00 · Kort rubrik — hela texten" becomes a timeline, with the full schedule below. */
-.tl { margin-top: 12px; }
-.tl-day { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 4px; }
-.tl-day:first-child { margin-top: 0; }
-.tl-row { display: grid; grid-template-columns: 3.3em 18px minmax(0,1fr); align-items: center; column-gap: 8px; min-height: 30px; font-variant-numeric: tabular-nums; }
+.tl { margin-top: 12px; --tlc: 3.3em; }
+.ptl { --tlc: 4.4em; }
+/* Every row of a timeline is the same three-column grid, and the middle column carries the line, so it never breaks. */
+.tlr { display: grid; grid-template-columns: var(--tlc) 18px minmax(0,1fr); column-gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.tlr-step { min-height: 30px; }
+.tlr-day { min-height: 28px; }
+.tl-line { position: relative; align-self: stretch; }
+.tl-line::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.tlr.pre .tl-line::before, .tlr.post .tl-line::before, .tlr.first.last .tl-line::before { content: none; }
+.tlr.first .tl-line::before { top: 50%; }
+.tlr.last .tl-line::before { bottom: 50%; }
+.tlr-step .tl-line::after { content: ""; position: absolute; left: 4px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--accent); box-sizing: border-box; }
+.tlr-step.open .tl-line::after { background: var(--bg); border: 2px solid var(--accent); }
+.tlr-step.end .tl-line::after { border-radius: 2px; }
 .tl-time { font-weight: 600; color: var(--accent); font-size: .95rem; }
-.tl-dot { position: relative; align-self: stretch; }
-.tl-dot::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--line); }
-.tl-dot::after { content: ""; position: absolute; left: 4px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--accent); }
-.tl > .tl-row:first-child .tl-dot::before, .tl > .tl-day:first-child + .tl-row .tl-dot::before { top: 50%; }
-.tl-row.last .tl-dot::before { bottom: 50%; }
-/* The space between two times grows with the time between them (square root, capped), with the length written beside the line. */
-.tl-gap { display: grid; grid-template-columns: 3.3em 18px minmax(0,1fr); column-gap: 8px; }
-.tl-gap .tl-dot::after { content: none; }
-.tl-gap-len { align-self: center; font-size: .75rem; color: var(--muted); }
-.tl .tl-day { margin: 0; align-self: center; }
-.tl .tl-day-in { padding: 6px 0 4px; }
-.ptl { margin-top: 12px; }
-.ptl .tl-row { grid-template-columns: 5.4em 18px minmax(0,1fr); min-height: 28px; font-size: 1rem; line-height: 1.3; padding: 3px 0; }
-.ptl .tl-gap { grid-template-columns: 5.4em 18px minmax(0,1fr); }
-.ptl .tl-time { font-size: .88rem; line-height: 1.25; }
-.ptl .ptl-day { margin: 10px 0 4px; }
-.ptl .ptl-day:first-child { margin-top: 0; }
-.ptl .ptl-day + .tl-row .tl-dot::before { top: 50%; }
-.tl-dot.open::after { background: var(--bg); border: 2px solid var(--accent); width: 6px; height: 6px; }
-.tl-dot.end::after { border-radius: 2px; }
-.ptl-total { font-weight: 600; }
+.ptl .tl-time { font-size: .88rem; line-height: 1.2; }
+.tl-day { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tl-gap-len { font-size: .75rem; color: var(--muted); }
+.tlr.bold > :last-child { font-weight: 600; }
 .tl-full { margin-top: 22px; padding-top: 4px; border-top: 1px solid var(--line); }
 .tl-full .tl-day { margin-top: 16px; }
 .tl-full .note-line { margin-top: 6px; }
@@ -374,21 +367,30 @@ function parsePlan(plan){
   }
   return rows.filter(r=>!r.day).length >= 2 ? { rows, total } : null;
 }
+// Draws timeline items: {step, left, text, mark: "open"|"end", bold}, {gap: px, label} or {day}.
+function drawTimeline(items, cls = ""){
+  const steps = items.map((x,i)=>x.step?i:-1).filter(i=>i>=0), first = steps[0], last = steps[steps.length-1];
+  const seg = i => i < first ? "pre" : i > last ? "post" : [i===first?"first":"", i===last?"last":""].join(" ");
+  return `<div class="tl ${cls}">${items.map((x,i)=>{
+    if (x.day) return `<div class="tlr tlr-day ${seg(i)}"><span></span><span class="tl-line"></span><span class="tl-day">${x.day}</span></div>`;
+    if (x.gap != null) return `<div class="tlr tlr-gap ${seg(i)}" style="min-height:${x.gap}px"><span></span><span class="tl-line"></span><span class="tl-gap-len">${x.label||""}</span></div>`;
+    return `<div class="tlr tlr-step ${seg(i)} ${x.mark||""} ${x.bold?"bold":""}"><span class="tl-time">${x.left||""}</span><span class="tl-line"></span><span>${x.text}</span></div>`;
+  }).join("")}</div>`;
+}
+const gapPx = (min, cap = 110) => Math.min(cap, Math.max(0, Math.round(6*Math.sqrt(min)) - 24));
 function planHtml(plan){
   const p = parsePlan(plan);
   if (!p) return `<p class="plan">${plan}</p>`;
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  let prev = 0, html = "";
-  p.rows.forEach((r,i) => {
-    const gap = i ? Math.min(110, Math.max(0, Math.round(6*Math.sqrt(prev)) - 24)) : 0;
-    if (gap) html += `<div class="tl-gap" style="min-height:${gap}px"><span></span><span class="tl-dot"></span><span></span></div>`;
-    if (r.day) { html += `<p class="tl-day ptl-day">${r.day}</p>`; prev = 0; return; }
-    html += `<div class="tl-row ptl-row"><span class="tl-time">${r.dur}</span><span class="tl-dot${r.dur?"":" open"}"></span><span>${cap(r.what)}</span></div>`;
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1), items = [];
+  let prev = 0;
+  for (const r of p.rows) {
+    if (prev && gapPx(prev)) items.push({ gap: gapPx(prev) });
+    if (r.day) { items.push({ day: r.day }); prev = 0; continue; }
+    items.push({ step: true, left: r.dur, text: cap(r.what), mark: r.dur ? "" : "open" });
     prev = durMinutes(r.dur);
-  });
-  if (p.total) html += `${prev?`<div class="tl-gap" style="min-height:${Math.min(110, Math.max(0, Math.round(6*Math.sqrt(prev)) - 24))}px"><span></span><span class="tl-dot"></span><span></span></div>`:""}<div class="tl-row ptl-row last ptl-total"><span class="tl-time"></span><span class="tl-dot end"></span><span>Total: ${p.total}</span></div>`;
-  else html = html.replace(/tl-row ptl-row(?![\s\S]*tl-row ptl-row)/, "tl-row ptl-row last");
-  return `<div class="tl ptl">${html}</div>`;
+  }
+  if (p.total) { if (prev && gapPx(prev)) items.push({ gap: gapPx(prev) }); items.push({ step: true, text: `Total: ${p.total}`, mark: "end", bold: true }); }
+  return drawTimeline(items, "ptl");
 }
 // Lines like "Lördag 10:00 · Deg — Blanda, knåda …" make a timeline: day, time and short title, then the full text below.
 const TL_LINE = /^(?:(.+?)\s)?(\d{1,2}:\d{2})\s·\s(.+?)\s—\s(.+)$/s;
@@ -398,18 +400,19 @@ function timeline(lines){
   const rows = items.filter(Boolean), rest = lines.filter((l,i)=>!items[i]);
   const mins = t => { const [h,m] = t.split(":").map(Number); return h*60+m; };
   const fmt = d => d < 60 ? `${d} min` : d >= 600 ? `ca ${Math.round(d/60)} h` : (d % 60 ? `${Math.floor(d/60)} h ${d%60} min` : `${d/60} h`);
-  const short = rows.map((m,i)=>{
-    let gap = "";
+  const tli = [];
+  rows.forEach((m,i)=>{
     if (i) {
       let d = mins(m[2]) - mins(rows[i-1][2]);
-      if (d <= 0 || m[1]) d += d <= 0 ? 24*60 : 0;
-      const h = Math.min(150, Math.max(0, Math.round(6*Math.sqrt(d)) - 24));
-      gap = `<div class="tl-gap" style="min-height:${h}px"><span class="tl-gap-len"></span><span class="tl-dot"></span><span class="tl-gap-len">${d>=45?fmt(d):""}</span></div>${m[1]?`<p class="tl-day tl-day-in">${m[1]}</p>`:""}`;
-    } else if (m[1]) gap = `<p class="tl-day" style="margin-bottom:4px">${m[1]}</p>`;
-    return `${gap}<div class="tl-row${i===rows.length-1?" last":""}"><span class="tl-time">${m[2]}</span><span class="tl-dot"></span><span>${m[3]}</span></div>`;
-  }).join("");
+      if (d <= 0) d += 24*60;
+      tli.push({ gap: Math.max(gapPx(d, 150), 6), label: d >= 45 ? fmt(d) : "" });
+    }
+    if (m[1]) tli.push({ day: m[1] });
+    tli.push({ step: true, left: m[2], text: m[3] });
+  });
+  const short = drawTimeline(tli);
   const full = rows.map(m=>`${m[1]?`<p class="tl-day">${m[1]}</p>`:""}<p class="note-line"><b>${m[2]}</b> ${linkify(m[4])}</p>`).join("");
-  return `<div class="tl">${short}</div><div class="tl-full">${full}</div>${rest.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`;
+  return `${short}<div class="tl-full">${full}</div>${rest.map(l=>`<p class="note-line">${linkify(l)}</p>`).join("")}`;
 }
 // [[id|Title]] in recipe text is a link to another recipe, like a link-to-page block in Notion.
 // [[files/name.pdf|Title]] links to a file kept in the repo's files folder, such as a printed recipe.
