@@ -92,6 +92,16 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .tl-gap-len { align-self: center; font-size: .75rem; color: var(--muted); }
 .tl .tl-day { margin: 0; align-self: center; }
 .tl .tl-day-in { padding: 6px 0 4px; }
+.ptl { margin-top: 12px; }
+.ptl .tl-row { grid-template-columns: 5.4em 18px minmax(0,1fr); min-height: 28px; font-size: 1rem; line-height: 1.3; padding: 3px 0; }
+.ptl .tl-gap { grid-template-columns: 5.4em 18px minmax(0,1fr); }
+.ptl .tl-time { font-size: .88rem; line-height: 1.25; }
+.ptl .ptl-day { margin: 10px 0 4px; }
+.ptl .ptl-day:first-child { margin-top: 0; }
+.ptl .ptl-day + .tl-row .tl-dot::before { top: 50%; }
+.tl-dot.open::after { background: var(--bg); border: 2px solid var(--accent); width: 6px; height: 6px; }
+.tl-dot.end::after { border-radius: 2px; }
+.ptl-total { font-weight: 600; }
 .tl-full { margin-top: 22px; padding-top: 4px; border-top: 1px solid var(--line); }
 .tl-full .tl-day { margin-top: 16px; }
 .tl-full .note-line { margin-top: 6px; }
@@ -389,6 +399,53 @@ const navBar = (label,attr) => `<div class="gutter top-bar"><div class="wrap top
   </div>
 </div></div>`;
 const markTimes = s => s.replace(/\d+(?:[,.]\d+)?(?:[–-]\d+)?\s?(?:timmar|timme|minuter|minut|°C)/g, "<b>$&</b>");
+// The Tid/Planering line ("10 min (blanda) + 20 min (grädda)\nTotal: ca 30 min", or a list of "– gör så, 10 min")
+// is drawn as a timeline: duration, dot and what happens, with more space after longer steps. Anything else stays text.
+const DUR = /(\d+(?:[.,]\d+)?)(?:\s*[–-]\s*(\d+(?:[.,]\d+)?))?\s*(min|h|dygn)\b/g;
+function durMinutes(t){
+  if (/över natten|natten över/.test(t)) return 600;
+  let best = 0;
+  for (const m of t.matchAll(DUR)) { const v = parseFloat((m[2]||m[1]).replace(",", ".")) * (m[3]==="h" ? 60 : m[3]==="dygn" ? 1440 : 1); best = Math.max(best, v); }
+  return best;
+}
+function parsePlan(plan){
+  const p = String(plan).trim(), tm = p.match(/\s*(?:\n|^|\s)Total:\s*([\s\S]+)$/);
+  const total = tm ? tm[1].trim() : "", body = tm ? p.slice(0, tm.index).trim() : p;
+  const rows = [];
+  if (/^–|\n–/.test(body)) {
+    for (const line of body.split("\n").map(l=>l.trim()).filter(Boolean)) {
+      if (!line.startsWith("–")) { rows.push({ day: line }); continue; }
+      const t = line.replace(/^–\s*/, ""), c = t.lastIndexOf(", "), tail = c > 0 ? t.slice(c+2) : "";
+      if (c > 0 && /^(ca |minst |cirka )?\d/.test(tail)) { const q = tail.indexOf(" ("); rows.push(q > 0 ? { dur: tail.slice(0, q), what: `${t.slice(0, c)}${tail.slice(q)}` } : { dur: tail, what: t.slice(0, c) }); }
+      else { const k = t.indexOf(": "); if (k > 0 && /\d/.test(t.slice(k+2))) rows.push({ dur: t.slice(k+2), what: t.slice(0, k) }); else rows.push({ dur: "", what: t }); }
+    }
+  } else {
+    if (body.includes("\n")) return null;
+    for (const part of body.split(" + ")) {
+      const m = part.match(/^(.*?)\s*\((.*)\)\.?$/), d = part.match(/^((?:ca |minst )?\d[\d,.]*(?:\s*[–-]\s*\d[\d,.]*)?\s*(?:min|h)(?:–\d[\d,.]*\s*(?:min|h))?)\s+(.+)$/);
+      if (m && m[1] && /\d|natten/.test(m[1])) rows.push({ dur: m[1], what: m[2] });
+      else if (d) rows.push({ dur: d[1], what: d[2].replace(/^för /, "") });
+      else rows.push({ dur: "", what: part.replace(/\.$/, "") });
+    }
+  }
+  return rows.filter(r=>!r.day).length >= 2 ? { rows, total } : null;
+}
+function planHtml(plan){
+  const p = parsePlan(plan);
+  if (!p) return `<p class="plan">${plan}</p>`;
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  let prev = 0, html = "";
+  p.rows.forEach((r,i) => {
+    const gap = i ? Math.min(110, Math.max(0, Math.round(6*Math.sqrt(prev)) - 24)) : 0;
+    if (gap) html += `<div class="tl-gap" style="min-height:${gap}px"><span></span><span class="tl-dot"></span><span></span></div>`;
+    if (r.day) { html += `<p class="tl-day ptl-day">${r.day}</p>`; prev = 0; return; }
+    html += `<div class="tl-row ptl-row"><span class="tl-time">${r.dur}</span><span class="tl-dot${r.dur?"":" open"}"></span><span>${cap(r.what)}</span></div>`;
+    prev = durMinutes(r.dur);
+  });
+  if (p.total) html += `${prev?`<div class="tl-gap" style="min-height:${Math.min(110, Math.max(0, Math.round(6*Math.sqrt(prev)) - 24))}px"><span></span><span class="tl-dot"></span><span></span></div>`:""}<div class="tl-row ptl-row last ptl-total"><span class="tl-time"></span><span class="tl-dot end"></span><span>Total: ${p.total}</span></div>`;
+  else html = html.replace(/tl-row ptl-row(?![\s\S]*tl-row ptl-row)/, "tl-row ptl-row last");
+  return `<div class="tl ptl">${html}</div>`;
+}
 // Lines like "Lördag 10:00 · Deg — Blanda, knåda …" make a timeline: day, time and short title, then the full text below.
 const TL_LINE = /^(?:(.+?)\s)?(\d{1,2}:\d{2})\s·\s(.+?)\s—\s(.+)$/s;
 function timeline(lines){
@@ -679,7 +736,7 @@ function showRecipe(r){
       <h1 class="title">${r.title}</h1>
       ${(LINKED_IN[r.id]||[]).map((p,k)=>`<p class="linked-in">Ingår i <button class="recipe-link" data-linked-in="${k}">${p[p.length-1].title}</button></p>`).join("")}
       ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
-      ${r.plan?`<p class="plan">${r.plan}</p>`:""}
+      ${r.plan?planHtml(r.plan):""}
       ${schedules(r).length?`<p class="sched-label">Tidsplaner</p><div class="sched-btns">${schedules(r).map((n,i)=>`<button class="sched-btn" data-schedule="${i}">${(h=>h.charAt(0).toUpperCase()+h.slice(1))(n.heading.replace(/^Tidsplan\s*[–-]\s*/,""))} <span aria-hidden="true">→</span></button>`).join("")}</div>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
       ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg för att se dess ingredienser.</p>`:""}
