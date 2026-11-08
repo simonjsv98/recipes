@@ -147,6 +147,7 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .sheet.tall { height: 92%; max-height: 92%; }
 .sched-label { margin-top: 16px; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .sched-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.cut-plan { display: block; width: 100%; height: auto; margin: 4px 0 12px; border-radius: 12px; }
 .sched-btn { min-height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 500; font-size: .95rem; }
 
 /* Motion: short, one curve, pages move in the direction you travel */
@@ -741,6 +742,7 @@ function showRecipe(r){
       ${r.intro?`<p class="intro">${linkify(r.intro)}</p>`:""}
       ${r.plan?planHtml(r.plan):""}
       ${schedules(r).length?`<p class="sched-label">Tidsplaner</p><div class="sched-btns">${schedules(r).map((n,i)=>`<button class="sched-btn" data-schedule="${i}">${(h=>h.charAt(0).toUpperCase()+h.slice(1))(n.heading.replace(/^Tidsplan\s*[–-]\s*/,""))} <span aria-hidden="true">→</span></button>`).join("")}</div>`:""}
+      ${cutPlans(r).length?`<p class="sched-label">Skärscheman</p><div class="sched-btns">${cutPlans(r).map((n,i)=>`<button class="sched-btn" data-cutplan="${i}">${n.heading.replace(/^Skärschema\s*[–-]\s*/,"")} <span aria-hidden="true">→</span></button>`).join("")}</div>`:""}
       ${hasIngredients?`<p class="label block-label">Ingredienser</p>${allIngredients(r)}`:""}
       ${hasMethod?`<p class="label block-label">Metod</p><p class="hint">Tryck på ett steg för att se dess ingredienser.</p>`:""}
       ${r.method.map(m=>`${m.name?`<p class="part-name">${m.name}</p>`:""}<ol class="steps">${m.steps.map(t=>{
@@ -769,7 +771,14 @@ function toggleStep(el){
 
 // Notes that are schedules open from buttons under the plan; the rest stay at the bottom of the recipe.
 const schedules = r => r.notes.filter(n => n.heading && timeline(n.lines));
-const otherNotes = r => r.notes.filter(n => !(n.heading && timeline(n.lines)));
+const otherNotes = r => r.notes.filter(n => !(n.heading && timeline(n.lines)) && !isCutPlan(n));
+// A note headed "Skärschema – Namn" opens from a button under the schedules: its image file is drawn, the other lines follow.
+const isCutPlan = n => n.heading && /^Skärschema\s*[–-]/.test(n.heading);
+const cutPlans = r => r.notes.filter(isCutPlan);
+const cutPlanHtml = n => n.lines.map(l => {
+  const m = l.match(/^\[\[(files\/[\w.-]+\.(?:svg|png|jpe?g))\|([^\]]+)\]\]$/);
+  return m ? `<img class="cut-plan" src="${m[1]}" alt="${m[2]}">` : `<p class="note-line">${linkify(l)}</p>`;
+}).join("");
 function openSheet(title = "Ingredienser", body = allIngredients(recipe), tall = false){
   sheet.innerHTML = `<div class="sheet${tall?" tall":""}" role="dialog" aria-modal="true" aria-label="${title}">
     <div class="gutter"><div class="top"><h2 class="sheet-title">${title}</h2></div></div>
@@ -847,6 +856,7 @@ document.addEventListener("click", e => {
   else if ("back" in d){ trail = trail.slice(0,-1); transition("b", showNode); }
   else if ("up" in d) goBack();
   else if ("sheet" in d) openSheet();
+  else if ("cutplan" in d){ const n = cutPlans(recipe)[+d.cutplan]; openSheet(n.heading.replace(/^Skärschema\s*[–-]\s*/,""), cutPlanHtml(n), true); }
   else if ("schedule" in d){ const n = schedules(recipe)[+d.schedule]; openSheet(n.heading, timeline(n.lines), true); }
   else if ("close" in d) closeSheet();
 });

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 560" font-family="-apple-system, 'Google Sans', 'Helvetica Neue', Arial, sans-serif">
+<title>Skärschema: 2 kouign amann och 6 croissanter</title>
+<rect x="0" y="0" width="380" height="560" rx="12" fill="#FFFFFF"/>
+<text x="40" y="38" font-size="14" font-weight="500" fill="#2C2C2A">Steg 1 · 20 × 40 cm, 8 mm</text>
+<rect x="40" y="52" width="300" height="22.5" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<rect x="40" y="74.5" width="300" height="22.5" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="190" y="67.5" font-size="12" fill="#633806" text-anchor="middle">KA 1 · 3 × 40 cm</text>
+<text x="190" y="90" font-size="12" fill="#633806" text-anchor="middle">KA 2 · 3 × 40 cm</text>
+<rect x="40" y="97" width="300" height="105" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="190" y="144" font-size="12" fill="#444441" text-anchor="middle">Resten · 14 × 40 cm</text>
+<text x="190" y="164" font-size="12" fill="#444441" text-anchor="middle">valsas vidare i steg 2</text>
+<text x="346" y="78.5" font-size="12" fill="#5F5E5A">6 cm</text>
+<text x="346" y="153.5" font-size="12" fill="#5F5E5A">14 cm</text>
+<text x="40" y="250" font-size="14" font-weight="500" fill="#2C2C2A">Steg 2 · 30 × 36 cm, 4 mm</text>
+<rect x="40" y="264" width="270" height="225" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<polyline points="40,264 77.5,489 115,264 152.5,489 190,264 227.5,489 265,264 302.5,489" fill="none" stroke="#2C2C2A" stroke-width="1" stroke-dasharray="4 3"/>
+<g font-size="14" font-weight="500" fill="#444441" text-anchor="middle">
+<text x="77.5" y="344">1</text><text x="115" y="419">2</text><text x="152.5" y="344">3</text>
+<text x="190" y="419">4</text><text x="227.5" y="344">5</text><text x="265" y="419">6</text>
+</g>
+<text x="318" y="381" font-size="12" fill="#5F5E5A">30 cm</text>
+<text x="175" y="510" font-size="12" fill="#5F5E5A" text-anchor="middle">36 cm · bas 10 cm per triangel</text>
+<text x="40" y="540" font-size="12" fill="#5F5E5A">Markera var 10 cm, skär sicksack</text>
+</svg>
