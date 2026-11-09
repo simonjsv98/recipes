@@ -107,20 +107,21 @@
     });
   }
 
-  /* Latest */
+  /* Latest. Rows look like the recipe rows in the lists: Notion emoji, title and total time. */
+  const startRow = r => { const meta = metaFor(r); return `<li><button class="recipe-row" data-open="${r.id}"><span class="row-name">${emoji(r.icon)}<span class="link-text"><span>${r.title}</span>${meta?`<span class="row-meta">${meta}</span>`:""}</span></span><span class="mark">›</span></button></li>`; };
   function remember(id){
     store2.set("recent",[id,...store2.get("recent",[]).filter(x=>x!==id)].slice(0,4));
   }
   function latestHtml(){
     const items = store2.get("recent",[]).map(id=>RECIPES.find(r=>r.id===id)).filter(Boolean);
     if (!items.length) return "";
-    return `<div class="latest"><p class="label">Senast</p><ul class="recipes">${items.map(r=>`<li><button data-open="${r.id}"><span>${r.title}</span><span class="mark">›</span></button></li>`).join("")}</ul></div>`;
+    return `<div class="latest"><p class="label">Senast</p><ul class="recipes">${items.map(r=>`${startRow(r)}`).join("")}</ul></div>`;
   }
 
   /* New: the four most recently created recipes. Notion page ids grow with creation time, so the highest ids are the newest. */
   function newHtml(){
     const items = [...RECIPES].sort((a,b)=>b.id.localeCompare(a.id)).slice(0,4);
-    return `<div class="latest"><p class="label">Nytt</p><ul class="recipes">${items.map(r=>`<li><button data-open="${r.id}"><span>${r.title}</span><span class="mark">›</span></button></li>`).join("")}</ul></div>`;
+    return `<div class="latest"><p class="label">Nytt</p><ul class="recipes">${items.map(r=>`${startRow(r)}`).join("")}</ul></div>`;
   }
 
   /* Shopping list */
