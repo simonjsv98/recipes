@@ -1,4 +1,4 @@
-// Portion factor, ingredients under each step, latest recipes and shopping list.
+// Portion factor, ingredients under each step, latest and new recipes and shopping list.
 // Wraps the app's render functions, so the recipe data and core navigation stay untouched.
 (function(){
   const store2 = {
@@ -117,6 +117,12 @@
     return `<div class="latest"><p class="label">Senast</p><ul class="recipes">${items.map(r=>`<li><button data-open="${r.id}"><span>${r.title}</span><span class="mark">›</span></button></li>`).join("")}</ul></div>`;
   }
 
+  /* New: the four most recently created recipes. Notion page ids grow with creation time, so the highest ids are the newest. */
+  function newHtml(){
+    const items = [...RECIPES].sort((a,b)=>b.id.localeCompare(a.id)).slice(0,4);
+    return `<div class="latest"><p class="label">Nytt</p><ul class="recipes">${items.map(r=>`<li><button data-open="${r.id}"><span>${r.title}</span><span class="mark">›</span></button></li>`).join("")}</ul></div>`;
+  }
+
   /* Shopping list */
   let shop = store2.get("shop",[]);
   const saveShop = () => { store2.set("shop",shop); updateBadges(); };
@@ -204,7 +210,7 @@
   wrap("showNode",() => { addNavButton(); });
   wrap("showStart",() => {
     const tiles = document.querySelector(".home-tiles");
-    if (tiles) tiles.insertAdjacentHTML("beforeend",latestHtml());
+    if (tiles) tiles.insertAdjacentHTML("beforeend",latestHtml()+newHtml());
     addNavButton();
   });
   wrap("openSheet",() => applyScale(sheet));
