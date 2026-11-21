@@ -24,6 +24,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .modes { position: fixed; z-index: 5; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 62px); display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 3px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
 .modes button { padding: 7px 14px; border-radius: 18px; font-size: .92rem; font-weight: 500; color: var(--muted); }
 .modes button[aria-pressed="true"] { background: var(--accent); color: #F9E27D; }
+.places { position: fixed; z-index: 5; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 112px); display: flex; flex-direction: column; gap: 6px; }
+.places button { padding: 6px 12px; border-radius: 14px; font-size: .82rem; background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
 #view { position: fixed; inset: 0; touch-action: none; }
 .hint { position: fixed; z-index: 4; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); text-align: center; font-size: .85rem; color: var(--muted); pointer-events: none; }
 .sheet { position: fixed; z-index: 6; left: 0; right: 0; bottom: 0; max-height: 62%; display: flex; flex-direction: column; background: var(--surface); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.12); padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 14px); animation: up .25s ease-out; }
@@ -60,6 +62,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   <button data-mode="plan" aria-pressed="false">Plan</button>
   <button data-mode="moves" aria-pressed="false">Flyttlista</button>
 </div>
+<div class="places" role="group" aria-label="Visa"><button data-place="kok">Köket</button><button data-place="vagnar">Vagnarna</button></div>
 <div id="view"></div>
 <p class="hint" id="hint">Dra för att rotera, nyp för att zooma. Tryck på en låda, ett skåp eller en yta.</p>
 <div class="sheet" id="sheet" hidden></div>
@@ -100,6 +103,11 @@ const Z = {
   vinkyl:   zone("vinkyl",   "Vinkylen", "Hörnet"),
   vitskap:  zone("vitskap",  "Smala vita skåpet i hörnet", "Hörnet"),
   bankhorn: zone("bankhorn", "Träskivan över vinkylen", "Hörnet"),
+  ovanrofco:zone("ovanrofco","Ovanpå Rofcon", "Vagnarna"),
+  rofco:    zone("rofco",    "Rofco-ugnen", "Vagnarna"),
+  rofcoskap:zone("rofcoskap","Skåpet under Rofcon", "Vagnarna"),
+  vagn1:    zone("vagn1",    "Trävagnen, övre hyllan", "Vagnarna"),
+  vagn2:    zone("vagn2",    "Trävagnen, nedre hyllan", "Vagnarna"),
 };
 
 // What the photos show today. The rest is filled in as more photos come.
@@ -116,6 +124,8 @@ const SEED = [
   ["Glasflaskor med patentlock", Z.bankhorn], ["Bricka", Z.bankhorn], ["Matlåda", Z.bankhorn], ["Små plastburkar", Z.bankhorn],
   ["Springform", Z.bankhorn], ["Påsar med torrvaror", Z.bankhorn], ["Svart låda", Z.bankhorn],
   ["Vin", Z.vinkyl],
+  ["Rofco brödugn", Z.rofco], ["Bricka med papper", Z.ovanrofco], ["Tryckkokare", Z.rofcoskap],
+  ["Vit förvaringslåda", Z.vagn1], ["Brödlåda i metall", Z.vagn1], ["Ankarsrum", Z.vagn2], ["Kastruller och formar", Z.vagn2],
 ];
 
 /* ---------- State, saved in this browser ---------- */
@@ -173,7 +183,8 @@ const box = (w, h, d, m, x, y, z, parent = scene) => {
 };
 
 // Room: floor, the wall with its sloping ceiling, and the window side.
-box(590, 2, 320, M.floor, -40, -2, -10);
+box(880, 2, 420, M.floor, -40, -2, -10);
+box(4, 140, 420, M.wall, 840, 0, -10);
 const wallShape = new THREE.Shape();
 wallShape.moveTo(-40, 0); wallShape.lineTo(550, 0); wallShape.lineTo(550, 110); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
 const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: 4, bevelEnabled: false }), M.wall);
@@ -285,6 +296,31 @@ for (const x of [262, 268]) { const b = new THREE.Mesh(new THREE.CylinderGeometr
 const tap = new THREE.Mesh(new THREE.TorusGeometry(8, 1.2, 8, 24, Math.PI), M.steel); tap.position.set(300, BASE_H + 22, 12); tap.rotation.y = Math.PI / 2; scene.add(tap);
 box(2.4, 22, 2.4, M.steel, 299, BASE_H, 11);
 
+/* The two carts in the corner by the sofa, a few metres to the right of the kitchen seen from the room,
+   against the side wall and facing the kitchen. Placement is approximate. */
+const carts = new THREE.Group(); carts.position.set(838, 0, 150); carts.rotation.y = -Math.PI / 2; scene.add(carts);
+const cbox = (w, h, d, m, x, y, z) => box(w, h, d, m, x, y, z, carts);
+const csurface = (zoneId, w, d, x, y, z) => { const m = surface(zoneId, w, d, x, y, z); scene.remove(m); carts.add(m); return m; };
+// wooden cart: open frame with two shelves and a top
+for (const [x, z] of [[0, 0], [96, 0], [0, 36], [96, 36]]) cbox(4, 72, 4, M.wood, x, 4, z);
+for (const y of [14, 44]) cbox(100, 2.4, 40, M.wood, 0, y, 0);
+cbox(100, 2.4, 40, M.wood, 0, 72, 0);
+csurface(Z.vagn2, 100, 40, 0, 16, 0); csurface(Z.vagn1, 100, 40, 0, 46, 0);
+cbox(40, 18, 30, mat("#ffffff"), 6, 46.5, 4); cbox(26, 16, 22, M.steel, 56, 46.5, 8);
+cbox(22, 26, 22, mat("#e9e6df"), 10, 16.5, 8); cbox(28, 18, 26, M.steel, 52, 16.5, 6);
+// white cart with the Rofco on top and a cabinet below
+cbox(56, 62, 44, mat("#F2F1EC"), 104, 0, 0);
+const rcDoor = new THREE.Group(); rcDoor.position.z = 44; carts.add(rcDoor);
+rcDoor.add(front(Z.rofcoskap, 56, 60, 104, 1, "door", "right"));
+movers[movers.length - 1].mesh.material.color.set("#F2F1EC");
+cbox(54, 40, 44, M.steel, 105, 62, 0);
+const rofcoDoor = cbox(42, 26, 1.5, M.steel, 110, 66, 44); rofcoDoor.userData.zone = Z.rofco; pickables.push(rofcoDoor);
+cbox(3, 14, 2, M.black, 114, 72, 45.5);
+const win = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 1, 20), new THREE.MeshStandardMaterial({ color: "#f2b25b", emissive: "#a05a10", emissiveIntensity: .4 }));
+win.rotation.x = Math.PI / 2; win.position.set(132, 79, 46); carts.add(win);
+cbox(54, 2, 44, M.black, 105, 102, 0);
+csurface(Z.ovanrofco, 54, 44, 105, 103, 0);
+
 /* ---------- Picking and opening ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
 let selected = null, downAt = null;
@@ -296,6 +332,13 @@ renderer.domElement.addEventListener("pointerup", e => {
   const hit = ray.intersectObjects(pickables, false)[0];
   if (hit) select(hit.object.userData.zone); else if (mode !== "moves") select(null);
 });
+// The place chips move the camera to the kitchen or to the carts.
+const PLACES = { kok: { target: [255, 120, 20] }, vagnar: { target: [815, 55, 230], from: [385, 195, 300] } };
+let fly = null;
+function goTo(name) {
+  if (name === "kok") { frame(); aim = new THREE.Vector3(...PLACES.kok.target); return; }
+  const p = PLACES[name]; aim = new THREE.Vector3(...p.target); fly = new THREE.Vector3(...p.from);
+}
 // When a zone opens, the camera turns toward it and the picture moves up above the sheet.
 let aim = null;
 function select(id) {
@@ -318,6 +361,7 @@ function loop() {
     else m.pivot.rotation.y = (m.hinge === "left" ? -1 : 1) * m.t * 1.7;
   }
   if (aim) { controls.target.lerp(aim, Math.min(1, dt * 4)); if (controls.target.distanceTo(aim) < .5) aim = null; }
+  if (fly) { camera.position.lerp(fly, Math.min(1, dt * 4)); if (camera.position.distanceTo(fly) < 1) fly = null; }
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
@@ -366,6 +410,7 @@ function toast(t) { const el = document.getElementById("toast"); el.textContent 
 
 document.addEventListener("click", async e => {
   const t = e.target.closest("button, [data-done]"); if (!t) return;
+  if (t.dataset.place) { goTo(t.dataset.place); return; }
   if (t.dataset.mode) {
     mode = t.dataset.mode;
     document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
