@@ -62,7 +62,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   <button data-mode="plan" aria-pressed="false">Plan</button>
   <button data-mode="moves" aria-pressed="false">Flyttlista</button>
 </div>
-<div class="places" role="group" aria-label="Visa"><button data-place="kok">Köket</button><button data-place="vagnar">Vagnarna</button></div>
+<div class="places" role="group" aria-label="Visa"><button data-place="kok">Köket</button><button data-place="vagnar">Vagnarna</button><button data-place="allt">Översikt</button></div>
 <div id="view"></div>
 <p class="hint" id="hint">Dra för att rotera, nyp för att zooma. Tryck på en låda, ett skåp eller en yta.</p>
 <div class="sheet" id="sheet" hidden></div>
@@ -159,7 +159,7 @@ frame();
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(255, 120, 20);
 controls.enableDamping = true;
-controls.minDistance = 80; controls.maxDistance = 1600;
+controls.minDistance = 80; controls.maxDistance = 2600;
 controls.maxPolarAngle = Math.PI * 0.55;
 controls.update();
 
@@ -183,8 +183,17 @@ const box = (w, h, d, m, x, y, z, parent = scene) => {
 };
 
 // Room: floor, the wall with its sloping ceiling, and the window side.
-box(880, 2, 420, M.floor, -40, -2, -10);
-box(4, 140, 420, M.wall, 840, 0, -10);
+box(870, 2, 420, M.floor, -40, -2, -10);
+// The end of the room behind the sofa: a low wall under the slope, with the store room's doorway next to the carts.
+box(4, 120, 200, M.wall, 820, 0, -10);
+box(4, 210, 30, M.wall, 820, 0, 190);
+box(4, 210, 60, mat("#3a3a38"), 821, 0, 220);
+box(4, 210, 130, M.wall, 820, 0, 280);
+// Living room furniture, only for orientation: the sofa with its back to the carts, and the marble coffee table.
+const sofaM = mat("#E9E4DA");
+box(95, 42, 210, sofaM, 620, 0, 100); box(22, 78, 210, sofaM, 700, 0, 100);
+box(95, 60, 20, sofaM, 620, 0, 80); box(95, 60, 20, sofaM, 620, 0, 310);
+box(70, 44, 120, mat("#DCD6CC"), 510, 0, 150);
 const wallShape = new THREE.Shape();
 wallShape.moveTo(-40, 0); wallShape.lineTo(550, 0); wallShape.lineTo(550, 110); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
 const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: 4, bevelEnabled: false }), M.wall);
@@ -298,28 +307,30 @@ box(2.4, 22, 2.4, M.steel, 299, BASE_H, 11);
 
 /* The two carts in the corner by the sofa, a few metres to the right of the kitchen seen from the room,
    against the side wall and facing the kitchen. Placement is approximate. */
-const carts = new THREE.Group(); carts.position.set(838, 0, 150); carts.rotation.y = -Math.PI / 2; scene.add(carts);
+const carts = new THREE.Group(); carts.position.set(818, 0, 0); carts.rotation.y = -Math.PI / 2; scene.add(carts);
 const cbox = (w, h, d, m, x, y, z) => box(w, h, d, m, x, y, z, carts);
 const csurface = (zoneId, w, d, x, y, z) => { const m = surface(zoneId, w, d, x, y, z); scene.remove(m); carts.add(m); return m; };
-// wooden cart: open frame with two shelves and a top
+// wooden cart: open frame with two shelves and a top, nearest the kitchen
 for (const [x, z] of [[0, 0], [96, 0], [0, 36], [96, 36]]) cbox(4, 72, 4, M.wood, x, 4, z);
 for (const y of [14, 44]) cbox(100, 2.4, 40, M.wood, 0, y, 0);
 cbox(100, 2.4, 40, M.wood, 0, 72, 0);
 csurface(Z.vagn2, 100, 40, 0, 16, 0); csurface(Z.vagn1, 100, 40, 0, 46, 0);
 cbox(40, 18, 30, mat("#ffffff"), 6, 46.5, 4); cbox(26, 16, 22, M.steel, 56, 46.5, 8);
 cbox(22, 26, 22, mat("#e9e6df"), 10, 16.5, 8); cbox(28, 18, 26, M.steel, 52, 16.5, 6);
-// white cart with the Rofco on top and a cabinet below
-cbox(56, 62, 44, mat("#F2F1EC"), 104, 0, 0);
+// white cart: a tall white panel, then the Rofco on a low white cabinet, next to the store-room door
+const white = mat("#F2F1EC");
+cbox(44, 100, 44, white, 102, 0, 0);
+cbox(48, 60, 44, white, 146, 0, 0);
 const rcDoor = new THREE.Group(); rcDoor.position.z = 44; carts.add(rcDoor);
-rcDoor.add(front(Z.rofcoskap, 56, 60, 104, 1, "door", "right"));
+rcDoor.add(front(Z.rofcoskap, 48, 58, 146, 1, "door", "right"));
 movers[movers.length - 1].mesh.material.color.set("#F2F1EC");
-cbox(54, 40, 44, M.steel, 105, 62, 0);
-const rofcoDoor = cbox(42, 26, 1.5, M.steel, 110, 66, 44); rofcoDoor.userData.zone = Z.rofco; pickables.push(rofcoDoor);
-cbox(3, 14, 2, M.black, 114, 72, 45.5);
+cbox(48, 40, 44, M.steel, 146, 60, 0);
+const rofcoDoor = cbox(40, 24, 1.5, M.steel, 150, 63, 44); rofcoDoor.userData.zone = Z.rofco; pickables.push(rofcoDoor);
+cbox(3, 14, 2, M.black, 153, 68, 45.5);
 const win = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 1, 20), new THREE.MeshStandardMaterial({ color: "#f2b25b", emissive: "#a05a10", emissiveIntensity: .4 }));
-win.rotation.x = Math.PI / 2; win.position.set(132, 79, 46); carts.add(win);
-cbox(54, 2, 44, M.black, 105, 102, 0);
-csurface(Z.ovanrofco, 54, 44, 105, 103, 0);
+win.rotation.x = Math.PI / 2; win.position.set(172, 75, 46); carts.add(win);
+cbox(48, 2, 44, M.black, 146, 100, 0);
+csurface(Z.ovanrofco, 48, 44, 146, 101, 0);
 
 /* ---------- Picking and opening ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
@@ -333,7 +344,7 @@ renderer.domElement.addEventListener("pointerup", e => {
   if (hit) select(hit.object.userData.zone); else if (mode !== "moves") select(null);
 });
 // The place chips move the camera to the kitchen or to the carts.
-const PLACES = { kok: { target: [255, 120, 20] }, vagnar: { target: [815, 55, 230], from: [385, 195, 300] } };
+const PLACES = { kok: { target: [255, 120, 20] }, vagnar: { target: [800, 55, 95], from: [280, 430, 250] }, allt: { target: [400, 0, 170], from: [1250, 1250, 180] } };
 let fly = null;
 function goTo(name) {
   if (name === "kok") { frame(); aim = new THREE.Vector3(...PLACES.kok.target); return; }
