@@ -149,15 +149,16 @@ view.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#F3F2EF");
 const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 5000);
-// Step back far enough that the whole run, about 480 cm, fits the screen width, also on a phone held upright.
+// Step back far enough that the whole run, about 485 cm, fits the screen width, also on a phone held upright.
+const KC = [242, 120, 20]; // middle of the kitchen
 function frame() {
   const vfov = camera.fov * Math.PI / 180, hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
-  const d = Math.max(285 / Math.tan(hfov / 2), 170 / Math.tan(vfov / 2));
-  camera.position.set(255 - d * .25, 150 + d * .22, 20 + d);
+  const d = Math.max(262 / Math.tan(hfov / 2), 170 / Math.tan(vfov / 2));
+  camera.position.set(KC[0] - d * .25, 150 + d * .22, 20 + d);
 }
 frame();
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(255, 120, 20);
+controls.target.set(...KC);
 controls.enableDamping = true;
 controls.minDistance = 80; controls.maxDistance = 2600;
 controls.maxPolarAngle = Math.PI * 0.55;
@@ -167,7 +168,7 @@ scene.add(new THREE.HemisphereLight("#ffffff", "#d8cfc2", 1.6));
 const sun = new THREE.DirectionalLight("#fff4e6", 1.6);
 sun.position.set(-150, 400, 500); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
-Object.assign(sun.shadow.camera, { left: -100, right: 600, top: 400, bottom: -50, near: 10, far: 1500 });
+Object.assign(sun.shadow.camera, { left: -450, right: 650, top: 600, bottom: -350, near: 10, far: 2000 });
 scene.add(sun);
 
 const mat = c => new THREE.MeshStandardMaterial({ color: c, roughness: .85 });
@@ -177,27 +178,98 @@ const M = {
   steel: new THREE.MeshStandardMaterial({ color: "#c9cbcd", roughness: .3, metalness: .7 }), shelf: mat("#F7F5F0"),
   wood: mat("#C79F70"), glass: new THREE.MeshStandardMaterial({ color: "#2c3237", roughness: .15, metalness: .3 }),
 };
-const box = (w, h, d, m, x, y, z, parent = scene) => {
+let root = scene; // where box() and surface() put things; the kitchen is built in its own group
+const box = (w, h, d, m, x, y, z, parent = root) => {
   const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
   g.position.set(x + w / 2, y + h / 2, z + d / 2); g.castShadow = g.receiveShadow = true; parent.add(g); return g;
 };
 
-// Room: floor, the wall with its sloping ceiling, and the window side.
-box(870, 2, 420, M.floor, -40, -2, -10);
-// The end of the room behind the sofa: a low wall under the slope, with the store room's doorway next to the carts.
-box(4, 120, 200, M.wall, 820, 0, -10);
-box(4, 210, 30, M.wall, 820, 0, 190);
-box(4, 210, 60, mat("#3a3a38"), 821, 0, 220);
-box(4, 210, 130, M.wall, 820, 0, 280);
-// Living room furniture, only for orientation: the sofa with its back to the carts, and the marble coffee table.
+/* ---------- The room, measured from Simon's LiDAR scan ----------
+   x runs along the kitchen from the balcony wall (−68) to the low wall under the slope (485),
+   z from the kitchen wall (0) across the room to the TV wall (428). The corner with the carts
+   reaches a bit further, to 483, and the doorway to the hall is in its far wall.
+   The ceiling is 287 cm in the middle and slopes down to 200 at the balcony and to 97 at the low wall.
+   From the scan's metres to these cm: x = 485 + (scanZ − 2.58) · 100, z = (2.38 − scanX) · 100. */
+const ROOM = { x0: -68, x1: 485, tv: 428, corner: 483, hallX: [277, 377] };
+const ceil = x => x < 77 ? 200 + (x - ROOM.x0) * 87 / 145 : x < 179 ? 287 : 287 - (x - 179) * .62;
+// A wall seen from the side: a shape from x0 to x1 that follows the ceiling.
+function profile(x0, x1, top = ceil) {
+  const sh = new THREE.Shape(); sh.moveTo(x0, 0); sh.lineTo(x1, 0);
+  for (const x of [x1, ...[179, 77].filter(b => b > x0 && b < x1), x0]) sh.lineTo(x, top(x));
+  sh.closePath(); return sh;
+}
+const slab = (sh, m, z) => { const g = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 4, bevelEnabled: false }), m); g.position.z = z; g.castShadow = g.receiveShadow = true; scene.add(g); return g; };
+// Walls between the camera and the room are hidden, as in a doll's house.
+const sides = []; // {meshes, at: point on the wall, out: normal pointing out of the room}
+const side = (out, at, ...meshes) => sides.push({ out: new THREE.Vector3(...out), at: new THREE.Vector3(...at), meshes });
+function hideWalls() {
+  const v = new THREE.Vector3();
+  for (const w of sides) { const show = v.copy(camera.position).sub(w.at).dot(w.out) < 0; for (const m of w.meshes) m.visible = show; }
+}
+
+box(ROOM.x1 - ROOM.x0, 2, ROOM.tv, M.floor, ROOM.x0, -2, 0);
+box(ROOM.x1 - ROOM.hallX[0], 2, ROOM.corner - ROOM.tv, M.floor, ROOM.hallX[0], -2, ROOM.tv);
+box(ROOM.hallX[1] - ROOM.hallX[0], 2, 110, mat("#B49C80"), ROOM.hallX[0], -2.4, ROOM.corner); // hall floor through the doorway
+// the kitchen wall
+slab(profile(ROOM.x0, ROOM.x1), M.wall, -4);
+// balcony wall with the door and a window
+const glassBlue = new THREE.MeshStandardMaterial({ color: "#2f4a66", roughness: .15, metalness: .2 });
+side([-1, 0, 0], [ROOM.x0, 0, 0],
+  box(4, 200, ROOM.tv, M.wall, ROOM.x0 - 4, 0, 0),
+  box(1, 200, 90, mat("#E7E2D9"), ROOM.x0, 0, 85), box(1.6, 188, 78, glassBlue, ROOM.x0, 6, 91),
+  box(1.6, 80, 90, glassBlue, ROOM.x0, 95, 285));
+// the low wall under the slope, behind the sofa and the carts
+side([1, 0, 0], [ROOM.x1, 0, 0], box(4, ceil(ROOM.x1), ROOM.corner, M.wall, ROOM.x1, 0, 0));
+// TV wall, ending where the corner by the carts begins
+const tvWall = slab(profile(ROOM.x0, ROOM.hallX[0] - 5), M.wall, ROOM.tv);
+side([0, 0, 1], [0, 0, ROOM.tv], tvWall, box(4, ceil(ROOM.hallX[0] - 5), ROOM.corner - ROOM.tv, M.wall, ROOM.hallX[0] - 9, 0, ROOM.tv));
+// far wall of the corner: the doorway to the hall, then the wall behind the white cart
+const doorTop = x => Math.min(205, ceil(x));
+const cornerWall = slab(profile(ROOM.hallX[1], ROOM.x1), M.wall, ROOM.corner);
+const frameM = mat("#E7E2D9");
+side([0, 0, 1], [0, 0, ROOM.corner], cornerWall,
+  box(4, doorTop(ROOM.hallX[0]), 6, frameM, ROOM.hallX[0], 0, ROOM.corner - 1),
+  box(4, doorTop(ROOM.hallX[1]), 6, frameM, ROOM.hallX[1] - 4, 0, ROOM.corner - 1));
+// the sloping ceilings, hidden when the camera is above them
+function quad(pts, m) {
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pts.flat(), 3));
+  g.setIndex([0, 1, 2, 0, 2, 3]); g.computeVertexNormals();
+  const q = new THREE.Mesh(g, m); q.receiveShadow = true; scene.add(q); return q;
+}
+const roofM = new THREE.MeshStandardMaterial({ color: "#F4F1EC", emissive: "#77726b", roughness: .9, side: THREE.DoubleSide });
+function roof(xa, xb, z0, z1) {
+  const ya = ceil(xa), yb = ceil(xb), up = new THREE.Vector3(-(yb - ya), xb - xa, 0).normalize();
+  if (up.y < 0) up.negate();
+  const q = quad([[xa, ya, z0], [xb, yb, z0], [xb, yb, z1], [xa, ya, z1]], roofM);
+  side([up.x, up.y, up.z], [xa, ya, 0], q); return q;
+}
+roof(179, ROOM.x1, 0, ROOM.corner);
+roof(ROOM.x0, 77, 0, ROOM.tv);
+// a roof window over the sofa, as in the photos
+{ const xa = 360, xb = 430, d = -1.5; side([.53, .85, 0], [xa, ceil(xa), 0], quad([[xa, ceil(xa) + d, 240], [xb, ceil(xb) + d, 240], [xb, ceil(xb) + d, 310], [xa, ceil(xa) + d, 310]], new THREE.MeshStandardMaterial({ color: "#2f4a66", side: THREE.DoubleSide }))); }
+
+// Living room, only for orientation. The sofa has its back to the low wall and faces the balcony.
 const sofaM = mat("#E9E4DA");
-box(95, 42, 210, sofaM, 620, 0, 100); box(22, 78, 210, sofaM, 700, 0, 100);
-box(95, 60, 20, sofaM, 620, 0, 80); box(95, 60, 20, sofaM, 620, 0, 310);
-box(70, 44, 120, mat("#DCD6CC"), 510, 0, 150);
-const wallShape = new THREE.Shape();
-wallShape.moveTo(-40, 0); wallShape.lineTo(550, 0); wallShape.lineTo(550, 110); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
-const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: 4, bevelEnabled: false }), M.wall);
-wall.position.z = -4; wall.receiveShadow = true; scene.add(wall);
+box(102, 42, 150, sofaM, 341, 0, 206); box(24, 78, 150, sofaM, 419, 0, 206);
+box(80, 60, 16, sofaM, 341, 0, 206); box(80, 60, 16, sofaM, 341, 0, 340);
+box(63, 46, 118, mat("#DCD6CC"), 270, 0, 180); // marble coffee table
+// TV on a low sideboard against the TV wall, and the floor lamp by the doorway
+// (hidden with the TV wall, so they do not stand in the way when looking at the kitchen)
+{ const l = new THREE.Mesh(new THREE.CylinderGeometry(9, 14, 20, 20, 1, true), new THREE.MeshStandardMaterial({ color: "#f1c48a", emissive: "#a8631a", emissiveIntensity: .35, side: THREE.DoubleSide })); l.position.set(243.5, 128, 413.5); scene.add(l);
+  sides.find(w => w.meshes.includes(tvWall)).meshes.push(l,
+    box(160, 62, 35, mat("#ECE9E2"), 77, 0, 393),
+    box(122, 70, 5, mat("#1d1d1d"), 96, 90, 420), box(4, 28, 4, mat("#1d1d1d"), 155, 62, 421),
+    box(3, 120, 3, mat("#6b5a45"), 242, 0, 412)); }
+// dining table by the balcony with four chairs and the big fabric lamp
+box(180, 4, 90, mat("#C99B68"), 5, 72, 205);
+for (const [x, z] of [[9, 209], [177, 209], [9, 287], [177, 287]]) box(4, 72, 4, mat("#A87C4F"), x, 0, z);
+for (const [x, z, f] of [[35, 160, 1], [115, 160, 1], [35, 300, -1], [115, 300, -1]]) {
+  box(42, 3, 40, mat("#2a2a2a"), x, 44, z);
+  box(42, 34, 3, mat("#2a2a2a"), x, 50, f > 0 ? z : z + 37);
+  for (const dx of [0, 39]) box(2, 44, 2, M.steel, x + dx, 0, z + 19);
+}
+{ const shade = new THREE.Mesh(new THREE.CylinderGeometry(16, 34, 24, 28, 1, true), new THREE.MeshStandardMaterial({ color: "#d6cfc4", emissive: "#6b5a40", emissiveIntensity: .25, side: THREE.DoubleSide, roughness: 1 })); shade.position.set(95, 178, 250); scene.add(shade);
+  box(.6, 95, .6, mat("#888"), 95, 190, 250); }
 
 const pickables = []; // meshes that open a zone
 const movers = [];    // {mesh, kind, open: fn}
@@ -226,11 +298,14 @@ function surface(zoneId, w, d, x, y, z) {
   // an invisible hit area over a counter or shelf, highlighted when chosen
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, 1, d), new THREE.MeshBasicMaterial({ color: "#E63B1F", transparent: true, opacity: 0 }));
   m.position.set(x + w / 2, y + 0.6, z + d / 2); m.userData.zone = zoneId; m.userData.surface = true;
-  scene.add(m); pickables.push(m); return m;
+  root.add(m); pickables.push(m); return m;
 }
 
+/* The kitchen is drawn unit by unit at the widths read from the photos, then squeezed along the wall to the
+   length the scan measured (485 cm from the open shelves to the low wall). */
+const K = new THREE.Group(); K.scale.x = 485 / 530; scene.add(K); root = K;
 // Base run. Each unit is a carcass on a plinth; fronts sit at z = DEPTH.
-const base = new THREE.Group(); base.position.z = DEPTH; scene.add(base);
+const base = new THREE.Group(); base.position.z = DEPTH; K.add(base);
 const carcass = (x, w) => box(w, BASE_H - PLINTH - TOP, DEPTH - 2, M.body, x, PLINTH, 0);
 const plinth = (x, w) => box(w, PLINTH, DEPTH - 6, M.body, x, 0, 0);
 const twoDrawers = (x, w, a, b) => {
@@ -273,7 +348,7 @@ surface(Z.bankdisk, 120, DEPTH, 230, BASE_H, 0);
 surface(Z.bankkaffe, 120, DEPTH, 350, BASE_H, 0);
 
 // Upper cabinets over the hob, with the hood underneath the first one.
-const upper = new THREE.Group(); upper.position.z = UP_D; scene.add(upper);
+const upper = new THREE.Group(); upper.position.z = UP_D; K.add(upper);
 box(60, UP_H, UP_D - 2, M.body, 130, UP_Y, 0);
 box(140, UP_H, UP_D - 2, M.body, 190, UP_Y, 0);
 upper.add(front(Z.over1, 60, UP_H, 130, UP_Y, "door", "left"));
@@ -283,13 +358,13 @@ box(58, 4, UP_D - 4, M.steel, 131, UP_Y - 4, 2);
 surface(Z.ovanpa, 200, UP_D, 130, UP_Y + UP_H, 0);
 // a few pans on top, as in the photos
 for (const [x, c] of [[150, "#b87333"], [175, "#c9cbcd"], [205, "#b87333"]]) {
-  const p = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 6, 24), mat(c)); p.position.set(x, UP_Y + UP_H + 3, 16); p.castShadow = true; scene.add(p);
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 6, 24), mat(c)); p.position.set(x, UP_Y + UP_H + 3, 16); p.castShadow = true; K.add(p);
 }
 
 // Wall shelf and knife strip.
-box(130, 2.4, 26, M.shelf, 330, 190, 0);
-for (const x of [350, 395, 440]) box(3, 22, 18, M.shelf, x, 168, 0);
-surface(Z.vagghylla, 130, 26, 330, 192, 0);
+box(100, 2.4, 26, M.shelf, 332, 150, 0);
+for (const x of [345, 415]) box(3, 22, 18, M.shelf, x, 128, 0);
+surface(Z.vagghylla, 100, 26, 332, 152, 0);
 box(32, 3, 2, M.wood, 94, 120, 0);
 for (let i = 0; i < 6; i++) box(1.6, 18, 1, M.steel, 96 + i * 5, 112, 2);
 const knives = box(34, 26, 6, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }), 93, 108, 0); knives.userData.zone = Z.knivlist; pickables.push(knives);
@@ -298,39 +373,45 @@ const knives = box(34, 26, 6, new THREE.MeshBasicMaterial({ transparent: true, o
 const prop = (w, h, d, c, x, z) => box(w, h, d, mat(c), x, BASE_H, z);
 prop(14, 30, 16, "#1d1d1d", 395, 22);     // coffee maker
 prop(16, 40, 18, "#262626", 412, 22);     // Vitamix
-for (const x of [458, 468, 478]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 28, 12), new THREE.MeshStandardMaterial({ color: "#dfe7e6", roughness: .1, transparent: true, opacity: .7 })); b.position.set(x, BASE_H + 13, 18); scene.add(b); }
+for (const x of [458, 468, 478]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 28, 12), new THREE.MeshStandardMaterial({ color: "#dfe7e6", roughness: .1, transparent: true, opacity: .7 })); b.position.set(x, BASE_H + 13, 18); K.add(b); }
 prop(24, 10, 14, "#e8dcc0", 432, 30); prop(26, 8, 12, "#222222", 500, 26);
 prop(14, 24, 14, "#ffffff", 200, 10);      // flour jar
-for (const x of [262, 268]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 16, 12), mat("#5a2e12")); b.position.set(x, BASE_H + 8, 12); scene.add(b); }
-const tap = new THREE.Mesh(new THREE.TorusGeometry(8, 1.2, 8, 24, Math.PI), M.steel); tap.position.set(300, BASE_H + 22, 12); tap.rotation.y = Math.PI / 2; scene.add(tap);
+for (const x of [262, 268]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 16, 12), mat("#5a2e12")); b.position.set(x, BASE_H + 8, 12); K.add(b); }
+const tap = new THREE.Mesh(new THREE.TorusGeometry(8, 1.2, 8, 24, Math.PI), M.steel); tap.position.set(300, BASE_H + 22, 12); tap.rotation.y = Math.PI / 2; K.add(tap);
 box(2.4, 22, 2.4, M.steel, 299, BASE_H, 11);
+root = scene;
 
-/* The two carts in the corner by the sofa, a few metres to the right of the kitchen seen from the room,
-   against the side wall and facing the kitchen. Placement is approximate. */
-const carts = new THREE.Group(); carts.position.set(818, 0, 0); carts.rotation.y = -Math.PI / 2; scene.add(carts);
-const cbox = (w, h, d, m, x, y, z) => box(w, h, d, m, x, y, z, carts);
-const csurface = (zoneId, w, d, x, y, z) => { const m = surface(zoneId, w, d, x, y, z); scene.remove(m); carts.add(m); return m; };
-// wooden cart: open frame with two shelves and a top, nearest the kitchen
-for (const [x, z] of [[0, 0], [96, 0], [0, 36], [96, 36]]) cbox(4, 72, 4, M.wood, x, 4, z);
-for (const y of [14, 44]) cbox(100, 2.4, 40, M.wood, 0, y, 0);
-cbox(100, 2.4, 40, M.wood, 0, 72, 0);
-csurface(Z.vagn2, 100, 40, 0, 16, 0); csurface(Z.vagn1, 100, 40, 0, 46, 0);
-cbox(40, 18, 30, mat("#ffffff"), 6, 46.5, 4); cbox(26, 16, 22, M.steel, 56, 46.5, 8);
-cbox(22, 26, 22, mat("#e9e6df"), 10, 16.5, 8); cbox(28, 18, 26, M.steel, 52, 16.5, 6);
-// white cart: a tall white panel, then the Rofco on a low white cabinet, next to the store-room door
+/* The two carts in the corner past the end of the sofa, seen from the dining table: the wooden cart against
+   the low wall, partly behind the sofa's end, the white cart with the Rofco in front of it in the corner, and the
+   doorway to the hall beside them. Both face the balcony. Each is built along its own x (its width) and z (out
+   to its front), then turned so the front faces the room. */
+const cart = (x, z) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -Math.PI / 2; scene.add(g); return g; };
+const cboxIn = g => (w, h, d, m, x, y, z) => box(w, h, d, m, x, y, z, g);
+const csurfaceIn = g => (zoneId, w, d, x, y, z) => { const m = surface(zoneId, w, d, x, y, z); scene.remove(m); g.add(m); return m; };
+// wooden cart: open frame with two shelves and a top
+const wood = cart(ROOM.x1 - 4, 312), wbox = cboxIn(wood), wsurf = csurfaceIn(wood);
+for (const [x, z] of [[0, 0], [86, 0], [0, 36], [86, 36]]) wbox(4, 72, 4, M.wood, x, 4, z);
+// the boards themselves open their shelf too, so a tap anywhere on them works
+for (const [y, z] of [[14, Z.vagn2], [44, Z.vagn1], [72, Z.vagn1]]) { const b = wbox(90, 2.4, 40, M.wood, 0, y, 0); b.material = M.wood.clone(); b.userData.zone = z; pickables.push(b); }
+wsurf(Z.vagn2, 90, 40, 0, 16, 0); wsurf(Z.vagn1, 90, 40, 0, 46, 0);
+wbox(40, 18, 30, mat("#ffffff"), 6, 46.5, 4); wbox(26, 16, 22, M.steel, 52, 46.5, 8);
+wbox(22, 26, 22, mat("#e9e6df"), 10, 16.5, 8); wbox(28, 18, 26, M.steel, 50, 16.5, 6);
+// white cart: a tall white panel, then the Rofco on a low white cabinet, against the corner's far wall.
+// It is taller than the low wall, so the slope keeps it about half a metre out from it.
+const whiteCart = cart(431, ROOM.corner - 92), cbox = cboxIn(whiteCart), csurface = csurfaceIn(whiteCart);
 const white = mat("#F2F1EC");
-cbox(44, 100, 44, white, 102, 0, 0);
-cbox(48, 60, 44, white, 146, 0, 0);
-const rcDoor = new THREE.Group(); rcDoor.position.z = 44; carts.add(rcDoor);
-rcDoor.add(front(Z.rofcoskap, 48, 58, 146, 1, "door", "right"));
+cbox(44, 100, 44, white, 0, 0, 0);
+cbox(48, 60, 44, white, 44, 0, 0);
+const rcDoor = new THREE.Group(); rcDoor.position.z = 44; whiteCart.add(rcDoor);
+rcDoor.add(front(Z.rofcoskap, 48, 58, 44, 1, "door", "right"));
 movers[movers.length - 1].mesh.material.color.set("#F2F1EC");
-cbox(48, 40, 44, M.steel, 146, 60, 0);
-const rofcoDoor = cbox(40, 24, 1.5, M.steel, 150, 63, 44); rofcoDoor.userData.zone = Z.rofco; pickables.push(rofcoDoor);
-cbox(3, 14, 2, M.black, 153, 68, 45.5);
+cbox(48, 40, 44, M.steel, 44, 60, 0);
+const rofcoDoor = cbox(40, 24, 1.5, M.steel, 48, 63, 44); rofcoDoor.userData.zone = Z.rofco; pickables.push(rofcoDoor);
+cbox(3, 14, 2, M.black, 51, 68, 45.5);
 const win = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 1, 20), new THREE.MeshStandardMaterial({ color: "#f2b25b", emissive: "#a05a10", emissiveIntensity: .4 }));
-win.rotation.x = Math.PI / 2; win.position.set(172, 75, 46); carts.add(win);
-cbox(48, 2, 44, M.black, 146, 100, 0);
-csurface(Z.ovanrofco, 48, 44, 146, 101, 0);
+win.rotation.x = Math.PI / 2; win.position.set(70, 75, 46); whiteCart.add(win);
+cbox(48, 2, 44, M.black, 44, 100, 0);
+csurface(Z.ovanrofco, 48, 44, 44, 101, 0);
 
 /* ---------- Picking and opening ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
@@ -344,18 +425,21 @@ renderer.domElement.addEventListener("pointerup", e => {
   if (hit) select(hit.object.userData.zone); else if (mode !== "moves") select(null);
 });
 // The place chips move the camera to the kitchen or to the carts.
-const PLACES = { kok: { target: [255, 120, 20] }, vagnar: { target: [800, 55, 95], from: [280, 430, 250] }, allt: { target: [400, 0, 170], from: [1250, 1250, 180] } };
+// Each view looks at a target from a direction, far enough back that `half` cm on each side fits the screen.
+const PLACES = { kok: { target: KC }, vagnar: { target: [420, 60, 400], dir: [-.55, .72, -.42], half: 150 }, allt: { target: [210, 0, 240], dir: [.46, .74, .49], half: 330 } };
 let fly = null;
 function goTo(name) {
   if (name === "kok") { frame(); aim = new THREE.Vector3(...PLACES.kok.target); return; }
-  const p = PLACES[name]; aim = new THREE.Vector3(...p.target); fly = new THREE.Vector3(...p.from);
+  const p = PLACES[name], vfov = camera.fov * Math.PI / 180, hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
+  const d = Math.max(p.half / Math.tan(hfov / 2), p.half * .8 / Math.tan(vfov / 2));
+  aim = new THREE.Vector3(...p.target); fly = aim.clone().addScaledVector(new THREE.Vector3(...p.dir).normalize(), d);
 }
 // When a zone opens, the camera turns toward it and the picture moves up above the sheet.
 let aim = null;
 function select(id) {
   selected = id;
   const hitMesh = pickables.find(p => p.userData.zone === id);
-  aim = hitMesh ? hitMesh.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(255, 120, 20);
+  if (hitMesh) aim = hitMesh.getWorldPosition(new THREE.Vector3()); // closing keeps the view where it is
   for (const m of movers) m.target = m.zone === id ? 1 : 0;
   for (const p of pickables) {
     if (p.userData.surface) p.material.opacity = p.userData.zone === id ? .28 : 0;
@@ -374,6 +458,7 @@ function loop() {
   if (aim) { controls.target.lerp(aim, Math.min(1, dt * 4)); if (controls.target.distanceTo(aim) < .5) aim = null; }
   if (fly) { camera.position.lerp(fly, Math.min(1, dt * 4)); if (camera.position.distanceTo(fly) < 1) fly = null; }
   controls.update();
+  hideWalls();
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
