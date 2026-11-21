@@ -97,7 +97,9 @@ const Z = {
   bankspis: zone("bankspis", "Bänken vid spisen", "Bänken"),
   bankdisk: zone("bankdisk", "Bänken vid diskhon", "Bänken"),
   bankkaffe:zone("bankkaffe","Bänken vid kaffet", "Bänken"),
-  vinkyl:   zone("vinkyl",   "Vinkylen", "Vid kaffet"),
+  vinkyl:   zone("vinkyl",   "Vinkylen", "Hörnet"),
+  vitskap:  zone("vitskap",  "Smala vita skåpet i hörnet", "Hörnet"),
+  bankhorn: zone("bankhorn", "Träskivan över vinkylen", "Hörnet"),
 };
 
 // What the photos show today. The rest is filled in as more photos come.
@@ -110,13 +112,18 @@ const SEED = [
   ["Knivar", Z.knivlist],
   ["Mjölburk", Z.bankspis], ["Hushållspapper", Z.bankspis], ["Pepparkvarn", Z.bankspis], ["Redskap i kruka", Z.bankspis],
   ["Handtvål", Z.bankdisk], ["Diskmedel", Z.bankdisk], ["Diskborste", Z.bankdisk],
-  ["Kaffebryggare", Z.bankkaffe], ["Vitamix", Z.bankkaffe], ["Flaskor med lock", Z.bankkaffe], ["Bricka", Z.bankkaffe],
+  ["Kaffebryggare", Z.bankkaffe], ["Vitamix", Z.bankkaffe], ["Kaffepaket", Z.bankkaffe],
+  ["Glasflaskor med patentlock", Z.bankhorn], ["Bricka", Z.bankhorn], ["Matlåda", Z.bankhorn], ["Små plastburkar", Z.bankhorn],
+  ["Springform", Z.bankhorn], ["Påsar med torrvaror", Z.bankhorn], ["Svart låda", Z.bankhorn],
+  ["Vin", Z.vinkyl],
 ];
 
 /* ---------- State, saved in this browser ---------- */
 const KEY = "kok-v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch(e) { return null; } };
 let state = load() || { items: SEED.map(([name, z], i) => ({ id: "i" + i, name, now: z, plan: z, done: false })) };
+// Things added to the starting list later reach a saved kitchen too, without touching what is already there.
+for (const [name, z] of SEED) if (!state.items.some(it => it.name === name)) state.items.push({ id: "s" + name.replace(/\W/g, ""), name, now: z, plan: z, done: false });
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
 let mode = "nu";
 const where = it => mode === "plan" ? it.plan : it.now;
@@ -135,12 +142,12 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 5000
 // Step back far enough that the whole run, about 480 cm, fits the screen width, also on a phone held upright.
 function frame() {
   const vfov = camera.fov * Math.PI / 180, hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
-  const d = Math.max(260 / Math.tan(hfov / 2), 170 / Math.tan(vfov / 2));
-  camera.position.set(235 - d * .25, 150 + d * .22, 20 + d);
+  const d = Math.max(285 / Math.tan(hfov / 2), 170 / Math.tan(vfov / 2));
+  camera.position.set(255 - d * .25, 150 + d * .22, 20 + d);
 }
 frame();
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(235, 120, 20);
+controls.target.set(255, 120, 20);
 controls.enableDamping = true;
 controls.minDistance = 80; controls.maxDistance = 1600;
 controls.maxPolarAngle = Math.PI * 0.55;
@@ -166,9 +173,9 @@ const box = (w, h, d, m, x, y, z, parent = scene) => {
 };
 
 // Room: floor, the wall with its sloping ceiling, and the window side.
-box(560, 2, 320, M.floor, -40, -2, -10);
+box(590, 2, 320, M.floor, -40, -2, -10);
 const wallShape = new THREE.Shape();
-wallShape.moveTo(-40, 0); wallShape.lineTo(520, 0); wallShape.lineTo(520, 120); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
+wallShape.moveTo(-40, 0); wallShape.lineTo(550, 0); wallShape.lineTo(550, 110); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
 const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: 4, bevelEnabled: false }), M.wall);
 wall.position.z = -4; wall.receiveShadow = true; scene.add(wall);
 
@@ -227,10 +234,16 @@ twoDrawers(190, 80, Z.spis1, Z.spis2);
 twoDrawers(270, 60, Z.disk1, Z.disk2);
 twoDrawers(330, 60, Z.mitt1, Z.mitt2);
 twoDrawers(390, 40, Z.kaffe1, Z.kaffe2);
-// wine fridge
-box(40, BASE_H - TOP, DEPTH - 2, M.black, 430, 0, 0);
-const wine = box(36, 70, 1, M.glass, 432, 8, DEPTH - 1); wine.userData.zone = Z.vinkyl; pickables.push(wine);
-box(40, 3, DEPTH, M.wood, 430, BASE_H - TOP, 0);
+// The corner: a wine fridge with a steel frame and glass door, then a narrow white cabinet, under one wooden top.
+box(60, BASE_H - TOP - 2, DEPTH - 2, M.black, 432, 0, 0);
+box(58, 80, 1.5, M.steel, 433, 2, DEPTH - 1);
+const wine = box(46, 66, 1, M.glass, 439, 8, DEPTH + .6); wine.userData.zone = Z.vinkyl; pickables.push(wine);
+box(1.6, 50, 2.4, M.steel, 436, 18, DEPTH + 1);
+box(36, BASE_H - TOP - 2, DEPTH - 2, M.body, 494, 0, 0);
+base.add(front(Z.vitskap, 36, BASE_H - TOP - 4, 494, 2, "door", "right"));
+movers[movers.length - 1].mesh.material.color.set("#F2F1EC"); // this one is a plain white door
+box(100, 3, DEPTH + 2, M.wood, 430, BASE_H - TOP - 2, 0);
+surface(Z.bankhorn, 100, DEPTH, 430, BASE_H - 2, 0);
 // stone counter with sink and hob
 box(340, TOP, DEPTH + 2, M.stone, 90, BASE_H - TOP, 0);
 box(60, 0.6, 50, M.black, 132, BASE_H + 0.1, 5);
@@ -265,7 +278,8 @@ const knives = box(34, 26, 6, new THREE.MeshBasicMaterial({ transparent: true, o
 const prop = (w, h, d, c, x, z) => box(w, h, d, mat(c), x, BASE_H, z);
 prop(14, 30, 16, "#1d1d1d", 395, 22);     // coffee maker
 prop(16, 40, 18, "#262626", 412, 22);     // Vitamix
-for (const x of [434, 442, 450]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 26, 12), mat("#d9a441")); b.position.set(x, BASE_H + 16, 20); scene.add(b); }
+for (const x of [458, 468, 478]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 28, 12), new THREE.MeshStandardMaterial({ color: "#dfe7e6", roughness: .1, transparent: true, opacity: .7 })); b.position.set(x, BASE_H + 13, 18); scene.add(b); }
+prop(24, 10, 14, "#e8dcc0", 432, 30); prop(26, 8, 12, "#222222", 500, 26);
 prop(14, 24, 14, "#ffffff", 200, 10);      // flour jar
 for (const x of [262, 268]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 16, 12), mat("#5a2e12")); b.position.set(x, BASE_H + 8, 12); scene.add(b); }
 const tap = new THREE.Mesh(new THREE.TorusGeometry(8, 1.2, 8, 24, Math.PI), M.steel); tap.position.set(300, BASE_H + 22, 12); tap.rotation.y = Math.PI / 2; scene.add(tap);
@@ -287,7 +301,7 @@ let aim = null;
 function select(id) {
   selected = id;
   const hitMesh = pickables.find(p => p.userData.zone === id);
-  aim = hitMesh ? hitMesh.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(235, 120, 20);
+  aim = hitMesh ? hitMesh.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(255, 120, 20);
   for (const m of movers) m.target = m.zone === id ? 1 : 0;
   for (const p of pickables) {
     if (p.userData.surface) p.material.opacity = p.userData.zone === id ? .28 : 0;
