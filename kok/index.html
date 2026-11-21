@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Köket</title>
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap">
+<style>
+/* Kitchen planner: a simplified 3D model of the kitchen. Tap a drawer, door or surface to see what is in it,
+   add things and plan where they should go. "Nu" is where things are today, "Plan" where they should be,
+   and "Flyttlista" lists every move between the two. Saved in this browser. */
+:root { --bg: #F3F2EF; --surface: #FBFAF8; --ink: #1B1A18; --muted: #7A776F; --line: #DEDCD6; --accent: #4A2212; --hi: #E63B1F; --display: "Google Sans", system-ui, sans-serif; }
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.4 var(--display); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+[hidden] { display: none !important; }
+.bar { position: fixed; z-index: 5; top: 0; left: 0; right: 0; padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px; display: flex; align-items: center; gap: 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.back { font-weight: 500; white-space: nowrap; color: var(--ink); text-decoration: none; }
+.title { flex: 1; font-weight: 600; font-size: 1.1rem; }
+.modes { position: fixed; z-index: 5; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 62px); display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 3px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.modes button { padding: 7px 14px; border-radius: 18px; font-size: .92rem; font-weight: 500; color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--accent); color: #F9E27D; }
+#view { position: fixed; inset: 0; touch-action: none; }
+.hint { position: fixed; z-index: 4; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); text-align: center; font-size: .85rem; color: var(--muted); pointer-events: none; }
+.sheet { position: fixed; z-index: 6; left: 0; right: 0; bottom: 0; max-height: 62%; display: flex; flex-direction: column; background: var(--surface); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.12); padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 14px); animation: up .25s ease-out; }
+@keyframes up { from { transform: translateY(100%); } }
+.sheet-head { display: flex; align-items: baseline; gap: 10px; }
+.sheet-head h2 { flex: 1; font-size: 1.15rem; font-weight: 600; }
+.sheet-head .sub { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.close { width: 36px; height: 36px; border-radius: 18px; background: var(--bg); font-size: 1.2rem; line-height: 1; }
+.list { overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.item:first-child { border-top: 0; }
+.item .name { flex: 1; }
+.item .moved { font-size: .78rem; color: var(--hi); }
+.item select { font: inherit; font-size: .85rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); max-width: 46%; }
+.item .del { color: var(--muted); font-size: 1.1rem; padding: 4px 6px; }
+.empty { color: var(--muted); padding: 10px 0; font-size: .95rem; }
+.add { display: flex; gap: 8px; margin-top: 10px; }
+.add input { flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.add button { padding: 0 16px; border-radius: 12px; background: var(--accent); color: #F9E27D; font-weight: 500; }
+.moves .item { align-items: flex-start; }
+.moves input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); }
+.moves .what { font-weight: 500; }
+.moves .route { font-size: .85rem; color: var(--muted); }
+.tools { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.tools button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; font-size: .88rem; background: var(--bg); }
+.toast { position: fixed; z-index: 9; left: 50%; bottom: 90px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 12px; font-size: .9rem; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+</head>
+<body>
+<div class="bar"><a class="back" href="../">← RECIPES</a><span class="title">Köket</span></div>
+<div class="modes" role="group" aria-label="Läge">
+  <button data-mode="nu" aria-pressed="true">Nu</button>
+  <button data-mode="plan" aria-pressed="false">Plan</button>
+  <button data-mode="moves" aria-pressed="false">Flyttlista</button>
+</div>
+<div id="view"></div>
+<p class="hint" id="hint">Dra för att rotera, nyp för att zooma. Tryck på en låda, ett skåp eller en yta.</p>
+<div class="sheet" id="sheet" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+/* ---------- The kitchen, in cm, left to right along the wall (x), up (y) and out from the wall (z). ---------- */
+const BASE_H = 86, PLINTH = 10, TOP = 4, DEPTH = 60, UP_Y = 145, UP_H = 72, UP_D = 35, TALL_H = 222;
+const ZONES = []; // {id, name, group}
+const zone = (id, name, group) => { ZONES.push({ id, name, group }); return id; };
+
+// Storage zones. Names follow how you would say it in the kitchen.
+const Z = {
+  hyllor:   zone("hyllor",   "Öppna hyllor vid fönstret", "Högskåpet"),
+  hog:      zone("hog",      "Högskåpet", "Högskåpet"),
+  smal1:    zone("smal1",    "Smala lådan vänster, övre", "Vid spisen"),
+  smal2:    zone("smal2",    "Smala lådan vänster, nedre", "Vid spisen"),
+  ugnlada:  zone("ugnlada",  "Lådan under ugnen", "Vid spisen"),
+  spis1:    zone("spis1",    "Breda lådan höger om ugnen, övre", "Vid spisen"),
+  spis2:    zone("spis2",    "Breda lådan höger om ugnen, nedre", "Vid spisen"),
+  disk1:    zone("disk1",    "Under diskhon, övre", "Vid diskhon"),
+  disk2:    zone("disk2",    "Under diskhon, nedre", "Vid diskhon"),
+  mitt1:    zone("mitt1",    "Mittenlådan, övre", "Vid diskhon"),
+  mitt2:    zone("mitt2",    "Mittenlådan, nedre", "Vid diskhon"),
+  kaffe1:   zone("kaffe1",   "Lådan vid kaffet, övre", "Vid kaffet"),
+  kaffe2:   zone("kaffe2",   "Lådan vid kaffet, nedre", "Vid kaffet"),
+  over1:    zone("over1",    "Överskåpet vid fläkten", "Överskåp"),
+  over2:    zone("over2",    "Dubbla överskåpet", "Överskåp"),
+  ovanpa:   zone("ovanpa",   "Ovanpå överskåpen", "Överskåp"),
+  vagghylla:zone("vagghylla","Vägghyllan", "Väggen"),
+  knivlist: zone("knivlist", "Knivlisten", "Väggen"),
+  bankspis: zone("bankspis", "Bänken vid spisen", "Bänken"),
+  bankdisk: zone("bankdisk", "Bänken vid diskhon", "Bänken"),
+  bankkaffe:zone("bankkaffe","Bänken vid kaffet", "Bänken"),
+  vinkyl:   zone("vinkyl",   "Vinkylen", "Vid kaffet"),
+};
+
+// What the photos show today. The rest is filled in as more photos come.
+const SEED = [
+  ["Kokböcker", Z.hyllor], ["Karaff och glas", Z.hyllor], ["Liten mortel", Z.hyllor], ["Prydnadsföremål", Z.hyllor],
+  ["Dricksglas", Z.over1], ["Termos och flaskor", Z.over1], ["Glasburkar", Z.over1], ["Trälåda", Z.over1], ["Vit förvaringslåda", Z.over1],
+  ["Kastruller och kopparpannor", Z.ovanpa], ["Stor skål", Z.ovanpa],
+  ["Espressokanna (Alessi)", Z.vagghylla], ["Kopparformar", Z.vagghylla], ["Stor mortel", Z.vagghylla], ["Durkslag", Z.vagghylla],
+  ["Lerkrukor", Z.vagghylla], ["Skulptur", Z.vagghylla], ["Skärbrädor", Z.vagghylla], ["Degtråg", Z.vagghylla], ["Pizzaspade", Z.vagghylla],
+  ["Knivar", Z.knivlist],
+  ["Mjölburk", Z.bankspis], ["Hushållspapper", Z.bankspis], ["Pepparkvarn", Z.bankspis], ["Redskap i kruka", Z.bankspis],
+  ["Handtvål", Z.bankdisk], ["Diskmedel", Z.bankdisk], ["Diskborste", Z.bankdisk],
+  ["Kaffebryggare", Z.bankkaffe], ["Vitamix", Z.bankkaffe], ["Flaskor med lock", Z.bankkaffe], ["Bricka", Z.bankkaffe],
+];
+
+/* ---------- State, saved in this browser ---------- */
+const KEY = "kok-v1";
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch(e) { return null; } };
+let state = load() || { items: SEED.map(([name, z], i) => ({ id: "i" + i, name, now: z, plan: z, done: false })) };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
+let mode = "nu";
+const where = it => mode === "plan" ? it.plan : it.now;
+
+/* ---------- Scene ---------- */
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#F3F2EF");
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 5000);
+// Step back far enough that the whole run, about 480 cm, fits the screen width, also on a phone held upright.
+function frame() {
+  const vfov = camera.fov * Math.PI / 180, hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
+  const d = Math.max(260 / Math.tan(hfov / 2), 170 / Math.tan(vfov / 2));
+  camera.position.set(235 - d * .25, 150 + d * .22, 20 + d);
+}
+frame();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(235, 120, 20);
+controls.enableDamping = true;
+controls.minDistance = 80; controls.maxDistance = 1600;
+controls.maxPolarAngle = Math.PI * 0.55;
+controls.update();
+
+scene.add(new THREE.HemisphereLight("#ffffff", "#d8cfc2", 1.6));
+const sun = new THREE.DirectionalLight("#fff4e6", 1.6);
+sun.position.set(-150, 400, 500); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -100, right: 600, top: 400, bottom: -50, near: 10, far: 1500 });
+scene.add(sun);
+
+const mat = c => new THREE.MeshStandardMaterial({ color: c, roughness: .85 });
+const M = {
+  front: mat("#D9DAD2"), body: mat("#CFD0C7"), stone: new THREE.MeshStandardMaterial({ color: "#B8AE9F", roughness: .5 }),
+  wall: mat("#F4F1EC"), floor: mat("#D9C3A3"), black: new THREE.MeshStandardMaterial({ color: "#1d1d1d", roughness: .35 }),
+  steel: new THREE.MeshStandardMaterial({ color: "#c9cbcd", roughness: .3, metalness: .7 }), shelf: mat("#F7F5F0"),
+  wood: mat("#C79F70"), glass: new THREE.MeshStandardMaterial({ color: "#2c3237", roughness: .15, metalness: .3 }),
+};
+const box = (w, h, d, m, x, y, z, parent = scene) => {
+  const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+  g.position.set(x + w / 2, y + h / 2, z + d / 2); g.castShadow = g.receiveShadow = true; parent.add(g); return g;
+};
+
+// Room: floor, the wall with its sloping ceiling, and the window side.
+box(560, 2, 320, M.floor, -40, -2, -10);
+const wallShape = new THREE.Shape();
+wallShape.moveTo(-40, 0); wallShape.lineTo(520, 0); wallShape.lineTo(520, 120); wallShape.lineTo(300, 250); wallShape.lineTo(-40, 250); wallShape.closePath();
+const wall = new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: 4, bevelEnabled: false }), M.wall);
+wall.position.z = -4; wall.receiveShadow = true; scene.add(wall);
+
+const pickables = []; // meshes that open a zone
+const movers = [];    // {mesh, kind, open: fn}
+function front(zoneId, w, h, x, y, kind = "drawer", hinge = "left") {
+  // kind: drawer (slides out) or door (swings on its hinge)
+  const pivot = new THREE.Group();
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, h - 0.6, 2), M.front.clone());
+  mesh.castShadow = mesh.receiveShadow = true;
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 1.6), M.steel);
+  if (kind === "door") {
+    pivot.position.set(hinge === "left" ? x : x + w, y, 0);
+    mesh.position.set((hinge === "left" ? 1 : -1) * w / 2, h / 2, 1);
+    handle.position.set((hinge === "left" ? 1 : -1) * (w - 4), 8, 2.6);
+  } else {
+    pivot.position.set(x, y, 0);
+    mesh.position.set(w / 2, h / 2, 1);
+    handle.position.set(w / 2, h - 5, 2.6);
+  }
+  pivot.add(mesh); pivot.add(handle);
+  mesh.userData.zone = zoneId; handle.userData.zone = zoneId;
+  pickables.push(mesh, handle);
+  movers.push({ zone: zoneId, pivot, kind, hinge, base: pivot.position.clone(), t: 0, target: 0, mesh });
+  return pivot;
+}
+function surface(zoneId, w, d, x, y, z) {
+  // an invisible hit area over a counter or shelf, highlighted when chosen
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, 1, d), new THREE.MeshBasicMaterial({ color: "#E63B1F", transparent: true, opacity: 0 }));
+  m.position.set(x + w / 2, y + 0.6, z + d / 2); m.userData.zone = zoneId; m.userData.surface = true;
+  scene.add(m); pickables.push(m); return m;
+}
+
+// Base run. Each unit is a carcass on a plinth; fronts sit at z = DEPTH.
+const base = new THREE.Group(); base.position.z = DEPTH; scene.add(base);
+const carcass = (x, w) => box(w, BASE_H - PLINTH - TOP, DEPTH - 2, M.body, x, PLINTH, 0);
+const plinth = (x, w) => box(w, PLINTH, DEPTH - 6, M.body, x, 0, 0);
+const twoDrawers = (x, w, a, b) => {
+  carcass(x, w); plinth(x, w);
+  const h = (BASE_H - PLINTH - TOP) / 2;
+  base.add(front(b, w, h, x, PLINTH)); base.add(front(a, w, h, x, PLINTH + h));
+};
+// Open shelves at the window end, the tall cabinet, then the run to the wine fridge.
+box(30, TALL_H, DEPTH, M.body, 0, 0, 0);
+for (let i = 0; i < 6; i++) box(28, 1.6, DEPTH - 4, M.shelf, 1, 12 + i * 38, 2);
+surface(Z.hyllor, 30, DEPTH, 0, 100, 0);
+box(60, TALL_H, DEPTH - 2, M.body, 30, 0, 0);
+base.add(front(Z.hog, 60, TALL_H - PLINTH, 30, PLINTH, "door", "left"));
+twoDrawers(90, 40, Z.smal1, Z.smal2);
+// oven with its drawer, hob above
+box(60, BASE_H - TOP, DEPTH - 2, M.body, 130, 0, 0);
+box(58, 56, 2, M.black, 131, 28, DEPTH - 1);
+box(46, 2, 2, M.steel, 137, 76, DEPTH + 1.5);
+base.add(front(Z.ugnlada, 60, 18, 130, PLINTH));
+twoDrawers(190, 80, Z.spis1, Z.spis2);
+twoDrawers(270, 60, Z.disk1, Z.disk2);
+twoDrawers(330, 60, Z.mitt1, Z.mitt2);
+twoDrawers(390, 40, Z.kaffe1, Z.kaffe2);
+// wine fridge
+box(40, BASE_H - TOP, DEPTH - 2, M.black, 430, 0, 0);
+const wine = box(36, 70, 1, M.glass, 432, 8, DEPTH - 1); wine.userData.zone = Z.vinkyl; pickables.push(wine);
+box(40, 3, DEPTH, M.wood, 430, BASE_H - TOP, 0);
+// stone counter with sink and hob
+box(340, TOP, DEPTH + 2, M.stone, 90, BASE_H - TOP, 0);
+box(60, 0.6, 50, M.black, 132, BASE_H + 0.1, 5);
+box(42, 0.8, 38, M.steel, 279, BASE_H - 0.2, 10);
+surface(Z.bankspis, 140, DEPTH, 90, BASE_H, 0);
+surface(Z.bankdisk, 120, DEPTH, 230, BASE_H, 0);
+surface(Z.bankkaffe, 120, DEPTH, 350, BASE_H, 0);
+
+// Upper cabinets over the hob, with the hood underneath the first one.
+const upper = new THREE.Group(); upper.position.z = UP_D; scene.add(upper);
+box(60, UP_H, UP_D - 2, M.body, 130, UP_Y, 0);
+box(140, UP_H, UP_D - 2, M.body, 190, UP_Y, 0);
+upper.add(front(Z.over1, 60, UP_H, 130, UP_Y, "door", "left"));
+upper.add(front(Z.over2, 70, UP_H, 190, UP_Y, "door", "left"));
+upper.add(front(Z.over2, 70, UP_H, 260, UP_Y, "door", "right"));
+box(58, 4, UP_D - 4, M.steel, 131, UP_Y - 4, 2);
+surface(Z.ovanpa, 200, UP_D, 130, UP_Y + UP_H, 0);
+// a few pans on top, as in the photos
+for (const [x, c] of [[150, "#b87333"], [175, "#c9cbcd"], [205, "#b87333"]]) {
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 6, 24), mat(c)); p.position.set(x, UP_Y + UP_H + 3, 16); p.castShadow = true; scene.add(p);
+}
+
+// Wall shelf and knife strip.
+box(130, 2.4, 26, M.shelf, 330, 190, 0);
+for (const x of [350, 395, 440]) box(3, 22, 18, M.shelf, x, 168, 0);
+surface(Z.vagghylla, 130, 26, 330, 192, 0);
+box(32, 3, 2, M.wood, 94, 120, 0);
+for (let i = 0; i < 6; i++) box(1.6, 18, 1, M.steel, 96 + i * 5, 112, 2);
+const knives = box(34, 26, 6, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }), 93, 108, 0); knives.userData.zone = Z.knivlist; pickables.push(knives);
+
+// Simple stand-ins for what stands on the counter today.
+const prop = (w, h, d, c, x, z) => box(w, h, d, mat(c), x, BASE_H, z);
+prop(14, 30, 16, "#1d1d1d", 395, 22);     // coffee maker
+prop(16, 40, 18, "#262626", 412, 22);     // Vitamix
+for (const x of [434, 442, 450]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 26, 12), mat("#d9a441")); b.position.set(x, BASE_H + 16, 20); scene.add(b); }
+prop(14, 24, 14, "#ffffff", 200, 10);      // flour jar
+for (const x of [262, 268]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 16, 12), mat("#5a2e12")); b.position.set(x, BASE_H + 8, 12); scene.add(b); }
+const tap = new THREE.Mesh(new THREE.TorusGeometry(8, 1.2, 8, 24, Math.PI), M.steel); tap.position.set(300, BASE_H + 22, 12); tap.rotation.y = Math.PI / 2; scene.add(tap);
+box(2.4, 22, 2.4, M.steel, 299, BASE_H, 11);
+
+/* ---------- Picking and opening ---------- */
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let selected = null, downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener("pointerup", e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return; // a drag, not a tap
+  ptr.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(pickables, false)[0];
+  if (hit) select(hit.object.userData.zone); else if (mode !== "moves") select(null);
+});
+// When a zone opens, the camera turns toward it and the picture moves up above the sheet.
+let aim = null;
+function select(id) {
+  selected = id;
+  const hitMesh = pickables.find(p => p.userData.zone === id);
+  aim = hitMesh ? hitMesh.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(235, 120, 20);
+  for (const m of movers) m.target = m.zone === id ? 1 : 0;
+  for (const p of pickables) {
+    if (p.userData.surface) p.material.opacity = p.userData.zone === id ? .28 : 0;
+    else if (p.material && p.material.emissive) p.material.emissive.set(p.userData.zone === id ? "#3a1608" : "#000000");
+  }
+  render();
+}
+const clock = new THREE.Clock();
+function loop() {
+  const dt = Math.min(clock.getDelta(), .05);
+  for (const m of movers) {
+    m.t += (m.target - m.t) * Math.min(1, dt * 9);
+    if (m.kind === "drawer") m.pivot.position.z = m.base.z + m.t * 32;
+    else m.pivot.rotation.y = (m.hinge === "left" ? -1 : 1) * m.t * 1.7;
+  }
+  if (aim) { controls.target.lerp(aim, Math.min(1, dt * 4)); if (controls.target.distanceTo(aim) < .5) aim = null; }
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+loop();
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); frame(); renderer.setSize(innerWidth, innerHeight); });
+
+/* ---------- Sheet: what is in a zone, and the list of moves ---------- */
+const sheet = document.getElementById("sheet"), hint = document.getElementById("hint");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const zoneName = id => (ZONES.find(z => z.id === id) || {}).name || id;
+const options = sel => ZONES.map(z => `<option value="${z.id}"${z.id === sel ? " selected" : ""}>${esc(z.name)}</option>`).join("");
+function shiftView() {
+  const sh = sheet.hidden ? 0 : sheet.offsetHeight;
+  camera.setViewOffset(innerWidth, innerHeight, 0, sh * .45, innerWidth, innerHeight);
+}
+function render() {
+  requestAnimationFrame(shiftView);
+  hint.hidden = !!selected || mode === "moves";
+  if (mode === "moves") return renderMoves();
+  if (!selected) { sheet.hidden = true; return; }
+  const z = ZONES.find(z => z.id === selected);
+  const items = state.items.filter(it => where(it) === selected);
+  sheet.hidden = false;
+  sheet.innerHTML = `
+    <div class="sheet-head"><h2>${esc(z.name)}</h2><span class="sub">${mode === "plan" ? "Plan" : "Nu"}</span><button class="close" data-close aria-label="Stäng">×</button></div>
+    <div class="list">${items.length ? items.map(it => `
+      <div class="item"><span class="name">${esc(it.name)}${mode === "plan" && it.now !== it.plan ? `<br><span class="moved">Flyttas hit från ${esc(zoneName(it.now))}</span>` : ""}</span>
+        <select data-move="${it.id}" aria-label="Flytta ${esc(it.name)}">${options(where(it))}</select>
+        <button class="del" data-del="${it.id}" aria-label="Ta bort">×</button></div>`).join("")
+      : `<p class="empty">${mode === "plan" ? "Inget planerat här än." : "Inget inlagt här än. Lägg till det som finns, eller skicka en bild så fyller jag i."}</p>`}</div>
+    <form class="add" data-add><input name="n" placeholder="Lägg till sak" autocomplete="off"><button>Lägg till</button></form>`;
+}
+function renderMoves() {
+  const moves = state.items.filter(it => it.now !== it.plan || it.done);
+  sheet.hidden = false;
+  sheet.innerHTML = `
+    <div class="sheet-head"><h2>Flyttlista</h2><span class="sub">${moves.filter(m => !m.done).length} kvar</span><button class="close" data-mode-nu aria-label="Stäng">×</button></div>
+    <div class="list moves">${moves.length ? moves.map(it => `
+      <label class="item"><input type="checkbox" data-done="${it.id}"${it.done ? " checked" : ""}>
+        <span><span class="what">${esc(it.name)}</span><br><span class="route">${esc(zoneName(it.done ? it.from : it.now))} → ${esc(zoneName(it.plan))}</span></span></label>`).join("")
+      : `<p class="empty">Inga flyttar än. Byt till Plan och flytta saker dit du vill ha dem.</p>`}</div>
+    <div class="tools"><button data-export>Kopiera data</button><button data-reset>Börja om</button></div>`;
+}
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 1800); }
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button, [data-done]"); if (!t) return;
+  if (t.dataset.mode) {
+    mode = t.dataset.mode;
+    document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+    if (mode === "moves") select(null); else render();
+  }
+  else if ("close" in t.dataset) select(null);
+  else if ("modeNu" in t.dataset) document.querySelector('[data-mode="nu"]').click();
+  else if (t.dataset.del) { state.items = state.items.filter(it => it.id !== t.dataset.del); save(); render(); }
+  else if ("export" in t.dataset) { try { await navigator.clipboard.writeText(JSON.stringify(state)); toast("Kopierat. Klistra in i chatten."); } catch(err) { toast("Kunde inte kopiera"); } }
+  else if ("reset" in t.dataset) { if (confirm("Börja om från bilderna? Allt du har ändrat försvinner.")) { localStorage.removeItem(KEY); location.reload(); } }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.move) {
+    const it = state.items.find(i => i.id === t.dataset.move);
+    if (mode === "plan") it.plan = t.value; else { const old = it.now; it.now = t.value; if (it.plan === old) it.plan = t.value; }
+    save(); render(); toast(`${it.name} → ${zoneName(t.value)}`);
+  }
+  if (t.dataset.done) {
+    const it = state.items.find(i => i.id === t.dataset.done);
+    if (t.checked) { it.from = it.now; it.now = it.plan; it.done = true; } else { it.now = it.from || it.now; it.done = false; }
+    save(); renderMoves();
+  }
+});
+document.addEventListener("submit", e => {
+  if (!e.target.matches("[data-add]")) return;
+  e.preventDefault();
+  const n = e.target.n.value.trim(); if (!n || !selected) return;
+  state.items.push({ id: "u" + Date.now(), name: n, now: selected, plan: selected, done: false });
+  save(); render();
+  sheet.querySelector("input[name=n]").focus();
+});
+</script>
+</body>
+</html>
