@@ -130,6 +130,23 @@ h1, h2, p, ul, ol { margin: 0; padding: 0; list-style: none; }
 .ing-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 60px; border-radius: 30px; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 1.1rem; text-align: center; }
 .ing-dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; padding-top: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 70%, transparent); pointer-events: none; }
 .ing-dock .ing-btn { pointer-events: auto; }
+/* Recipe scrubber: a slim track in the right gutter with one mark per part of the recipe. Dragging it moves
+   through the content mark by mark, not by distance. */
+.scrub[hidden] { display: none; }
+.scrub { position: absolute; right: 0; width: max(20px, env(safe-area-inset-right, 0px)); z-index: 5; cursor: grab; }
+#app .scrub, #app .scrub * { touch-action: none; }
+.scrub-track { position: absolute; top: 0; bottom: 0; right: 9px; width: 2px; border-radius: 1px; background: color-mix(in srgb, var(--accent) 14%, transparent); transition: opacity .3s; }
+.scrub-tick { position: absolute; right: -1px; width: 4px; height: 4px; margin-top: -2px; border-radius: 2px; background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.scrub-tick.major { right: -3px; width: 8px; height: 3px; margin-top: -1.5px; background: var(--accent); opacity: .7; }
+.scrub-thumb { position: absolute; right: 4px; width: 12px; height: 12px; margin-top: -6px; border-radius: 6px; background: var(--accent); box-shadow: 0 0 0 3px var(--bg); transition: height .18s, margin-top .18s, right .18s, width .18s; }
+.scrub-tip { position: absolute; right: 26px; top: 50%; transform: translateY(-50%) scale(.92); transform-origin: right center; width: max-content; max-width: min(240px, 62vw); padding: 8px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.12); opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
+.scrub-tip b { display: block; font-weight: 600; font-size: .95rem; color: var(--accent); }
+.scrub-tip span { display: block; font-size: .85rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scrub .scrub-track, .scrub .scrub-thumb { opacity: .55; }
+.scrub.active .scrub-track, .scrub.active .scrub-thumb { opacity: 1; }
+.scrub.dragging { cursor: grabbing; }
+.scrub.dragging .scrub-thumb { right: 3px; width: 14px; height: 26px; margin-top: -13px; border-radius: 7px; }
+.scrub.dragging .scrub-tip { opacity: 1; transform: translateY(-50%) scale(1); }
 
 /* Ingredient sheet */
 .sheet-wrap { position: fixed; inset: 0; z-index: 20; background: rgba(10, 10, 8, .4); display: flex; align-items: flex-end; justify-content: center; }
@@ -216,6 +233,7 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .tile-bake { background: #4A2212; color: #F9E27D; }
 .tile-feast { background: #FFC9D6; color: #4A2212; }
 .tile-kok { background: #F9E27D; color: #4A2212; display: block; text-decoration: none; }
+.tile-kok[hidden] { display: none; }
 @media (orientation: landscape) { .home-tiles { flex-direction: row; } }
 /* Inner pages borrow a little color from their cover: stronger on list pages, only details in a recipe. */
 [data-section="cook"] { --accent: #C93013; --cover: #E63B1F; --on-cover: #FFE3EA; --dot: #E63B1F; }
@@ -706,7 +724,7 @@ function showStart(){
     </div></div>
     <div class="scroll gutter home-scroll"><div class="home-tiles">
       ${rows.map((row,i)=>`<button class="tile tile-${row.title.toLowerCase()}" data-node="0.${i}">${ILLUSTRATIONS[i]}<span class="tile-label"><span class="tile-name">${row.title}</span><span class="tile-count">${countRecipes(row)} recept</span></span></button>`).join("")}
-      <a class="tile tile-kok" href="kok/">${KITCHEN_ART}<span class="tile-label"><span class="tile-name">KÖKET</span><span class="tile-count">Planera förvaringen</span></span></a>
+      <a class="tile tile-kok" href="kok/" hidden>${KITCHEN_ART}<span class="tile-label"><span class="tile-name">KÖKET</span><span class="tile-count">Planera förvaringen</span></span></a>
     </div></div>`;
 }
 function findTrail(node,id,path=[node]){
@@ -763,8 +781,83 @@ function showRecipe(r){
         <a class="link" href="${r.notion}" target="_blank" rel="noopener">Redigera i Notion ↗</a>
       </div>
     </div></div>
-    ${hasIngredients?`<div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`:""}`;
+    ${hasIngredients?`<div class="ing-dock gutter"><div class="wrap"><button class="ing-btn" data-sheet>Ingredienser</button></div></div>`:""}
+    <div class="scrub" aria-hidden="true"><div class="scrub-track"></div><div class="scrub-thumb"><div class="scrub-tip"></div></div></div>`;
+  setTimeout(setupScrub); // after extras.js has added its parts
 }
+
+/* ---------- Scrubber ----------
+   One mark per part of the recipe: the top, the plan, each heading, each ingredient group, each method
+   part and step, the notes and the photo. Dragging snaps to the nearest mark and scrolls it to the top. */
+const SCRUB_LINE = 24; // where a mark lands, in px below the top of the page
+function scrubStops(page){
+  let n = 0;
+  return [...page.querySelectorAll(".title, .ptl, .block-label, .group > .label, .part-name, .step, .note-heading, figure.dish")].map(el => {
+    const txt = el.textContent.trim();
+    if (el.matches(".title")) return { el, major: true, label: "Början", sub: txt };
+    if (el.matches(".ptl")) return { el, label: "Tid" };
+    if (el.matches(".block-label")) return { el, major: true, label: txt.charAt(0) + txt.slice(1).toLowerCase() };
+    if (el.matches(".group > .label")) return { el, label: txt.charAt(0) + txt.slice(1).toLowerCase(), sub: "Ingredienser" };
+    if (el.matches(".part-name")) return { el, major: true, label: txt };
+    if (el.matches(".step")) return { el, label: `Steg ${++n}`, sub: (el.querySelector(".text") || el).textContent.trim() };
+    if (el.matches(".note-heading")) return { el, label: txt, sub: "Anteckningar" };
+    return { el, label: "Bild" };
+  });
+}
+function setupScrub(){
+  const page = app.querySelector("#page"), bar = app.querySelector(".scrub");
+  if (!page || !bar || !recipe) return;
+  const thumb = bar.querySelector(".scrub-thumb"), tip = bar.querySelector(".scrub-tip");
+  const dock = app.querySelector(".ing-dock");
+  bar.style.top = (page.offsetTop + 22) + "px";
+  bar.style.bottom = (dock ? 96 : 28) + "px";
+  let stops = [], ys = [], dragging = false, last = -1, fade = null;
+  const measure = () => {
+    stops = scrubStops(page);
+    const top = page.getBoundingClientRect().top - page.scrollTop;
+    ys = stops.map(s => s.el.getBoundingClientRect().top - top);
+    bar.hidden = stops.length < 4; // a short recipe needs no scrubber
+    bar.querySelectorAll(".scrub-tick").forEach(t => t.remove());
+    const n = stops.length;
+    stops.forEach((s, i) => { const t = document.createElement("i"); t.className = "scrub-tick" + (s.major ? " major" : ""); t.style.top = (n > 1 ? i / (n - 1) * 100 : 0) + "%"; bar.insertBefore(t, thumb); });
+  };
+  const place = f => { thumb.style.top = (Math.max(0, Math.min(1, f)) * 100) + "%"; };
+  const wake = () => { bar.classList.add("active"); clearTimeout(fade); fade = setTimeout(() => { if (!dragging) bar.classList.remove("active"); }, 1400); };
+  // Where the page is, as a position between marks. Near the end the reading line moves down the screen,
+  // so the last marks, which can never reach the top, are reached too.
+  const follow = () => {
+    if (dragging || stops.length < 2) return;
+    const max = page.scrollHeight - page.clientHeight, h = page.clientHeight;
+    const k = Math.max(0, Math.min(1, (page.scrollTop - (max - h)) / h));
+    const y = page.scrollTop + SCRUB_LINE + (h - 2 * SCRUB_LINE) * k;
+    let i = 0; while (i < ys.length - 1 && ys[i + 1] <= y) i++;
+    const f = i < ys.length - 1 ? Math.max(0, Math.min(1, (y - ys[i]) / (ys[i + 1] - ys[i] || 1))) : 0;
+    place((i + f) / (stops.length - 1));
+  };
+  const go = clientY => {
+    const r = bar.getBoundingClientRect(), n = stops.length;
+    const i = Math.round(Math.max(0, Math.min(1, (clientY - r.top) / r.height)) * (n - 1));
+    if (i === last) return;
+    last = i; place(n > 1 ? i / (n - 1) : 0);
+    page.scrollTop = Math.max(0, ys[i] - SCRUB_LINE);
+    const s = stops[i];
+    tip.innerHTML = `<b>${esc(s.label)}</b>${s.sub ? `<span>${esc(s.sub)}</span>` : ""}`;
+    if (navigator.vibrate) navigator.vibrate(4);
+  };
+  bar.addEventListener("pointerdown", e => {
+    e.preventDefault(); measure(); if (stops.length < 2) return;
+    dragging = true; last = -1; bar.classList.add("dragging", "active");
+    bar.setPointerCapture(e.pointerId); go(e.clientY);
+  });
+  bar.addEventListener("pointermove", e => { if (dragging) go(e.clientY); });
+  const end = () => { if (!dragging) return; dragging = false; bar.classList.remove("dragging"); wake(); };
+  bar.addEventListener("pointerup", end); bar.addEventListener("pointercancel", end);
+  page.addEventListener("scroll", () => { wake(); follow(); }, { passive: true });
+  measure(); follow();
+  // Steps fold open and images load, so measure again when the page changes size.
+  if (window.ResizeObserver) new ResizeObserver(() => { if (!dragging) { measure(); follow(); } }).observe(page.querySelector(".wrap"));
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // Tapping a step folds out the ingredients it uses, added by extras.js.
 function toggleStep(el){
@@ -984,7 +1077,7 @@ function finishSwipe(commit, dx){
 let swipeBusy = false;
 document.addEventListener("touchstart", e => {
   swipe = null;
-  if (swipeBusy || e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack()) return;
+  if (swipeBusy || e.touches.length!==1 || !sheet.hidden || !panel.hidden || !canGoBack() || e.target.closest(".scrub")) return;
   const t = e.touches[0];
   swipe = { x:t.clientX, y:t.clientY, dx:0, active:false, lastX:t.clientX, lastTime:Date.now(), speed:0 };
 }, {passive:true});
